@@ -1,4 +1,3 @@
-from typing import Optional
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -37,21 +36,6 @@ def dashboard(request: Request):
             "counts": members.dashboard_counts(),
             "members": members.member_rows(),
             "app_version": application_version(),
-        },
-    )
-
-
-@app.get("/members", response_class=HTMLResponse)
-def member_index(request: Request, status: Optional[str] = None, part: Optional[str] = None, q: Optional[str] = None):
-    return templates.TemplateResponse(
-        request,
-        "members.html",
-        {
-            "members": members.member_rows(status=status, part=part, search=q),
-            "counts": members.dashboard_counts(),
-            "statuses": members.statuses(),
-            "parts": members.voice_parts(),
-            "filters": {"status": status or "", "part": part or "", "q": q or ""},
         },
     )
 

@@ -1,6 +1,16 @@
 # Revision History
 
-## v1.0.4
+## v1.0.5 - 5/6/2026
+
+Removed the separate Member Directory page.
+
+- Removed the standalone `/members` roster page.
+- Removed the Member Directory item from the sidebar.
+- Made the dashboard roster the single member directory surface.
+- Kept member detail, edit, and family management routes under `/members/{id}`.
+- Updated dashboard roster controls and search fallbacks so they no longer point to the removed page.
+
+## v1.0.4 - 5/6/2026
 
 Improved roster category filter toggling.
 
@@ -8,7 +18,7 @@ Improved roster category filter toggling.
 - Restored the `Members` all-rows state when a selected category filter is cleared.
 - Preserved search text while category filters are toggled on or off.
 
-## v1.0.3
+## v1.0.3 - 5/6/2026
 
 Improved dashboard roster search behavior.
 
@@ -16,7 +26,7 @@ Improved dashboard roster search behavior.
 - Made clearing the dashboard search box immediately restore the visible roster rows.
 - Kept category filters and search text combined so clearing search preserves the active category filter.
 
-## v1.0.2
+## v1.0.2 - 5/6/2026
 
 Added revision history tracking.
 
@@ -24,7 +34,7 @@ Added revision history tracking.
 - Established newest-first revision notes for each version tag.
 - Clarified that `version.md` holds the current version and versioning rules.
 
-## v1.0.1
+## v1.0.1 - 5/6/2026
 
 Added version display and independent name sorting.
 
@@ -34,7 +44,7 @@ Added version display and independent name sorting.
 - Made `Last` and `First` independently sortable from the roster headers.
 - Added Git tag `v1.0.1`.
 
-## v1.0.0
+## v1.0.0 - 4/5/2026
 
 Baseline internal membership portal configuration and capabilities.
 

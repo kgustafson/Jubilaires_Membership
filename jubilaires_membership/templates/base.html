@@ -19,9 +19,9 @@
       </span>
     </a>
     <div class="header-actions">
-      <form class="header-search" action="/members" method="get">
+      <form class="header-search" action="/" method="get" data-roster-search-form>
         <label class="sr-only" for="header-member-search">Search members</label>
-        <input id="header-member-search" type="search" name="q" placeholder="Search members">
+        <input id="header-member-search" type="search" name="q" placeholder="Search members" data-roster-search>
       </form>
       <div class="user-profile" aria-label="Current user">
         <span class="avatar">KG</span>
@@ -34,7 +34,6 @@
       <div class="sidebar-title">Management</div>
       <nav class="sidebar-nav">
         <a class="sidebar-link {% if request.url.path == '/' %}active{% endif %}" href="/">Dashboard</a>
-        <a class="sidebar-link {% if request.url.path.startswith('/members') %}active{% endif %}" href="/members">Member Directory</a>
         <span class="sidebar-link disabled">Attendance Tracking</span>
         <span class="sidebar-link disabled">Quartet Management</span>
         <span class="sidebar-link disabled">Dues Tracking</span>
