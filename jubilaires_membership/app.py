@@ -34,6 +34,7 @@ def member_index(request: Request, status: Optional[str] = None, part: Optional[
         "members.html",
         {
             "members": members.member_rows(status=status, part=part, search=q),
+            "counts": members.dashboard_counts(),
             "statuses": members.statuses(),
             "parts": members.voice_parts(),
             "filters": {"status": status or "", "part": part or "", "q": q or ""},

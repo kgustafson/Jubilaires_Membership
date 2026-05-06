@@ -39,7 +39,10 @@
 - [ ] Build member role assignment editor with start/end dates.
 - [ ] Build address editor.
 - [ ] Build phone/email editor.
-- [ ] Add sorting and filtering to the roster view.
+- [x] Add sorting and filtering to the roster view.
+- [x] Change dashboard member table to include sortable/filterable controls on each column header.
+- [x] Make dashboard metric cards clickable filters: Members, Active, Tenor, Lead, Baritone, Bass should filter the roster table when clicked.
+- [x] Add a prominent search feature at the top of the dashboard.
 - [ ] Add member and family photo upload/select controls.
 - [ ] Add unassigned roster photo review page.
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Members - Jubilaires Membership{% endblock %}
+{% block title %}Members - Fairfax Jubil-Aires Membership{% endblock %}
 
 {% block content %}
 <section class="page-heading">
@@ -8,10 +8,37 @@
   <p>Search and filter the membership roster.</p>
 </section>
 
+<section class="metrics roster-categories">
+  <a class="metric {% if not filters.status and not filters.part %}active{% endif %}" href="/members" data-roster-filter="all" aria-pressed="{{ 'true' if not filters.status and not filters.part else 'false' }}">
+    <span class="metric-label">Members</span>
+    <strong>{{ counts.total_members if counts is defined and counts.total_members else 0 }}</strong>
+  </a>
+  <a class="metric {% if filters.status == 'active' %}active{% endif %}" href="/members?status=active" data-roster-filter="status" data-roster-value="active" aria-pressed="{{ 'true' if filters.status == 'active' else 'false' }}">
+    <span class="metric-label">Active</span>
+    <strong>{{ counts.active_members if counts is defined and counts.active_members else 0 }}</strong>
+  </a>
+  <a class="metric {% if filters.part == 'Tenor' %}active{% endif %}" href="/members?part=Tenor" data-roster-filter="part" data-roster-value="Tenor" aria-pressed="{{ 'true' if filters.part == 'Tenor' else 'false' }}">
+    <span class="metric-label">Tenor</span>
+    <strong>{{ counts.tenors if counts is defined and counts.tenors else 0 }}</strong>
+  </a>
+  <a class="metric {% if filters.part == 'Lead' %}active{% endif %}" href="/members?part=Lead" data-roster-filter="part" data-roster-value="Lead" aria-pressed="{{ 'true' if filters.part == 'Lead' else 'false' }}">
+    <span class="metric-label">Lead</span>
+    <strong>{{ counts.leads if counts is defined and counts.leads else 0 }}</strong>
+  </a>
+  <a class="metric {% if filters.part == 'Baritone' %}active{% endif %}" href="/members?part=Baritone" data-roster-filter="part" data-roster-value="Baritone" aria-pressed="{{ 'true' if filters.part == 'Baritone' else 'false' }}">
+    <span class="metric-label">Baritone</span>
+    <strong>{{ counts.baritones if counts is defined and counts.baritones else 0 }}</strong>
+  </a>
+  <a class="metric {% if filters.part == 'Bass' %}active{% endif %}" href="/members?part=Bass" data-roster-filter="part" data-roster-value="Bass" aria-pressed="{{ 'true' if filters.part == 'Bass' else 'false' }}">
+    <span class="metric-label">Bass</span>
+    <strong>{{ counts.basses if counts is defined and counts.basses else 0 }}</strong>
+  </a>
+</section>
+
 <form class="filters" action="/members" method="get">
   <label>
     Search
-    <input type="search" name="q" value="{{ filters.q }}" placeholder="Name or spouse">
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Name or family">
   </label>
   <label>
     Status
@@ -35,6 +62,10 @@
 </form>
 
 <section class="table-section">
+  <div class="section-header">
+    <h2>Roster</h2>
+    <span class="result-count" data-roster-count></span>
+  </div>
   {% include "_member_table.html" %}
 </section>
 {% endblock %}

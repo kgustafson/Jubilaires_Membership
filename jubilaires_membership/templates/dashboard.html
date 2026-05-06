@@ -1,43 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Jubilaires Membership{% endblock %}
+{% block title %}Dashboard - Fairfax Jubil-Aires Membership{% endblock %}
 
 {% block content %}
-<section class="page-heading">
-  <h1>Membership Dashboard</h1>
-  <p>Roster snapshot for the Jubilaires Barbershop Group.</p>
+<section class="page-heading dashboard-heading">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Fairfax Jubil-Aires operations snapshot.</p>
+  </div>
 </section>
 
+<form class="dashboard-search" action="/members" method="get">
+  <label class="sr-only" for="dashboard-member-search">Search the member directory</label>
+  <input id="dashboard-member-search" type="search" name="q" placeholder="Search member directory">
+  <button type="submit">Search</button>
+</form>
+
 <section class="metrics">
-  <div class="metric">
+  <a class="metric active" href="/members" data-roster-filter="all" aria-pressed="true">
     <span class="metric-label">Members</span>
     <strong>{{ counts.total_members or 0 }}</strong>
-  </div>
-  <div class="metric">
+  </a>
+  <a class="metric" href="/members?status=active" data-roster-filter="status" data-roster-value="active" aria-pressed="false">
     <span class="metric-label">Active</span>
     <strong>{{ counts.active_members or 0 }}</strong>
-  </div>
-  <div class="metric">
+  </a>
+  <a class="metric" href="/members?part=Tenor" data-roster-filter="part" data-roster-value="Tenor" aria-pressed="false">
     <span class="metric-label">Tenor</span>
     <strong>{{ counts.tenors or 0 }}</strong>
-  </div>
-  <div class="metric">
+  </a>
+  <a class="metric" href="/members?part=Lead" data-roster-filter="part" data-roster-value="Lead" aria-pressed="false">
     <span class="metric-label">Lead</span>
     <strong>{{ counts.leads or 0 }}</strong>
-  </div>
-  <div class="metric">
+  </a>
+  <a class="metric" href="/members?part=Baritone" data-roster-filter="part" data-roster-value="Baritone" aria-pressed="false">
     <span class="metric-label">Baritone</span>
     <strong>{{ counts.baritones or 0 }}</strong>
-  </div>
-  <div class="metric">
+  </a>
+  <a class="metric" href="/members?part=Bass" data-roster-filter="part" data-roster-value="Bass" aria-pressed="false">
     <span class="metric-label">Bass</span>
     <strong>{{ counts.basses or 0 }}</strong>
-  </div>
+  </a>
 </section>
 
 <section class="table-section">
   <div class="section-header">
     <h2>Roster</h2>
+    <span class="result-count" data-roster-count></span>
     <a class="button" href="/members">View all</a>
   </div>
   {% include "_member_table.html" %}

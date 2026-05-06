@@ -3,27 +3,44 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Jubilaires Membership{% endblock %}</title>
+  <title>{% block title %}Fairfax Jubil-Aires Membership{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', path='membership.css') }}">
+  <script src="{{ url_for('static', path='membership.js') }}" defer></script>
 </head>
 <body>
   <header class="app-header">
-    <a class="brand" href="/">Jubilaires Membership</a>
-    <nav class="top-nav">
-      <a href="/">Dashboard</a>
-      <a href="/members">Members</a>
-    </nav>
+    <a class="brand" href="/">
+      <span class="brand-mark">
+        <img src="{{ url_for('static', path='brand/harmony-singers-logo.png') }}" alt="Fairfax Jubil-Aires logo">
+      </span>
+      <span class="brand-copy">
+        <strong>Fairfax Jubil-Aires</strong>
+        <small>Member Management</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <form class="header-search" action="/members" method="get">
+        <label class="sr-only" for="header-member-search">Search members</label>
+        <input id="header-member-search" type="search" name="q" placeholder="Search members">
+      </form>
+      <div class="user-profile" aria-label="Current user">
+        <span class="avatar">KG</span>
+        <span>Admin</span>
+      </div>
+    </div>
   </header>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Membership navigation">
-      <div class="sidebar-title">Roster</div>
+      <div class="sidebar-title">Management</div>
       <nav class="sidebar-nav">
         <a class="sidebar-link {% if request.url.path == '/' %}active{% endif %}" href="/">Dashboard</a>
-        <a class="sidebar-link {% if request.url.path.startswith('/members') %}active{% endif %}" href="/members">Members</a>
-        <span class="sidebar-link disabled">Quartets</span>
-        <span class="sidebar-link disabled">Voice Parts</span>
-        <span class="sidebar-link disabled">Birthdays</span>
-        <span class="sidebar-link disabled">Import Queue</span>
+        <a class="sidebar-link {% if request.url.path.startswith('/members') %}active{% endif %}" href="/members">Member Directory</a>
+        <span class="sidebar-link disabled">Attendance Tracking</span>
+        <span class="sidebar-link disabled">Quartet Management</span>
+        <span class="sidebar-link disabled">Dues Tracking</span>
+        <span class="sidebar-link disabled">Communications</span>
+        <span class="sidebar-link disabled">Reports</span>
+        <span class="sidebar-link disabled">Admin Settings</span>
       </nav>
     </aside>
     <main>
