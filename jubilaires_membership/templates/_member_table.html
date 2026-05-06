@@ -1,13 +1,14 @@
 <table class="data-table" data-member-table>
   <thead>
     <tr>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="0">Name</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="1">Family</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="2">Part</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="3">Status</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="4" data-sort-type="date">Start</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="5">Phone</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="6">Email</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="0">Last</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="1">First</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="2">Family</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="3">Part</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="4">Status</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="5" data-sort-type="date">Start</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="6">Phone</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="7">Email</button></th>
     </tr>
   </thead>
   <tbody>
@@ -17,7 +18,8 @@
         data-parts="{{ member.part_names or '' }}"
         data-search="{{ member.last_name }} {{ member.first_name }} {{ member.family_names or '' }} {{ member.part_names or '' }} {{ member.status_code or '' }} {{ member.primary_phone or '' }} {{ member.primary_email or '' }}"
       >
-        <td><a href="/members/{{ member.id }}">{{ member.last_name }}, {{ member.first_name }}</a></td>
+        <td><a href="/members/{{ member.id }}">{{ member.last_name }}</a></td>
+        <td>{{ member.first_name }}</td>
         <td>{{ member.family_names or "" }}</td>
         <td>{{ member.part_names or "" }}</td>
         <td>{{ member.status_code|title if member.status_code else "" }}</td>
@@ -27,7 +29,7 @@
       </tr>
     {% else %}
       <tr>
-        <td colspan="7" class="empty-state">No members have been imported yet.</td>
+        <td colspan="8" class="empty-state">No members have been imported yet.</td>
       </tr>
     {% endfor %}
   </tbody>

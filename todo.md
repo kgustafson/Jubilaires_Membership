@@ -60,10 +60,12 @@
 ## Operations
 
 - [x] Create Git repository for managing project changes.
+- [ ] Tag each versioned Git change with its major.minor.revision number.
 - [x] Create a dedicated `.venv` for this project and stop using any shared/Farrlind Python environment.
 - [ ] Verify no runtime paths, services, credentials, Docker resources, media storage, backups, or deployment scripts depend on Farrlind or any other project.
 - [ ] Add database backup script.
 - [ ] Add web smoke tests.
+- [ ] Containerize the membership application.
 - [ ] Plan migration to AWS web services.
 - [ ] Choose AWS deployment architecture for web app, database, static/media files, backups, and secrets.
 - [ ] Prepare production deployment checklist for AWS.

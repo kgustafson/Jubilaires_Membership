@@ -11,8 +11,21 @@ from jubilaires_membership.services import members
 
 app = FastAPI(title="Jubilaires Membership")
 APP_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = APP_ROOT.parent
 app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
+
+
+def application_version() -> str:
+    version_file = PROJECT_ROOT / "version.md"
+    if not version_file.exists():
+        return "v0.0.0"
+
+    for line in version_file.read_text(encoding="utf-8").splitlines():
+        value = line.strip()
+        if value.startswith("v"):
+            return value
+    return "v0.0.0"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -23,6 +36,7 @@ def dashboard(request: Request):
         {
             "counts": members.dashboard_counts(),
             "members": members.member_rows(),
+            "app_version": application_version(),
         },
     )
 
