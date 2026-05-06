@@ -26,27 +26,43 @@
     }
   };
 
-  const applyFilter = (table, filterType, filterValue) => {
+  const rowMatchesCategory = (row, filterType, filterValue) => {
     const normalizedValue = normalize(filterValue);
 
+    if (filterType === "all") {
+      return true;
+    }
+
+    if (filterType === "status") {
+      return normalize(row.dataset.status) === normalizedValue;
+    }
+
+    if (filterType === "part") {
+      const parts = normalize(row.dataset.parts).split(",").map((part) => part.trim());
+      return parts.includes(normalizedValue);
+    }
+
+    return true;
+  };
+
+  const applyTableState = (table) => {
+    const filterType = table.dataset.filterType || "all";
+    const filterValue = table.dataset.filterValue || "";
+    const query = normalize(table.dataset.searchQuery);
+
     table.tBodies[0].querySelectorAll("tr[data-search]").forEach((row) => {
-      if (filterType === "all") {
-        row.hidden = false;
-        return;
-      }
-
-      if (filterType === "status") {
-        row.hidden = normalize(row.dataset.status) !== normalizedValue;
-        return;
-      }
-
-      if (filterType === "part") {
-        const parts = normalize(row.dataset.parts).split(",").map((part) => part.trim());
-        row.hidden = !parts.includes(normalizedValue);
-      }
+      const matchesCategory = rowMatchesCategory(row, filterType, filterValue);
+      const matchesSearch = !query || normalize(row.dataset.search).includes(query);
+      row.hidden = !(matchesCategory && matchesSearch);
     });
 
     updateCount(table);
+  };
+
+  const applyFilter = (table, filterType, filterValue) => {
+    table.dataset.filterType = filterType || "all";
+    table.dataset.filterValue = filterValue || "";
+    applyTableState(table);
   };
 
   const wireSorting = (table) => {
@@ -90,9 +106,36 @@
     });
   };
 
+  const wireRosterSearch = (table) => {
+    document.querySelectorAll("[data-roster-search]").forEach((input) => {
+      const applySearch = () => {
+        table.dataset.searchQuery = input.value;
+        applyTableState(table);
+      };
+
+      input.addEventListener("input", applySearch);
+      input.addEventListener("search", applySearch);
+    });
+
+    document.querySelectorAll("[data-roster-search-form]").forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = form.querySelector("[data-roster-search]");
+        if (input) {
+          table.dataset.searchQuery = input.value;
+          applyTableState(table);
+        }
+      });
+    });
+  };
+
   document.querySelectorAll("[data-member-table]").forEach((table) => {
+    table.dataset.filterType = "all";
+    table.dataset.filterValue = "";
+    table.dataset.searchQuery = "";
     wireSorting(table);
     wireMetricFilters(table);
+    wireRosterSearch(table);
     updateCount(table);
   });
 })();

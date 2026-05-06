@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.3
+
+Improved dashboard roster search behavior.
+
+- Made the dashboard roster search filter rows reactively as text is entered.
+- Made clearing the dashboard search box immediately restore the visible roster rows.
+- Kept category filters and search text combined so clearing search preserves the active category filter.
+
 ## v1.0.2
 
 Added revision history tracking.
