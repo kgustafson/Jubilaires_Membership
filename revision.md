@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.4
+
+Improved roster category filter toggling.
+
+- Made top roster category filters toggle off when clicked a second time.
+- Restored the `Members` all-rows state when a selected category filter is cleared.
+- Preserved search text while category filters are toggled on or off.
+
 ## v1.0.3
 
 Improved dashboard roster search behavior.

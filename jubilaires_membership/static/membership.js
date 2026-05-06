@@ -93,15 +93,26 @@
     document.querySelectorAll("[data-roster-filter]").forEach((metric) => {
       metric.addEventListener("click", (event) => {
         event.preventDefault();
+        const wasActive = metric.classList.contains("active");
+        const filterType = metric.dataset.rosterFilter;
+        const shouldClearFilter = wasActive && filterType !== "all";
 
         document.querySelectorAll("[data-roster-filter]").forEach((item) => {
           item.classList.remove("active");
           item.setAttribute("aria-pressed", "false");
         });
 
+        if (shouldClearFilter) {
+          const allMetric = document.querySelector('[data-roster-filter="all"]');
+          allMetric?.classList.add("active");
+          allMetric?.setAttribute("aria-pressed", "true");
+          applyFilter(table, "all", "");
+          return;
+        }
+
         metric.classList.add("active");
         metric.setAttribute("aria-pressed", "true");
-        applyFilter(table, metric.dataset.rosterFilter, metric.dataset.rosterValue);
+        applyFilter(table, filterType, metric.dataset.rosterValue);
       });
     });
   };
