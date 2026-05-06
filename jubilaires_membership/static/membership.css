@@ -1,0 +1,400 @@
+:root {
+  --ink: #1c2430;
+  --muted: #637083;
+  --line: #d8dee8;
+  --panel: #ffffff;
+  --bg: #f5f7fa;
+  --brand: #245a70;
+  --brand-dark: #173c4b;
+  --accent: #b84a3a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.app-header {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--brand-dark);
+  color: white;
+}
+
+.brand {
+  color: white;
+  font-weight: 700;
+}
+
+.top-nav {
+  display: flex;
+  gap: 18px;
+}
+
+.top-nav a {
+  color: white;
+  font-size: 14px;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  min-height: calc(100vh - 58px);
+}
+
+.sidebar {
+  background: #edf1f5;
+  border-right: 1px solid var(--line);
+  padding: 22px 16px;
+}
+
+.sidebar-title {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 5px;
+}
+
+.sidebar-link {
+  border-radius: 6px;
+  color: var(--ink);
+  padding: 9px 10px;
+}
+
+.sidebar-link.active {
+  background: white;
+  border: 1px solid var(--line);
+  color: var(--brand-dark);
+  font-weight: 700;
+}
+
+.sidebar-link.disabled {
+  color: #98a3b3;
+}
+
+main {
+  padding: 28px 34px 48px;
+}
+
+.page-heading {
+  margin-bottom: 22px;
+}
+
+.profile-photo {
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: block;
+  height: 96px;
+  margin-bottom: 12px;
+  object-fit: cover;
+  width: 96px;
+}
+
+.page-heading h1 {
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 0 0 6px;
+}
+
+.page-heading p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.metric-label {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.metric strong {
+  font-size: 28px;
+}
+
+.table-section,
+.detail-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-header {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.section-header h2,
+.detail-panel h2 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.button,
+button {
+  background: var(--brand);
+  border: 0;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 9px 13px;
+}
+
+.inline-action {
+  display: inline-block;
+  margin-top: 12px;
+}
+
+.secondary-button {
+  background: #e6ebf1;
+  color: var(--ink);
+}
+
+.data-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  padding: 11px 13px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table th {
+  background: #f9fafc;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.empty-state {
+  color: var(--muted);
+  padding: 28px;
+  text-align: center;
+}
+
+.filters {
+  align-items: end;
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) minmax(140px, 1fr) minmax(140px, 1fr) auto;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.filters label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
+}
+
+input,
+select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 39px;
+  padding: 8px 10px;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-panel {
+  padding: 18px;
+}
+
+.detail-panel h2 {
+  margin-bottom: 14px;
+}
+
+.detail-panel h3 {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 16px 0 6px;
+  text-transform: uppercase;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  margin: 0;
+  row-gap: 8px;
+}
+
+dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+dd {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.family-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding-left: 0;
+}
+
+.family-list li {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.family-list small {
+  color: var(--muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.family-photo {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  height: 42px;
+  object-fit: cover;
+  width: 42px;
+}
+
+.text-button {
+  background: transparent;
+  color: var(--accent);
+  padding: 4px 0;
+}
+
+.stacked-form {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.stacked-form label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
+}
+
+.form-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: inherit;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.edit-surface {
+  max-width: 900px;
+}
+
+.edit-surface .detail-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  main {
+    padding: 22px 16px 36px;
+  }
+
+  .metrics,
+  .filters,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-section {
+    overflow-x: auto;
+  }
+}

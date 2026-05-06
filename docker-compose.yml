@@ -1,0 +1,33 @@
+services:
+
+  db:
+    image: postgres:16
+    container_name: jubilaires_membership_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       jubilaires_membership
+      POSTGRES_USER:     admin
+      POSTGRES_PASSWORD: jubilaires
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d jubilaires_membership"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    container_name: jubilaires_membership_adminer
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+
+volumes:
+  postgres_data:

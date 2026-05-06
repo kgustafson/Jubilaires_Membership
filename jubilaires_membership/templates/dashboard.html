@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Jubilaires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <h1>Membership Dashboard</h1>
+  <p>Roster snapshot for the Jubilaires Barbershop Group.</p>
+</section>
+
+<section class="metrics">
+  <div class="metric">
+    <span class="metric-label">Members</span>
+    <strong>{{ counts.total_members or 0 }}</strong>
+  </div>
+  <div class="metric">
+    <span class="metric-label">Active</span>
+    <strong>{{ counts.active_members or 0 }}</strong>
+  </div>
+  <div class="metric">
+    <span class="metric-label">Tenor</span>
+    <strong>{{ counts.tenors or 0 }}</strong>
+  </div>
+  <div class="metric">
+    <span class="metric-label">Lead</span>
+    <strong>{{ counts.leads or 0 }}</strong>
+  </div>
+  <div class="metric">
+    <span class="metric-label">Baritone</span>
+    <strong>{{ counts.baritones or 0 }}</strong>
+  </div>
+  <div class="metric">
+    <span class="metric-label">Bass</span>
+    <strong>{{ counts.basses or 0 }}</strong>
+  </div>
+</section>
+
+<section class="table-section">
+  <div class="section-header">
+    <h2>Roster</h2>
+    <a class="button" href="/members">View all</a>
+  </div>
+  {% include "_member_table.html" %}
+</section>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{{ member.first_name }} {{ member.last_name }} - Jubilaires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  {% if member.picture_path %}
+    <img class="profile-photo" src="{{ member.picture_path }}" alt="">
+  {% endif %}
+  <h1>{{ member.first_name }} {{ member.last_name }}</h1>
+  <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
+  <a class="button inline-action" href="/members/{{ member.id }}/edit">Edit Member</a>
+</section>
+
+<section class="detail-grid">
+  <div class="detail-panel">
+    <h2>Profile</h2>
+    <dl>
+      <dt>Start Date</dt>
+      <dd>{{ member.membership_start_date or "Not listed" }}</dd>
+      <dt>Inactive Date</dt>
+      <dd>{{ member.inactive_date or "Not listed" }}</dd>
+      <dt>Date of Birth</dt>
+      <dd>{{ member.date_of_birth or "Not listed" }}</dd>
+      <dt>Date of Death</dt>
+      <dd>{{ member.date_of_death or "Not listed" }}</dd>
+      <dt>Anniversary</dt>
+      <dd>{{ member.anniversary_date or "Not listed" }}</dd>
+    </dl>
+  </div>
+
+  <div class="detail-panel">
+    <h2>Family</h2>
+    <ul class="family-list">
+      {% for person in member.family %}
+        <li>
+          {% if person.picture_path %}
+            <img class="family-photo" src="{{ person.picture_path }}" alt="">
+          {% endif %}
+          <span>
+            <strong>{{ person.first_name }}{% if person.last_name %} {{ person.last_name }}{% endif %}</strong>
+            <small>
+              {{ person.relationship|title }}
+              {% if person.date_of_birth %} · Born {{ person.date_of_birth }}{% endif %}
+              {% if person.email_address %} · <a href="mailto:{{ person.email_address }}">{{ person.email_address }}</a>{% endif %}
+            </small>
+          </span>
+          <a class="text-button" href="/members/{{ member.id }}/family/{{ person.id }}/edit">Edit</a>
+          <form action="/members/{{ member.id }}/family/{{ person.id }}/delete" method="post">
+            <button class="text-button" type="submit">Remove</button>
+          </form>
+        </li>
+      {% else %}
+        <li>No family listed.</li>
+      {% endfor %}
+    </ul>
+    <form class="stacked-form" action="/members/{{ member.id }}/family" method="post">
+      <h3>Add Family</h3>
+      <div class="form-grid">
+        <label>
+          First
+          <input name="first_name" required>
+        </label>
+        <label>
+          Last
+          <input name="last_name">
+        </label>
+        <label>
+          Relationship
+          <select name="relationship">
+            {% for relationship in family_relationships %}
+              <option value="{{ relationship }}">{{ relationship|title }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Email
+          <input type="email" name="email_address">
+        </label>
+        <label>
+          Date of Birth
+          <input type="date" name="date_of_birth">
+        </label>
+      </div>
+      <label>
+        Picture Path
+        <input name="picture_path" placeholder="/absolute/path/or/static/url">
+      </label>
+      <label>
+        Notes
+        <textarea name="notes" rows="2"></textarea>
+      </label>
+      <button type="submit">Add</button>
+    </form>
+  </div>
+
+  <div class="detail-panel">
+    <h2>Contact</h2>
+    <h3>Phones</h3>
+    <ul>
+      {% for phone in member.phones %}
+        <li>{{ phone.phone_type or "Phone" }}: {{ phone.phone_number }}</li>
+      {% else %}
+        <li>No phones listed.</li>
+      {% endfor %}
+    </ul>
+    <h3>Email</h3>
+    <ul>
+      {% for email in member.emails %}
+        <li>{{ email.label or "Email" }}: <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a></li>
+      {% else %}
+        <li>No email listed.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="detail-panel">
+    <h2>Address</h2>
+    {% for address in member.addresses %}
+      <p>{{ address.raw_address or [address.street, address.city, address.state, address.postal_code]|select|join(", ") }}</p>
+    {% else %}
+      <p>No address listed.</p>
+    {% endfor %}
+  </div>
+
+  <div class="detail-panel">
+    <h2>Quartets</h2>
+    <ul>
+      {% for quartet in member.quartets %}
+        <li>{{ quartet.name }} <small>{{ quartet.membership_state|title }}</small>{% if quartet.role_notes %}: {{ quartet.role_notes }}{% endif %}</li>
+      {% else %}
+        <li>No quartets listed.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ member.first_name }} {{ member.last_name }} - Jubilaires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <h1>Edit {{ member.first_name }} {{ member.last_name }}</h1>
+  <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
+</section>
+
+<form class="edit-surface" action="/members/{{ member.id }}/edit" method="post">
+  <section class="detail-panel">
+    <h2>Profile</h2>
+    <div class="form-grid">
+      <label>
+        First
+        <input name="first_name" value="{{ member.first_name }}" required>
+      </label>
+      <label>
+        Last
+        <input name="last_name" value="{{ member.last_name }}" required>
+      </label>
+      <label>
+        Preferred
+        <input name="preferred_name" value="{{ member.preferred_name or '' }}">
+      </label>
+      <label>
+        Status
+        <select name="status_id">
+          <option value="">No status</option>
+          {% for status in statuses %}
+            <option value="{{ status.id }}" {% if member.status_id == status.id %}selected{% endif %}>{{ status.status_code|title }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Start Date
+        <input type="date" name="membership_start_date" value="{{ member.membership_start_date or '' }}">
+      </label>
+      <label>
+        Inactive Date
+        <input type="date" name="inactive_date" value="{{ member.inactive_date or '' }}">
+      </label>
+      <label>
+        Date of Birth
+        <input type="date" name="date_of_birth" value="{{ member.date_of_birth or '' }}">
+      </label>
+      <label>
+        Date of Death
+        <input type="date" name="date_of_death" value="{{ member.date_of_death or '' }}">
+      </label>
+      <label>
+        Anniversary
+        <input type="date" name="anniversary_date" value="{{ member.anniversary_date or '' }}">
+      </label>
+      <label>
+        Picture Path
+        <input name="picture_path" value="{{ member.picture_path or '' }}">
+      </label>
+    </div>
+    <label>
+      Notes
+      <textarea name="notes" rows="8">{{ member.notes or '' }}</textarea>
+    </label>
+    <div class="form-actions">
+      <button type="submit">Save</button>
+      <a class="button secondary-button" href="/members/{{ member.id }}">Cancel</a>
+    </div>
+  </section>
+</form>
+{% endblock %}

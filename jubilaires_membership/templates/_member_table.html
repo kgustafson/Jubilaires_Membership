@@ -1,0 +1,30 @@
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Family</th>
+      <th>Part</th>
+      <th>Status</th>
+      <th>Start</th>
+      <th>Phone</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in members %}
+      <tr>
+        <td><a href="/members/{{ member.id }}">{{ member.last_name }}, {{ member.first_name }}</a></td>
+        <td>{{ member.family_names or "" }}</td>
+        <td>{{ member.part_names or "" }}</td>
+        <td>{{ member.status_code|title if member.status_code else "" }}</td>
+        <td>{{ member.membership_start_date or "" }}</td>
+        <td>{{ member.primary_phone or "" }}</td>
+        <td>{{ member.primary_email or "" }}</td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="7" class="empty-state">No members have been imported yet.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

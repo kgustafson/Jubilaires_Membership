@@ -1,0 +1,23 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local/runtime output
+*.log
+.env
+.env.*
+!.env.example
+
+# Extracted roster photos can be regenerated from the source DOCX.
+jubilaires_membership/static/photos/*
+!jubilaires_membership/static/photos/.gitkeep
+!jubilaires_membership/static/photos/manifest.csv
+
+# Local database/data volumes if ever created outside Docker named volumes.
+postgres_data/
+data/
+backups/

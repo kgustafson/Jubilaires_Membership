@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Members - Jubilaires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <h1>Members</h1>
+  <p>Search and filter the membership roster.</p>
+</section>
+
+<form class="filters" action="/members" method="get">
+  <label>
+    Search
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Name or spouse">
+  </label>
+  <label>
+    Status
+    <select name="status">
+      <option value="">Any status</option>
+      {% for status in statuses %}
+        <option value="{{ status.status_code }}" {% if filters.status == status.status_code %}selected{% endif %}>{{ status.status_code|title }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Part
+    <select name="part">
+      <option value="">Any part</option>
+      {% for part in parts %}
+        <option value="{{ part.part_name }}" {% if filters.part == part.part_name %}selected{% endif %}>{{ part.part_name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">Apply</button>
+</form>
+
+<section class="table-section">
+  {% include "_member_table.html" %}
+</section>
+{% endblock %}
