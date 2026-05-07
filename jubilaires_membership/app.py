@@ -381,6 +381,7 @@ def quartet_management(request: Request):
             request,
             quartets=quartet_rows,
             member_options=members.member_options(),
+            voice_parts=members.voice_parts(),
             manageable_quartet_ids=manageable_quartet_ids,
         ),
     )
@@ -425,6 +426,7 @@ async def update_quartet_members(request: Request, quartet_id: int):
                 {
                     "member_id": member_id,
                     "membership_state": form.get(f"member_{member_id}_membership_state") or "primary",
+                    "voice_part_id": form.get(f"member_{member_id}_voice_part_id") or "",
                     "role_notes": form.get(f"member_{member_id}_role_notes") or "",
                 }
             )

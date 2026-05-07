@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.29 - 5/7/2026
+
+Added quartet-specific voice parts.
+
+- Added a `voice_part_id` field to quartet membership assignments.
+- Updated Quartet Management membership editing to collect primary/alternate state and the part sung in that quartet.
+- Kept quartet voice parts independent from each member's general voice-part profile.
+- Displayed assigned quartet parts on quartet cards.
+
 ## v1.0.28 - 5/7/2026
 
 Added quartet management.

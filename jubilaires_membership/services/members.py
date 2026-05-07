@@ -766,12 +766,15 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
         SELECT
             mq.member_id,
             mq.membership_state,
+            mq.voice_part_id,
+            quartet_vp.part_name AS quartet_part_name,
             mq.role_notes,
             m.first_name,
             m.last_name,
             part_summary.part_names
         FROM member_quartet mq
         JOIN member m ON m.id = mq.member_id
+        LEFT JOIN voice_part quartet_vp ON quartet_vp.id = mq.voice_part_id
         LEFT JOIN LATERAL (
             SELECT string_agg(vp.part_name, ', ' ORDER BY mvp.is_primary DESC, vp.part_name) AS part_names
             FROM member_voice_part mvp
@@ -856,13 +859,14 @@ def update_quartet_members(quartet_id: int, assignments: list[dict[str, str]]) -
             membership_state = "primary"
         db.execute(
             """
-            INSERT INTO member_quartet (member_id, quartet_id, membership_state, role_notes)
-            VALUES (:member_id, :quartet_id, :membership_state, :role_notes)
+            INSERT INTO member_quartet (member_id, quartet_id, membership_state, voice_part_id, role_notes)
+            VALUES (:member_id, :quartet_id, :membership_state, :voice_part_id, :role_notes)
             """,
             {
                 "member_id": member_id,
                 "quartet_id": quartet_id,
                 "membership_state": membership_state,
+                "voice_part_id": optional_int(assignment.get("voice_part_id", "")),
                 "role_notes": assignment.get("role_notes", "").strip() or None,
             },
         )

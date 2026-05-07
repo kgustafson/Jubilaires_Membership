@@ -97,6 +97,13 @@
         {% endif %}
       </div>
       <p class="muted-copy">{{ quartet.member_summary or "No members assigned yet." }}</p>
+      {% if quartet.members %}
+        <div class="quartet-part-list">
+          {% for member in quartet.members %}
+            <span>{{ member.first_name }} {{ member.last_name }}{% if member.quartet_part_name %}: {{ member.quartet_part_name }}{% endif %}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
       {% if quartet.notes %}
         <p>{{ quartet.notes }}</p>
       {% endif %}
@@ -167,6 +174,15 @@
                   <select name="member_{{ member.id }}_membership_state">
                     <option value="primary" {% if assignment and assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
                     <option value="alternate" {% if assignment and assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+                  </select>
+                </label>
+                <label>
+                  Quartet Part
+                  <select name="member_{{ member.id }}_voice_part_id">
+                    <option value="">No part</option>
+                    {% for part in voice_parts %}
+                      <option value="{{ part.id }}" {% if assignment and assignment.voice_part_id == part.id %}selected{% endif %}>{{ part.part_name }}</option>
+                    {% endfor %}
                   </select>
                 </label>
                 <label>

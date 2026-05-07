@@ -104,6 +104,7 @@ CREATE TABLE member_quartet (
     member_id       INT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
     quartet_id      INT NOT NULL REFERENCES quartet(id) ON DELETE CASCADE,
     membership_state VARCHAR(20) NOT NULL DEFAULT 'primary' CHECK (membership_state IN ('primary', 'alternate')),
+    voice_part_id   INT REFERENCES voice_part(id),
     role_notes      TEXT,
     PRIMARY KEY (member_id, quartet_id)
 );

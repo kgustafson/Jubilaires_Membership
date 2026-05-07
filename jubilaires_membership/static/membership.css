@@ -1081,6 +1081,21 @@ textarea {
   gap: 10px;
 }
 
+.quartet-part-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quartet-part-list span {
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 5px 8px;
+}
+
 .quartet-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1088,7 +1103,7 @@ textarea {
 }
 
 .quartet-member-row {
-  grid-template-columns: minmax(180px, 1fr) minmax(130px, .7fr) minmax(180px, 1fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(130px, .7fr) minmax(140px, .8fr) minmax(180px, 1fr);
 }
 
 .muted-copy {
