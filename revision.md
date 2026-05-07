@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.9 - 5/7/2026
+
+Merged Whitney duplicate records.
+
+- Confirmed `Whitney, Dave` and `Whitney, David` are the same person.
+- Added a confirmed Choir Genius alias mapping `Whitney, Dave` to canonical member `Whitney, David`.
+- Preserved Dave Whitney's roster quartet assignment on David Whitney.
+- Removed the duplicate `Whitney, Dave` database member record, keeping `Whitney, David` as the preferred entry.
+
 ## v1.0.8 - 5/7/2026
 
 Added Choir Genius account import and data overwrite support.
