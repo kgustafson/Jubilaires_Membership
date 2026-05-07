@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.6 - 5/6/2026
+
+Added known Choir Genius name reconciliation.
+
+- Added `data_reconciliation/name_aliases.csv`.
+- Recorded that Choir Genius `Depret, Kate` maps to database member `Depret-Guillaume, Kate`.
+- Marked the alias as user-confirmed so future imports should treat the records as the same person.
+
 ## v1.0.5 - 5/6/2026
 
 Removed the separate Member Directory page.
