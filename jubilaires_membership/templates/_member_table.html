@@ -17,6 +17,7 @@
   <tbody>
     {% for member in members %}
       <tr
+        {% if member.status_code|lower != "active" %}hidden{% endif %}
         data-status="{{ member.status_code|lower if member.status_code else '' }}"
         data-parts="{{ member.part_names or '' }}"
         data-search="{{ member.last_name }} {{ member.first_name }} {{ member.family_names or '' }} {{ member.part_names or '' }} {{ member.status_code or '' }} {{ member.primary_phone or '' }} {{ member.primary_email or '' }}"

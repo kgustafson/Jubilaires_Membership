@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.26 - 5/7/2026
+
+Fixed default inactive row visibility on the dashboard.
+
+- Added server-rendered hidden state for non-active roster rows so inactive members do not appear before dashboard filtering JavaScript runs.
+- Kept the Show Inactive checkbox able to reveal inactive members through the existing roster filter behavior.
+
 ## v1.0.25 - 5/7/2026
 
 Changed dashboard roster active/inactive filtering.
