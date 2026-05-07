@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.15 - 5/7/2026
+
+Normalized roster photos.
+
+- Added a repeatable one-time script to normalize extracted roster photos.
+- Converted 95 roster photos to 512x512 JPEG files under `static/photos/roster`.
+- Updated the photo manifest to point at the normalized JPEG files while retaining original source paths.
+- Limited photo picker choices to manifest-backed roster photos and profile uploads.
+- Updated the todo list to show roster photo normalization as complete.
+
 ## v1.0.14 - 5/7/2026
 
 Added member and family photo management.

@@ -16,6 +16,8 @@ __pycache__/
 jubilaires_membership/static/photos/*
 !jubilaires_membership/static/photos/.gitkeep
 !jubilaires_membership/static/photos/manifest.csv
+!jubilaires_membership/static/photos/roster/
+!jubilaires_membership/static/photos/roster/*.jpg
 
 # Local database/data volumes if ever created outside Docker named volumes.
 postgres_data/

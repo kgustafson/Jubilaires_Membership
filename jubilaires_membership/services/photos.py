@@ -13,6 +13,8 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 STATIC_ROOT = APP_ROOT / "static"
 PHOTO_ROOT = STATIC_ROOT / "photos"
 MANIFEST_PATH = PHOTO_ROOT / "manifest.csv"
+ROSTER_PHOTO_DIR = PHOTO_ROOT / "roster"
+PROFILE_PHOTO_DIR = PHOTO_ROOT / "profile"
 PROFILE_SIZE = 512
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
@@ -24,6 +26,13 @@ def safe_stem(value: str) -> str:
 
 def static_path(path: Path) -> str:
     return f"/static/{path.relative_to(STATIC_ROOT).as_posix()}"
+
+
+def path_from_static_url(value: str) -> Path:
+    static_prefix = "/static/"
+    if not value.startswith(static_prefix):
+        raise ValueError(f"Not a static path: {value}")
+    return STATIC_ROOT / value.removeprefix(static_prefix)
 
 
 def crop_square(image: Image.Image) -> Image.Image:
@@ -51,7 +60,7 @@ def normalize_profile_image(source: BinaryIO | bytes) -> Image.Image:
 
 
 def save_profile_upload(source: BinaryIO | bytes, folder: str, filename_stem: str) -> str:
-    destination_dir = PHOTO_ROOT / "profile" / safe_stem(folder)
+    destination_dir = PROFILE_PHOTO_DIR / safe_stem(folder)
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / f"{safe_stem(filename_stem)}.jpg"
     image = normalize_profile_image(source)
@@ -69,7 +78,14 @@ def image_dimensions(path: Path) -> tuple[int, int] | tuple[None, None]:
 
 def photo_choices() -> list[dict[str, str | int | None]]:
     choices = []
-    for path in sorted(PHOTO_ROOT.rglob("*")):
+    choice_paths = set()
+    for row in roster_manifest_rows():
+        try:
+            choice_paths.add(path_from_static_url(row.get("static_path", "")))
+        except ValueError:
+            continue
+    choice_paths.update(path for path in PROFILE_PHOTO_DIR.rglob("*") if path.is_file())
+    for path in sorted(choice_paths):
         if not path.is_file() or path.suffix.lower() not in IMAGE_EXTENSIONS:
             continue
         width, height = image_dimensions(path)
@@ -97,7 +113,10 @@ def unassigned_roster_photos(assigned_paths: set[str]) -> list[dict[str, str | i
         path = row.get("static_path", "")
         if not path or path in assigned_paths:
             continue
-        source = PHOTO_ROOT / Path(path).name
+        try:
+            source = path_from_static_url(path)
+        except ValueError:
+            continue
         if not source.exists() or source.suffix.lower() not in IMAGE_EXTENSIONS:
             continue
         width, height = image_dimensions(source)

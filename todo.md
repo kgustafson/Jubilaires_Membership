@@ -21,6 +21,7 @@
 - [x] Fix address import.
 - [x] Fix quartet import.
 - [x] Extract embedded roster photos into `static/photos`.
+- [x] Normalize extracted roster photos to 512x512 JPEG files.
 - [ ] Review imported family records and correct spouse/child/other relationships.
 - [x] Parse member birthday and anniversary values from Choir Genius exports.
 - [ ] Decide when to drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
