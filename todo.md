@@ -26,11 +26,15 @@
 - [x] Parse member birthday and anniversary values from Choir Genius exports.
 - [x] Drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
 
-## Web Interface
+## Authentication
 
 - [x] Add login/logout capability.
 - [x] Add user account table linked to members.
 - [x] Add roles/permissions: member and administrator.
+- [ ] Add two-factor authentication using Google Authenticator.
+
+## Web Interface
+
 - [ ] Build member self-service flow so logged-in members can update their own profile, family, contact info, and photos.
 - [ ] Build administrator workflows with permission to change anything in the database.
 - [x] Build member edit form.

@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.20 - 5/7/2026
+
+Reorganized authentication planning.
+
+- Moved login, logout, user account, and role/permission todo items into a dedicated Authentication section.
+- Added a future Authentication todo item for two-factor authentication using Google Authenticator.
+
 ## v1.0.19 - 5/7/2026
 
 Added login, registration, and user administration.
