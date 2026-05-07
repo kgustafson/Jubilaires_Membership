@@ -271,7 +271,7 @@ main {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 12px;
   margin-bottom: 18px;
 }
@@ -291,6 +291,16 @@ main {
   box-shadow: var(--shadow);
   text-decoration: none;
   transform: translateY(-1px);
+}
+
+.passive-metric {
+  cursor: default;
+}
+
+.passive-metric:hover {
+  border-color: var(--line);
+  box-shadow: none;
+  transform: none;
 }
 
 .metric.active {
@@ -351,6 +361,20 @@ main {
   font-size: 14px;
   font-weight: 700;
   margin-left: auto;
+}
+
+.inactive-toggle {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.inactive-toggle input {
+  min-height: auto;
 }
 
 .button,

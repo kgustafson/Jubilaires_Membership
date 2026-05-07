@@ -39,10 +39,10 @@ def dashboard_counts() -> dict:
         SELECT
             COUNT(DISTINCT m.id) AS total_members,
             COUNT(DISTINCT m.id) FILTER (WHERE lower(ms.status_code) = 'active') AS active_members,
-            COUNT(DISTINCT m.id) FILTER (WHERE vp.part_name = 'Tenor') AS tenors,
-            COUNT(DISTINCT m.id) FILTER (WHERE vp.part_name = 'Lead') AS leads,
-            COUNT(DISTINCT m.id) FILTER (WHERE vp.part_name = 'Baritone') AS baritones,
-            COUNT(DISTINCT m.id) FILTER (WHERE vp.part_name = 'Bass') AS basses
+            COUNT(DISTINCT m.id) FILTER (WHERE lower(ms.status_code) = 'active' AND vp.part_name = 'Tenor') AS tenors,
+            COUNT(DISTINCT m.id) FILTER (WHERE lower(ms.status_code) = 'active' AND vp.part_name = 'Lead') AS leads,
+            COUNT(DISTINCT m.id) FILTER (WHERE lower(ms.status_code) = 'active' AND vp.part_name = 'Baritone') AS baritones,
+            COUNT(DISTINCT m.id) FILTER (WHERE lower(ms.status_code) = 'active' AND vp.part_name = 'Bass') AS basses
         FROM member m
         LEFT JOIN membership_status ms ON ms.id = m.status_id
         LEFT JOIN member_voice_part mvp ON mvp.member_id = m.id

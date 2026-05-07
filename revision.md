@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.25 - 5/7/2026
+
+Changed dashboard roster active/inactive filtering.
+
+- Made the dashboard default to showing active members only.
+- Removed the Active metric card and made Members a passive count instead of a clickable filter.
+- Added a Show Inactive checkbox near the roster count.
+- Made Members, Tenor, Lead, Baritone, and Bass counts update when Show Inactive changes.
+- Kept part metric filtering scoped to active members unless Show Inactive is checked.
+
 ## v1.0.24 - 5/7/2026
 
 Added administrator two-factor authentication.

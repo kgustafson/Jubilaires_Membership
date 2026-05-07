@@ -31,6 +31,36 @@
     }
   };
 
+  const rowIsActive = (row) => normalize(row.dataset.status) === "active";
+
+  const rowIncludedByStatus = (row, showInactive) => showInactive || rowIsActive(row);
+
+  const rowHasPart = (row, partName) => {
+    const normalizedPart = normalize(partName);
+    const parts = normalize(row.dataset.parts).split(",").map((part) => part.trim());
+    return parts.includes(normalizedPart);
+  };
+
+  const updateMetricCounts = (table) => {
+    const showInactive = table.dataset.showInactive === "true";
+    const rows = [...table.tBodies[0].querySelectorAll("tr[data-search]")]
+      .filter((row) => rowIncludedByStatus(row, showInactive));
+
+    const counts = {
+      members: rows.length,
+      tenor: rows.filter((row) => rowHasPart(row, "Tenor")).length,
+      lead: rows.filter((row) => rowHasPart(row, "Lead")).length,
+      baritone: rows.filter((row) => rowHasPart(row, "Baritone")).length,
+      bass: rows.filter((row) => rowHasPart(row, "Bass")).length,
+    };
+
+    Object.entries(counts).forEach(([key, value]) => {
+      document.querySelectorAll(`[data-metric-count="${key}"]`).forEach((target) => {
+        target.textContent = value;
+      });
+    });
+  };
+
   const rowMatchesCategory = (row, filterType, filterValue) => {
     const normalizedValue = normalize(filterValue);
 
@@ -43,8 +73,7 @@
     }
 
     if (filterType === "part") {
-      const parts = normalize(row.dataset.parts).split(",").map((part) => part.trim());
-      return parts.includes(normalizedValue);
+      return rowHasPart(row, normalizedValue);
     }
 
     return true;
@@ -53,14 +82,17 @@
   const applyTableState = (table) => {
     const filterType = table.dataset.filterType || "all";
     const filterValue = table.dataset.filterValue || "";
+    const showInactive = table.dataset.showInactive === "true";
     const query = normalize(table.dataset.searchQuery);
 
     table.tBodies[0].querySelectorAll("tr[data-search]").forEach((row) => {
+      const matchesStatusScope = rowIncludedByStatus(row, showInactive);
       const matchesCategory = rowMatchesCategory(row, filterType, filterValue);
       const matchesSearch = !query || normalize(row.dataset.search).includes(query);
-      row.hidden = !(matchesCategory && matchesSearch);
+      row.hidden = !(matchesStatusScope && matchesCategory && matchesSearch);
     });
 
+    updateMetricCounts(table);
     updateCount(table);
   };
 
@@ -108,9 +140,6 @@
         });
 
         if (shouldClearFilter) {
-          const allMetric = document.querySelector('[data-roster-filter="all"]');
-          allMetric?.classList.add("active");
-          allMetric?.setAttribute("aria-pressed", "true");
           applyFilter(table, "all", "");
           return;
         }
@@ -118,6 +147,15 @@
         metric.classList.add("active");
         metric.setAttribute("aria-pressed", "true");
         applyFilter(table, filterType, metric.dataset.rosterValue);
+      });
+    });
+  };
+
+  const wireInactiveToggle = (table) => {
+    document.querySelectorAll("[data-show-inactive]").forEach((input) => {
+      input.addEventListener("change", () => {
+        table.dataset.showInactive = input.checked ? "true" : "false";
+        applyTableState(table);
       });
     });
   };
@@ -149,10 +187,12 @@
     table.dataset.filterType = "all";
     table.dataset.filterValue = "";
     table.dataset.searchQuery = "";
+    table.dataset.showInactive = "false";
     wireSorting(table);
     wireMetricFilters(table);
     wireRosterSearch(table);
-    updateCount(table);
+    wireInactiveToggle(table);
+    applyTableState(table);
   });
 
   document.querySelectorAll("[data-open-dialog]").forEach((button) => {

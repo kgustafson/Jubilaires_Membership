@@ -17,35 +17,35 @@
 </form>
 
 <section class="metrics">
-  <a class="metric active" href="/" data-roster-filter="all" aria-pressed="true">
+  <div class="metric passive-metric">
     <span class="metric-label">Members</span>
-    <strong>{{ counts.total_members or 0 }}</strong>
-  </a>
-  <a class="metric" href="/" data-roster-filter="status" data-roster-value="active" aria-pressed="false">
-    <span class="metric-label">Active</span>
-    <strong>{{ counts.active_members or 0 }}</strong>
-  </a>
+    <strong data-metric-count="members">{{ counts.active_members or 0 }}</strong>
+  </div>
   <a class="metric" href="/" data-roster-filter="part" data-roster-value="Tenor" aria-pressed="false">
-    <span class="metric-label">Tenor</span>
-    <strong>{{ counts.tenors or 0 }}</strong>
+    <span class="metric-label">Tenors</span>
+    <strong data-metric-count="tenor">{{ counts.tenors or 0 }}</strong>
   </a>
   <a class="metric" href="/" data-roster-filter="part" data-roster-value="Lead" aria-pressed="false">
-    <span class="metric-label">Lead</span>
-    <strong>{{ counts.leads or 0 }}</strong>
+    <span class="metric-label">Leads</span>
+    <strong data-metric-count="lead">{{ counts.leads or 0 }}</strong>
   </a>
   <a class="metric" href="/" data-roster-filter="part" data-roster-value="Baritone" aria-pressed="false">
-    <span class="metric-label">Baritone</span>
-    <strong>{{ counts.baritones or 0 }}</strong>
+    <span class="metric-label">Baritones</span>
+    <strong data-metric-count="baritone">{{ counts.baritones or 0 }}</strong>
   </a>
   <a class="metric" href="/" data-roster-filter="part" data-roster-value="Bass" aria-pressed="false">
-    <span class="metric-label">Bass</span>
-    <strong>{{ counts.basses or 0 }}</strong>
+    <span class="metric-label">Basses</span>
+    <strong data-metric-count="bass">{{ counts.basses or 0 }}</strong>
   </a>
 </section>
 
 <section class="table-section">
   <div class="section-header">
     <h2>Roster</h2>
+    <label class="inactive-toggle">
+      <input type="checkbox" data-show-inactive>
+      Show Inactive
+    </label>
     <span class="result-count" data-roster-count></span>
   </div>
   {% include "_member_table.html" %}
