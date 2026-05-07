@@ -1,5 +1,11 @@
 # Revision History
 
+## v1.0.10 - 5/7/2026
+
+Added database recovery planning.
+
+- Added an Operations todo item to create a database recovery-from-backup workflow.
+
 ## v1.0.9 - 5/7/2026
 
 Merged Whitney duplicate records.
