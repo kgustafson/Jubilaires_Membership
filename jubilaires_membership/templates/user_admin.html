@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}User Administration - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>User Administration</h1>
+    <p>Approve registrations and manage access roles.</p>
+  </div>
+</section>
+
+<section class="detail-panel user-admin-panel">
+  <div class="section-header flush-header">
+    <h2>Pending Registrations</h2>
+    <span class="result-count">{{ pending_users|length }} pending</span>
+  </div>
+  {% if pending_users %}
+    <div class="user-admin-list">
+      {% for user in pending_users %}
+        <article class="user-admin-row">
+          <div>
+            <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+            <p>{{ user.email }} - {{ user.username }}</p>
+            {% if user.member_id %}
+              <small>Matched to member: {{ user.member_first_name }} {{ user.member_last_name }}</small>
+            {% else %}
+              <small>No member record matched by name and email.</small>
+            {% endif %}
+          </div>
+          <form class="role-approval-form" action="/admin/users/{{ user.id }}/approve" method="post">
+            <label>
+              Role
+              <select name="role" required>
+                <option value="member">Member</option>
+                <option value="administrator">Administrator</option>
+              </select>
+            </label>
+            <button type="submit">Approve</button>
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty-state">No registrations are waiting for approval.</p>
+  {% endif %}
+</section>
+
+<section class="table-section user-table-section">
+  <div class="section-header">
+    <h2>Approved Users</h2>
+    <span class="result-count">{{ users|length }} total</span>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Member Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.last_name }}, {{ user.first_name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role or "Pending" }}</td>
+          <td>
+            {% if user.member_id %}
+              {{ user.member_last_name }}, {{ user.member_first_name }}
+            {% else %}
+              <span class="muted-label">Unmatched</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

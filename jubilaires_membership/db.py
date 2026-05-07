@@ -29,6 +29,14 @@ def fetch_one(sql: str, params: Optional[Mapping[str, Any]] = None, engine: Opti
     return rows[0] if rows else None
 
 
+def fetch_one_write(sql: str, params: Optional[Mapping[str, Any]] = None, engine: Optional[Engine] = None) -> Optional[dict[str, Any]]:
+    active_engine = engine or make_engine()
+    with active_engine.begin() as connection:
+        result = connection.execute(text(sql), params or {})
+        row = result.first()
+        return dict(row._mapping) if row else None
+
+
 def execute(sql: str, params: Optional[Mapping[str, Any]] = None, engine: Optional[Engine] = None) -> None:
     active_engine = engine or make_engine()
     with active_engine.begin() as connection:

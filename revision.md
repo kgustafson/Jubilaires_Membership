@@ -1,5 +1,17 @@
 # Revision History
 
+## v1.0.19 - 5/7/2026
+
+Added login, registration, and user administration.
+
+- Added an `app_user` table with member links, unique email/username checks, password hashes, and role approval state.
+- Added login, logout, and registration pages.
+- Added the session signing dependency required by the login session middleware.
+- Made new registrations pending until an administrator assigns member or administrator access.
+- Added a User Administration page for approving pending registrations.
+- Added administrator roster controls for member deletion confirmation and password changes.
+- Added a bootstrap script for creating or updating the initial administrator account.
+
 ## v1.0.18 - 5/7/2026
 
 Removed legacy derived date fields from the roster model.

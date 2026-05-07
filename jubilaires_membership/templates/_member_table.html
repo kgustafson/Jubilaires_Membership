@@ -9,6 +9,9 @@
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="5" data-sort-type="number">Years Active</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="6">Phone</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="7">Email</button></th>
+      {% if current_user and current_user.role == "administrator" %}
+        <th>Admin</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -26,10 +29,64 @@
         <td>{{ member.years_active if member.years_active is not none else "" }}</td>
         <td>{{ member.primary_phone or "" }}</td>
         <td>{{ member.primary_email or "" }}</td>
+        {% if current_user and current_user.role == "administrator" %}
+          <td class="admin-actions-cell">
+            {% if member.user_id %}
+              <button type="button" class="secondary-button compact-button" data-open-dialog="password-dialog-{{ member.id }}">Password</button>
+            {% else %}
+              <span class="muted-label">No login</span>
+            {% endif %}
+            <button type="button" class="danger-button compact-button" data-open-dialog="delete-member-dialog-{{ member.id }}">Delete</button>
+            {% if member.user_id %}
+              <dialog class="edit-dialog" id="password-dialog-{{ member.id }}">
+                <form action="/admin/users/{{ member.user_id }}/password" method="post">
+                  <input type="hidden" name="return_to" value="/">
+                  <div class="dialog-header">
+                    <h3>Change Password</h3>
+                    <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+                  </div>
+                  <div class="dialog-body">
+                    <p><strong>{{ member.username }}</strong></p>
+                    <p>{{ member.first_name }} {{ member.last_name }}</p>
+                    <label>
+                      Password
+                      <input type="password" name="password" required>
+                    </label>
+                    <label>
+                      Confirm Password
+                      <input type="password" name="confirm_password" required>
+                    </label>
+                  </div>
+                  <div class="dialog-actions">
+                    <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+                    <button type="submit">Submit</button>
+                  </div>
+                </form>
+              </dialog>
+            {% endif %}
+            <dialog class="edit-dialog" id="delete-member-dialog-{{ member.id }}">
+              <form action="/members/{{ member.id }}/delete" method="post">
+                <input type="hidden" name="confirm_delete" value="1">
+                <div class="dialog-header">
+                  <h3>Delete Member</h3>
+                  <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+                </div>
+                <div class="dialog-body">
+                  <p><strong>{{ member.first_name }} {{ member.last_name }}</strong></p>
+                  <p>This delete is permanent and cannot be reversed. Family records, contact records, voice parts, quartet assignments, and linked data for this member will be removed.</p>
+                </div>
+                <div class="dialog-actions">
+                  <button type="button" class="secondary-button" data-close-dialog>Cancel Delete</button>
+                  <button type="submit" class="danger-button">Delete Permanently</button>
+                </div>
+              </form>
+            </dialog>
+          </td>
+        {% endif %}
       </tr>
     {% else %}
       <tr>
-        <td colspan="8" class="empty-state">No members have been imported yet.</td>
+        <td colspan="{% if current_user and current_user.role == 'administrator' %}9{% else %}8{% endif %}" class="empty-state">No members have been imported yet.</td>
       </tr>
     {% endfor %}
   </tbody>

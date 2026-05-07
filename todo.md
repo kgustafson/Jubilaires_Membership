@@ -28,9 +28,9 @@
 
 ## Web Interface
 
-- [ ] Add login/logout capability.
-- [ ] Add user account table linked to members.
-- [ ] Add roles/permissions: member and administrator.
+- [x] Add login/logout capability.
+- [x] Add user account table linked to members.
+- [x] Add roles/permissions: member and administrator.
 - [ ] Build member self-service flow so logged-in members can update their own profile, family, contact info, and photos.
 - [ ] Build administrator workflows with permission to change anything in the database.
 - [x] Build member edit form.

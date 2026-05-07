@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="auth-panel">
+  <h1>Register</h1>
+  {% if registered %}
+    <p class="success-message">Your registration was submitted. An administrator will approve the account before you can log in.</p>
+    <p class="field-summary"><a href="/login">Return to login</a></p>
+  {% else %}
+    {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+    <form class="stacked-form" action="/register" method="post">
+      <div class="form-grid">
+        <label>
+          First name
+          <input name="first_name" autocomplete="given-name" value="{{ values.first_name if values else '' }}" required>
+        </label>
+        <label>
+          Last name
+          <input name="last_name" autocomplete="family-name" value="{{ values.last_name if values else '' }}" required>
+        </label>
+      </div>
+      <label>
+        Email
+        <input type="email" name="email" autocomplete="email" value="{{ values.email if values else '' }}" required>
+      </label>
+      <label>
+        Username
+        <input name="username" autocomplete="username" value="{{ values.username if values else '' }}" required>
+      </label>
+      <div class="form-grid">
+        <label>
+          Password
+          <input type="password" name="password" autocomplete="new-password" required>
+        </label>
+        <label>
+          Confirm password
+          <input type="password" name="confirm_password" autocomplete="new-password" required>
+        </label>
+      </div>
+      <button type="submit">Submit Registration</button>
+    </form>
+    <p class="field-summary">Already approved? <a href="/login">Login here</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

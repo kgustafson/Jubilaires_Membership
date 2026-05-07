@@ -364,6 +364,34 @@ button:hover {
   background: #d9e4ea;
 }
 
+.danger-button {
+  background: #b91c1c;
+  color: white;
+}
+
+.danger-button:hover {
+  background: #991b1b;
+}
+
+.compact-button {
+  font-size: 13px;
+  padding: 6px 9px;
+}
+
+.muted-label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-actions-cell {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 170px;
+}
+
 .data-table {
   border-collapse: collapse;
   width: 100%;
@@ -631,6 +659,58 @@ textarea {
   margin: 0;
 }
 
+.public-shell {
+  display: block;
+  min-height: calc(100vh - 68px);
+}
+
+.public-shell main {
+  align-items: start;
+  display: grid;
+  justify-items: center;
+  padding-top: 48px;
+}
+
+.auth-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  max-width: 560px;
+  padding: 26px;
+  width: min(560px, 100%);
+}
+
+.auth-panel h1 {
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+
+.auth-panel .stacked-form {
+  border-top: 0;
+  margin-top: 18px;
+  padding-top: 0;
+}
+
+.form-error,
+.success-message {
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  margin: 12px 0;
+  padding: 11px 12px;
+}
+
+.form-error {
+  background: var(--accent-soft);
+  color: #9f1239;
+}
+
+.success-message {
+  background: #e8f7ef;
+  color: #166534;
+}
+
 .edit-dialog {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -671,6 +751,25 @@ textarea {
 .dialog-header h3 {
   font-size: 16px;
   margin: 0;
+}
+
+.dialog-body {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.dialog-body p {
+  margin: 0;
+}
+
+.dialog-body label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
 }
 
 .icon-button {
@@ -777,6 +876,55 @@ textarea {
 
 .address-row {
   grid-template-columns: minmax(110px, .8fr) minmax(240px, 1.8fr) repeat(4, minmax(110px, 1fr));
+}
+
+.flush-header {
+  margin: -18px -18px 16px;
+}
+
+.user-admin-panel {
+  margin-bottom: 18px;
+}
+
+.user-admin-list {
+  display: grid;
+  gap: 12px;
+}
+
+.user-admin-row {
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+  padding: 14px;
+}
+
+.user-admin-row p,
+.user-admin-row small {
+  color: var(--muted);
+  display: block;
+  margin: 3px 0 0;
+}
+
+.role-approval-form {
+  align-items: end;
+  display: flex;
+  gap: 10px;
+}
+
+.role-approval-form label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
+}
+
+.user-table-section {
+  margin-top: 18px;
 }
 
 .row-title {
@@ -1018,8 +1166,14 @@ textarea {
   .role-row,
   .contact-row,
   .phone-row,
-  .address-row {
+  .address-row,
+  .user-admin-row {
     grid-template-columns: 1fr;
+  }
+
+  .role-approval-form {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .wide-field {

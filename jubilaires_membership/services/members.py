@@ -109,7 +109,9 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             part_summary.part_names,
             ms.status_code,
             primary_phone.phone_number AS primary_phone,
-            primary_email.email_address AS primary_email
+            primary_email.email_address AS primary_email,
+            login_user.id AS user_id,
+            login_user.username
         FROM member m
         LEFT JOIN membership_status ms ON ms.id = m.status_id
         LEFT JOIN LATERAL (
@@ -132,6 +134,13 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             ORDER BY is_primary DESC, id
             LIMIT 1
         ) primary_email ON true
+        LEFT JOIN LATERAL (
+            SELECT id, username
+            FROM app_user
+            WHERE member_id = m.id
+            ORDER BY id
+            LIMIT 1
+        ) login_user ON true
         LEFT JOIN LATERAL (
             SELECT string_agg(
                 trim(concat_ws(' ', first_name, last_name)) || ' (' || relationship || ')',
@@ -563,6 +572,10 @@ def delete_family_member(member_id: int, family_id: int) -> None:
         "DELETE FROM member_family WHERE id = :family_id AND member_id = :member_id",
         {"family_id": family_id, "member_id": member_id},
     )
+
+
+def delete_member(member_id: int) -> None:
+    db.execute("DELETE FROM member WHERE id = :member_id", {"member_id": member_id})
 
 
 def update_member_picture_path(member_id: int, picture_path: str) -> None:

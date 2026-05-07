@@ -19,30 +19,42 @@
       </span>
     </a>
     <div class="header-actions">
-      <form class="header-search" action="/" method="get" data-roster-search-form>
-        <label class="sr-only" for="header-member-search">Search members</label>
-        <input id="header-member-search" type="search" name="q" placeholder="Search members" data-roster-search>
-      </form>
-      <div class="user-profile" aria-label="Current user">
-        <span class="avatar">KG</span>
-        <span>Admin</span>
-      </div>
+      {% if current_user %}
+        <form class="header-search" action="/" method="get" data-roster-search-form>
+          <label class="sr-only" for="header-member-search">Search members</label>
+          <input id="header-member-search" type="search" name="q" placeholder="Search members" data-roster-search>
+        </form>
+        <div class="user-profile" aria-label="Current user">
+          <span class="avatar">{{ current_user.first_name[:1] }}{{ current_user.last_name[:1] }}</span>
+          <span>{{ current_user.first_name }} {{ current_user.last_name }}</span>
+        </div>
+        <form action="/logout" method="post">
+          <button class="secondary-button" type="submit">Logout</button>
+        </form>
+      {% else %}
+        <a class="button secondary-button" href="/login">Login</a>
+      {% endif %}
     </div>
   </header>
-  <div class="app-shell">
-    <aside class="sidebar" aria-label="Membership navigation">
-      <div class="sidebar-title">Management</div>
-      <nav class="sidebar-nav">
-        <a class="sidebar-link {% if request.url.path == '/' %}active{% endif %}" href="/">Dashboard</a>
-        <span class="sidebar-link disabled">Attendance Tracking</span>
-        <span class="sidebar-link disabled">Quartet Management</span>
-        <span class="sidebar-link disabled">Dues Tracking</span>
-        <span class="sidebar-link disabled">Communications</span>
-        <span class="sidebar-link disabled">Reports</span>
-        <a class="sidebar-link {% if request.url.path == '/photos/unassigned' %}active{% endif %}" href="/photos/unassigned">Photo Review</a>
-        <span class="sidebar-link disabled">Admin Settings</span>
-      </nav>
-    </aside>
+  <div class="app-shell {% if not current_user %}public-shell{% endif %}">
+    {% if current_user %}
+      <aside class="sidebar" aria-label="Membership navigation">
+        <div class="sidebar-title">Management</div>
+        <nav class="sidebar-nav">
+          <a class="sidebar-link {% if request.url.path == '/' %}active{% endif %}" href="/">Dashboard</a>
+          <span class="sidebar-link disabled">Attendance Tracking</span>
+          <span class="sidebar-link disabled">Quartet Management</span>
+          <span class="sidebar-link disabled">Dues Tracking</span>
+          <span class="sidebar-link disabled">Communications</span>
+          <span class="sidebar-link disabled">Reports</span>
+          {% if current_user.role == "administrator" %}
+            <a class="sidebar-link {% if request.url.path == '/photos/unassigned' %}active{% endif %}" href="/photos/unassigned">Photo Review</a>
+            <a class="sidebar-link {% if request.url.path == '/admin/users' %}active{% endif %}" href="/admin/users">User Administration</a>
+          {% endif %}
+          <span class="sidebar-link disabled">Admin Settings</span>
+        </nav>
+      </aside>
+    {% endif %}
     <main>
       {% block content %}{% endblock %}
     </main>
