@@ -91,6 +91,8 @@
     <article class="quartet-card">
       {% if quartet.picture_path %}
         <img class="quartet-photo" src="{{ quartet.picture_path }}" alt="">
+      {% else %}
+        <div class="quartet-photo quartet-photo-placeholder" aria-hidden="true"></div>
       {% endif %}
       <div class="quartet-card-header">
         <div>
@@ -112,7 +114,7 @@
         <div class="quartet-member-list">
           {% for member in quartet.members %}
             <div class="quartet-member-item">
-              <div>
+              <div class="quartet-member-copy">
                 <strong>{{ member.first_name }} {{ member.last_name }}</strong>
                 <span>{{ member.membership_state|title }}{% if member.quartet_part_name %} · {{ member.quartet_part_name }}{% endif %}</span>
               </div>

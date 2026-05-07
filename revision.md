@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.31 - 5/7/2026
+
+Adjusted Quartet Management card layout.
+
+- Made quartet cards wider for member list readability.
+- Stabilized quartet action button height so cards without photos do not stretch buttons.
+- Aligned member names, quartet parts, edit controls, and remove controls on a single row.
+- Normalized existing quartet photos to the standard 2000x1600 size.
+
 ## v1.0.30 - 5/7/2026
 
 Refined Quartet Management member workflows and photo sizing.

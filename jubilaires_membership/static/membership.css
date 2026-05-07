@@ -1041,7 +1041,7 @@ textarea {
 .quartet-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
 }
 
 .quartet-card {
@@ -1050,6 +1050,7 @@ textarea {
   border-radius: 8px;
   display: grid;
   gap: 14px;
+  grid-template-rows: auto auto auto 1fr auto auto;
   padding: 16px;
 }
 
@@ -1072,6 +1073,11 @@ textarea {
   width: 100%;
 }
 
+.quartet-photo-placeholder {
+  background: linear-gradient(135deg, #eef4f7, #f8fafc);
+  border: 1px dashed var(--line);
+}
+
 .quartet-stats {
   color: var(--muted);
   display: flex;
@@ -1082,9 +1088,17 @@ textarea {
 }
 
 .quartet-actions {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  min-height: 34px;
+}
+
+.quartet-actions .compact-button {
+  align-items: center;
+  display: inline-flex;
+  min-height: 30px;
 }
 
 .quartet-member-list {
@@ -1096,9 +1110,9 @@ textarea {
 .quartet-member-item {
   align-items: center;
   border-bottom: 1px solid var(--line);
-  display: flex;
+  display: grid;
   gap: 10px;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 10px;
 }
 
@@ -1106,16 +1120,22 @@ textarea {
   border-bottom: 0;
 }
 
-.quartet-member-item strong,
-.quartet-member-item span {
-  display: block;
+.quartet-member-copy {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
 }
 
-.quartet-member-item span {
+.quartet-member-copy strong {
+  white-space: nowrap;
+}
+
+.quartet-member-copy span {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
-  margin-top: 2px;
 }
 
 .quartet-member-actions {
@@ -1390,6 +1410,10 @@ textarea {
   .address-row,
   .user-admin-row,
   .quartet-member-row {
+    grid-template-columns: 1fr;
+  }
+
+  .quartet-grid {
     grid-template-columns: 1fr;
   }
 
