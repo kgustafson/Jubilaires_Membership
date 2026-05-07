@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.16 - 5/7/2026
+
+Improved photo assignment safeguards.
+
+- Hid photos already assigned to another member or family record from photo picker choices.
+- Kept the current person's assigned photo visible while editing that person.
+- Added remove-current-photo controls for member and family photo dialogs.
+- Added backend checks so selected existing photos cannot be assigned to multiple people.
+
 ## v1.0.15 - 5/7/2026
 
 Normalized roster photos.

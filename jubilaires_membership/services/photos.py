@@ -76,8 +76,10 @@ def image_dimensions(path: Path) -> tuple[int, int] | tuple[None, None]:
         return None, None
 
 
-def photo_choices() -> list[dict[str, str | int | None]]:
+def photo_choices(assigned_paths: set[str] | None = None, current_path: str | None = None) -> list[dict[str, str | int | None]]:
     choices = []
+    assigned_paths = assigned_paths or set()
+    current_path = current_path or ""
     choice_paths = set()
     for row in roster_manifest_rows():
         try:
@@ -88,16 +90,23 @@ def photo_choices() -> list[dict[str, str | int | None]]:
     for path in sorted(choice_paths):
         if not path.is_file() or path.suffix.lower() not in IMAGE_EXTENSIONS:
             continue
+        candidate_path = static_path(path)
+        if candidate_path in assigned_paths and candidate_path != current_path:
+            continue
         width, height = image_dimensions(path)
         choices.append(
             {
                 "name": path.name,
-                "path": static_path(path),
+                "path": candidate_path,
                 "width": width,
                 "height": height,
             }
         )
     return choices
+
+
+def is_assignable(path: str, assigned_paths: set[str], current_path: str | None = None) -> bool:
+    return bool(path) and (path not in assigned_paths or path == (current_path or ""))
 
 
 def roster_manifest_rows() -> list[dict[str, str]]:

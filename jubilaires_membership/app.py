@@ -68,7 +68,7 @@ def edit_member_form(request: Request, member_id: int):
             "voice_parts": members.voice_parts(),
             "quartets": members.quartets(),
             "roles": members.member_roles(),
-            "photo_choices": photos.photo_choices(),
+            "photo_choices": photos.photo_choices(members.assigned_picture_paths(), member.get("picture_path")),
         },
     )
 
@@ -216,7 +216,7 @@ def edit_member_family_form(request: Request, member_id: int, family_id: int):
             "member": member,
             "person": person,
             "family_relationships": members.FAMILY_RELATIONSHIPS,
-            "photo_choices": photos.photo_choices(),
+            "photo_choices": photos.photo_choices(members.assigned_picture_paths(), person.get("picture_path")),
         },
     )
 
@@ -269,12 +269,15 @@ async def update_member_photo(request: Request, member_id: int):
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
     form = await request.form()
+    if form.get("remove_photo"):
+        members.update_member_picture_path(member_id, "")
+        return RedirectResponse(url=f"/members/{member_id}/edit?photo_removed=1", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
     selected_photo = (form.get("selected_photo_path") or "").strip()
     picture_path = ""
     if upload:
         picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}")
-    elif selected_photo:
+    elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), member.get("picture_path")):
         picture_path = selected_photo
     if picture_path:
         members.update_member_picture_path(member_id, picture_path)
@@ -290,12 +293,15 @@ async def update_family_photo(request: Request, member_id: int, family_id: int):
     if not person:
         raise HTTPException(status_code=404, detail="Family member not found.")
     form = await request.form()
+    if form.get("remove_photo"):
+        members.update_family_picture_path(member_id, family_id, "")
+        return RedirectResponse(url=f"/members/{member_id}/family/{family_id}/edit?photo_removed=1", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
     selected_photo = (form.get("selected_photo_path") or "").strip()
     picture_path = ""
     if upload:
         picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}")
-    elif selected_photo:
+    elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), person.get("picture_path")):
         picture_path = selected_photo
     if picture_path:
         members.update_family_picture_path(member_id, family_id, picture_path)

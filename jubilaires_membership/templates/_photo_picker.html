@@ -22,6 +22,12 @@
           <span data-photo-empty {% if current_path %}hidden{% endif %}>No photo selected</span>
         </div>
         <p class="field-summary">Uploads are saved as 512x512 profile images.</p>
+        {% if current_path %}
+          <label class="check-row remove-photo-row">
+            <input type="checkbox" name="remove_photo" value="1">
+            <span>Remove current photo</span>
+          </label>
+        {% endif %}
       </section>
       <section class="photo-select-panel">
         <h4>Select Existing</h4>
