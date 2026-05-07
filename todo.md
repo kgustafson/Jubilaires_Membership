@@ -12,8 +12,7 @@
 - [x] Add primary/alternate state for quartet membership.
 - [x] Add picture path fields for members and family.
 - [x] Add external classification tables for Choir Genius roles, subgroups, and labels.
-- [ ] Add quartet lifecycle fields: active/inactive state, formation date, and deactivation date.
-- [ ] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
+- [x] Add quartet lifecycle fields: active/inactive state, formation date, and deactivation date.
 - [x] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
 - [x] Add many-to-many member role assignments with start date and end date so role history can be tracked over time.
 
@@ -38,9 +37,9 @@
 - [x] Build voice part multi-select editor.
 - [x] Build quartet membership editor with primary/alternate selector.
 - [x] Build quartet editor for active/inactive state, formation date, and deactivation date.
-- [ ] Build member role assignment editor with start/end dates.
-- [ ] Build address editor.
-- [ ] Build phone/email editor.
+- [x] Build member role assignment editor with start/end dates.
+- [x] Build address editor.
+- [x] Build phone/email editor.
 - [x] Add sorting and filtering to the roster view.
 - [x] Change dashboard member table to include sortable/filterable controls on each column header.
 - [x] Make dashboard metric cards clickable filters: Members, Active, Tenor, Lead, Baritone, Bass should filter the roster table when clicked.

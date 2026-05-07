@@ -65,6 +65,7 @@ def edit_member_form(request: Request, member_id: int):
             "statuses": members.statuses(),
             "voice_parts": members.voice_parts(),
             "quartets": members.quartets(),
+            "roles": members.member_roles(),
         },
     )
 
@@ -105,6 +106,73 @@ async def update_member(request: Request, member_id: int):
                 }
             )
     members.update_member_quartets(member_id, quartet_assignments)
+
+    role_assignments = []
+    selected_role_ids = {str(value) for value in form.getlist("role_ids")}
+    for role in members.member_roles():
+        role_id = str(role["id"])
+        if role_id in selected_role_ids:
+            role_assignments.append(
+                {
+                    "role_id": role_id,
+                    "start_date": form.get(f"role_{role_id}_start_date") or "",
+                    "end_date": form.get(f"role_{role_id}_end_date") or "",
+                    "source_system": form.get(f"role_{role_id}_source_system") or "Manual",
+                    "notes": form.get(f"role_{role_id}_notes") or "",
+                }
+            )
+    for key in form.getlist("new_role_keys"):
+        role_name = (form.get(f"new_role_{key}_name") or "").strip()
+        if role_name:
+            role_assignments.append(
+                {
+                    "role_name": role_name,
+                    "start_date": form.get(f"new_role_{key}_start_date") or "",
+                    "end_date": form.get(f"new_role_{key}_end_date") or "",
+                    "source_system": "Manual",
+                    "notes": form.get(f"new_role_{key}_notes") or "",
+                }
+            )
+    members.update_member_role_assignments(member_id, role_assignments)
+
+    email_rows = []
+    for key in form.getlist("email_row_keys"):
+        email_rows.append(
+            {
+                "email_address": form.get(f"email_{key}_email_address") or "",
+                "label": form.get(f"email_{key}_label") or "",
+                "is_primary": form.get(f"email_{key}_is_primary") or "",
+            }
+        )
+    members.update_member_emails(member_id, email_rows)
+
+    phone_rows = []
+    for key in form.getlist("phone_row_keys"):
+        phone_rows.append(
+            {
+                "phone_number": form.get(f"phone_{key}_phone_number") or "",
+                "phone_type": form.get(f"phone_{key}_phone_type") or "",
+                "label": form.get(f"phone_{key}_label") or "",
+                "is_primary": form.get(f"phone_{key}_is_primary") or "",
+            }
+        )
+    members.update_member_phones(member_id, phone_rows)
+
+    address_rows = []
+    for key in form.getlist("address_row_keys"):
+        address_rows.append(
+            {
+                "address_type": form.get(f"address_{key}_address_type") or "",
+                "street": form.get(f"address_{key}_street") or "",
+                "city": form.get(f"address_{key}_city") or "",
+                "state": form.get(f"address_{key}_state") or "",
+                "postal_code": form.get(f"address_{key}_postal_code") or "",
+                "country": form.get(f"address_{key}_country") or "",
+                "raw_address": form.get(f"address_{key}_raw_address") or "",
+                "is_primary": form.get(f"address_{key}_is_primary") or "",
+            }
+        )
+    members.update_member_addresses(member_id, address_rows)
     return RedirectResponse(url=f"/members/{member_id}?saved=1", status_code=303)
 
 

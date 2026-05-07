@@ -219,7 +219,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     member["quartets_by_id"] = {quartet["id"]: quartet for quartet in member["quartets"]}
     member["leadership_roles"] = db.fetch_all(
         """
-        SELECT mr.role_name, mra.start_date, mra.end_date, mra.source_system
+        SELECT mr.id AS role_id, mr.role_name, mra.start_date, mra.end_date, mra.source_system, mra.notes
         FROM member_role_assignment mra
         JOIN member_role mr ON mr.id = mra.role_id
         WHERE mra.member_id = :member_id
@@ -227,6 +227,7 @@ def member_detail(member_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id},
     )
+    member["leadership_roles_by_id"] = {role["role_id"]: role for role in member["leadership_roles"]}
     member["emergency_contacts"] = db.fetch_all(
         """
         SELECT *
@@ -312,6 +313,113 @@ def update_member_quartets(member_id: int, assignments: list[dict[str, str]]) ->
                 "quartet_id": int(assignment["quartet_id"]),
                 "membership_state": assignment["membership_state"] if assignment["membership_state"] in {"primary", "alternate"} else "primary",
                 "role_notes": assignment.get("role_notes", "").strip() or None,
+            },
+        )
+
+
+def update_member_emails(member_id: int, rows: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_email WHERE member_id = :member_id", {"member_id": member_id})
+    for row in rows:
+        email_address = row.get("email_address", "").strip()
+        if not email_address:
+            continue
+        db.execute(
+            """
+            INSERT INTO member_email (member_id, email_address, label, is_primary)
+            VALUES (:member_id, :email_address, :label, :is_primary)
+            """,
+            {
+                "member_id": member_id,
+                "email_address": email_address,
+                "label": row.get("label", "").strip() or None,
+                "is_primary": optional_bool(row.get("is_primary")),
+            },
+        )
+
+
+def update_member_phones(member_id: int, rows: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_phone WHERE member_id = :member_id", {"member_id": member_id})
+    for row in rows:
+        phone_number = row.get("phone_number", "").strip()
+        if not phone_number:
+            continue
+        db.execute(
+            """
+            INSERT INTO member_phone (member_id, phone_type, phone_number, label, is_primary)
+            VALUES (:member_id, :phone_type, :phone_number, :label, :is_primary)
+            """,
+            {
+                "member_id": member_id,
+                "phone_type": row.get("phone_type", "").strip() or None,
+                "phone_number": phone_number,
+                "label": row.get("label", "").strip() or None,
+                "is_primary": optional_bool(row.get("is_primary")),
+            },
+        )
+
+
+def update_member_addresses(member_id: int, rows: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_address WHERE member_id = :member_id", {"member_id": member_id})
+    for row in rows:
+        has_address = any(row.get(field, "").strip() for field in ("street", "city", "state", "postal_code", "raw_address"))
+        if not has_address:
+            continue
+        db.execute(
+            """
+            INSERT INTO member_address (
+                member_id, address_type, street, city, state, postal_code, country, raw_address, is_primary
+            )
+            VALUES (
+                :member_id, :address_type, :street, :city, :state, :postal_code, :country, :raw_address, :is_primary
+            )
+            """,
+            {
+                "member_id": member_id,
+                "address_type": row.get("address_type", "").strip() or "primary",
+                "street": row.get("street", "").strip() or None,
+                "city": row.get("city", "").strip() or None,
+                "state": row.get("state", "").strip() or None,
+                "postal_code": row.get("postal_code", "").strip() or None,
+                "country": row.get("country", "").strip() or "USA",
+                "raw_address": row.get("raw_address", "").strip() or None,
+                "is_primary": optional_bool(row.get("is_primary")),
+            },
+        )
+
+
+def update_member_role_assignments(member_id: int, assignments: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_role_assignment WHERE member_id = :member_id", {"member_id": member_id})
+    for assignment in assignments:
+        role_name = assignment.get("role_name", "").strip()
+        role_id = optional_int(assignment.get("role_id", ""))
+        if not role_id and role_name:
+            role_id = db.fetch_one(
+                """
+                INSERT INTO member_role (role_name)
+                VALUES (:role_name)
+                ON CONFLICT (role_name) DO UPDATE SET role_name = EXCLUDED.role_name
+                RETURNING id
+                """,
+                {"role_name": role_name},
+            )["id"]
+        if not role_id:
+            continue
+        db.execute(
+            """
+            INSERT INTO member_role_assignment (
+                member_id, role_id, start_date, end_date, source_system, notes
+            )
+            VALUES (
+                :member_id, :role_id, :start_date, :end_date, :source_system, :notes
+            )
+            """,
+            {
+                "member_id": member_id,
+                "role_id": role_id,
+                "start_date": optional_date(assignment.get("start_date", "")),
+                "end_date": optional_date(assignment.get("end_date", "")),
+                "source_system": assignment.get("source_system", "").strip() or "Manual",
+                "notes": assignment.get("notes", "").strip() or None,
             },
         )
 
@@ -460,6 +568,10 @@ def quartets() -> list[dict]:
         ORDER BY is_active DESC, name
         """
     )
+
+
+def member_roles() -> list[dict]:
+    return db.fetch_all("SELECT id, role_name FROM member_role ORDER BY role_name")
 
 
 def statuses() -> list[dict]:

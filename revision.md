@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.12 - 5/7/2026
+
+Added modal role and contact editors.
+
+- Added a member role assignment modal with role selection, start dates, end dates, and notes.
+- Added modal editors for member email, phone, and address rows.
+- Wired member edit saves to persist role assignments and contact records from the modal workflow.
+- Updated the todo list to show the completed role, address, phone, and email editor work.
+
 ## v1.0.11 - 5/7/2026
 
 Added member voice part and quartet editors.

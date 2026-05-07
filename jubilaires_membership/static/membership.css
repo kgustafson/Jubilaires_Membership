@@ -685,7 +685,8 @@ textarea {
 }
 
 .edit-dialog .check-grid,
-.edit-dialog .quartet-editor {
+.edit-dialog .quartet-editor,
+.edit-dialog .modal-list {
   padding: 16px;
 }
 
@@ -731,6 +732,61 @@ textarea {
   grid-column: 1 / -1;
 }
 
+.modal-list {
+  display: grid;
+  gap: 12px;
+  max-height: min(68vh, 720px);
+  overflow: auto;
+}
+
+.modal-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.modal-row label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
+}
+
+.modal-row .check-row {
+  align-self: end;
+  color: var(--ink);
+  display: flex;
+  text-transform: none;
+}
+
+.role-row {
+  grid-template-columns: minmax(170px, 1.3fr) repeat(2, minmax(130px, 1fr)) minmax(180px, 1.4fr);
+}
+
+.contact-row {
+  grid-template-columns: minmax(260px, 2fr) minmax(150px, 1fr) minmax(110px, .7fr);
+}
+
+.phone-row {
+  grid-template-columns: minmax(120px, .8fr) minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(110px, .7fr);
+}
+
+.address-row {
+  grid-template-columns: minmax(110px, .8fr) minmax(240px, 1.8fr) repeat(4, minmax(110px, 1fr));
+}
+
+.row-title {
+  min-width: 0;
+}
+
+.wide-field {
+  grid-column: span 2;
+}
+
 @media (max-width: 900px) {
   .app-header {
     align-items: stretch;
@@ -763,8 +819,16 @@ textarea {
   .filters,
   .detail-grid,
   .check-grid,
-  .quartet-row {
+  .quartet-row,
+  .role-row,
+  .contact-row,
+  .phone-row,
+  .address-row {
     grid-template-columns: 1fr;
+  }
+
+  .wide-field {
+    grid-column: auto;
   }
 
   .dashboard-search {
