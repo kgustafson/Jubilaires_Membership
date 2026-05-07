@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.13 - 5/7/2026
+
+Added image processing dependency for photo workflows.
+
+- Installed Pillow in the dedicated project `.venv`.
+- Added Pillow to `requirements.txt` so upload resizing and thumbnail generation are reproducible.
+- Verified Pillow can read an existing roster photo from `static/photos`.
+
 ## v1.0.12 - 5/7/2026
 
 Added modal role and contact editors.
