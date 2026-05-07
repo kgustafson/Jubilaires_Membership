@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.21 - 5/7/2026
+
+Updated inactive member classification rules.
+
+- Added a migration to mark members inactive when Choir Genius has role `Applicant` or subgroup `Former`.
+- Preserved existing inactive dates and filled missing inactive dates with the migration date.
+
 ## v1.0.20 - 5/7/2026
 
 Reorganized authentication planning.
