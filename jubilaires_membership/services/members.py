@@ -203,6 +203,20 @@ def member_detail(member_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id},
     )
+    member["classifications"] = db.fetch_all(
+        """
+        SELECT
+            mc.classification_type,
+            mc.name,
+            mc.source_system,
+            mca.source_value
+        FROM member_classification_assignment mca
+        JOIN member_classification mc ON mc.id = mca.classification_id
+        WHERE mca.member_id = :member_id
+        ORDER BY mc.classification_type, mc.name
+        """,
+        {"member_id": member_id},
+    )
     return member
 
 

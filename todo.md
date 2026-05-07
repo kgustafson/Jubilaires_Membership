@@ -11,6 +11,7 @@
 - [x] Add member date fields: start date, inactive date, date of birth, date of death, anniversary date.
 - [x] Add primary/alternate state for quartet membership.
 - [x] Add picture path fields for members and family.
+- [x] Add external classification tables for Choir Genius roles, subgroups, and labels.
 - [ ] Add quartet lifecycle fields: active/inactive state, formation date, and deactivation date.
 - [ ] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
 - [ ] Add many-to-many member role assignments with start date and end date so role history can be tracked over time.

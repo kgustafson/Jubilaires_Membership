@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.7 - 5/6/2026
+
+Added database support for Choir Genius classifications.
+
+- Added `member_classification` and `member_classification_assignment` tables.
+- Modeled Choir Genius `Roles`, `Subgroups`, and `Labels` as external classifications.
+- Kept external classifications separate from future internal leadership role history.
+- Added classification display to member detail pages.
+- Updated setup schema and migrations for fresh and existing databases.
+
 ## v1.0.6 - 5/6/2026
 
 Added known Choir Genius name reconciliation.

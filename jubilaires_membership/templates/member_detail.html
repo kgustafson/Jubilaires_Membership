@@ -133,5 +133,16 @@
       {% endfor %}
     </ul>
   </div>
+
+  <div class="detail-panel">
+    <h2>Classifications</h2>
+    <ul>
+      {% for classification in member.classifications %}
+        <li>{{ classification.classification_type|title }}: {{ classification.name }} <small>{{ classification.source_system }}</small></li>
+      {% else %}
+        <li>No external classifications.</li>
+      {% endfor %}
+    </ul>
+  </div>
 </section>
 {% endblock %}
