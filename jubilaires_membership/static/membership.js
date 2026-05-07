@@ -302,11 +302,26 @@
     if (!select) {
       return;
     }
-    input.addEventListener("input", () => {
+    const choices = [...select.options].map((option) => ({
+      value: option.value,
+      text: option.textContent,
+      search: normalize(option.dataset.search || option.textContent),
+    }));
+    const renderChoices = () => {
       const query = normalize(input.value);
-      [...select.options].forEach((option) => {
-        option.hidden = query && !normalize(option.dataset.search || option.textContent).includes(query);
-      });
+      const selectedValue = select.value;
+      select.replaceChildren();
+      choices
+        .filter((choice) => !query || choice.search.includes(query))
+        .forEach((choice) => {
+          const option = new Option(choice.text, choice.value);
+          option.dataset.search = choice.search;
+          option.selected = choice.value === selectedValue;
+          select.add(option);
+        });
+    };
+    input.addEventListener("input", () => {
+      renderChoices();
     });
   });
 })();

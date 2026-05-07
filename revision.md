@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.32 - 5/7/2026
+
+Fixed Quartet Management add-member modal search.
+
+- Changed the add-member modal title to include the quartet name.
+- Replaced unreliable hidden-option filtering with a select list that rebuilds visible member options as the search changes.
+
 ## v1.0.31 - 5/7/2026
 
 Adjusted Quartet Management card layout.
