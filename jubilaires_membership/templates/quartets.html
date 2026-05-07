@@ -26,6 +26,18 @@
 {% if request.query_params.get("members_saved") %}
   <p class="success-message">Quartet membership saved.</p>
 {% endif %}
+{% if request.query_params.get("member_added") %}
+  <p class="success-message">Quartet member added.</p>
+{% endif %}
+{% if request.query_params.get("member_saved") %}
+  <p class="success-message">Quartet member saved.</p>
+{% endif %}
+{% if request.query_params.get("member_deleted") %}
+  <p class="success-message">Quartet member removed.</p>
+{% endif %}
+{% if request.query_params.get("member_required") %}
+  <p class="form-error">Choose a member before adding them to the quartet.</p>
+{% endif %}
 {% if request.query_params.get("photo_saved") %}
   <p class="success-message">Quartet photo saved.</p>
 {% endif %}
@@ -96,13 +108,25 @@
           <span>Deactivated {{ quartet.deactivation_date }}</span>
         {% endif %}
       </div>
-      <p class="muted-copy">{{ quartet.member_summary or "No members assigned yet." }}</p>
       {% if quartet.members %}
-        <div class="quartet-part-list">
+        <div class="quartet-member-list">
           {% for member in quartet.members %}
-            <span>{{ member.first_name }} {{ member.last_name }}{% if member.quartet_part_name %}: {{ member.quartet_part_name }}{% endif %}</span>
+            <div class="quartet-member-item">
+              <div>
+                <strong>{{ member.first_name }} {{ member.last_name }}</strong>
+                <span>{{ member.membership_state|title }}{% if member.quartet_part_name %} · {{ member.quartet_part_name }}{% endif %}</span>
+              </div>
+              {% if can_manage %}
+                <div class="quartet-member-actions">
+                  <button type="button" class="icon-button compact-icon-button" data-open-dialog="edit-quartet-member-dialog-{{ quartet.id }}-{{ member.member_id }}" aria-label="Edit {{ member.first_name }} {{ member.last_name }}">✎</button>
+                  <button type="button" class="icon-button danger-icon-button compact-icon-button" data-open-dialog="delete-quartet-member-dialog-{{ quartet.id }}-{{ member.member_id }}" aria-label="Remove {{ member.first_name }} {{ member.last_name }}">x</button>
+                </div>
+              {% endif %}
+            </div>
           {% endfor %}
         </div>
+      {% else %}
+        <p class="muted-copy">No members assigned yet.</p>
       {% endif %}
       {% if quartet.notes %}
         <p>{{ quartet.notes }}</p>
@@ -110,7 +134,7 @@
       <div class="quartet-actions">
         {% if can_manage %}
           <button type="button" class="secondary-button compact-button" data-open-dialog="edit-quartet-dialog-{{ quartet.id }}">Edit</button>
-          <button type="button" class="secondary-button compact-button" data-open-dialog="quartet-members-dialog-{{ quartet.id }}">Members</button>
+          <button type="button" class="secondary-button compact-button" data-open-dialog="add-quartet-member-dialog-{{ quartet.id }}">Add Member</button>
           <button type="button" class="secondary-button compact-button" data-open-dialog="quartet-photo-dialog-{{ quartet.id }}">Photo</button>
         {% endif %}
         {% if current_user.role == "administrator" %}
@@ -155,49 +179,109 @@
         </form>
       </dialog>
 
-      <dialog class="edit-dialog wide-dialog" id="quartet-members-dialog-{{ quartet.id }}">
-        <form action="/quartets/{{ quartet.id }}/members" method="post">
+      <dialog class="edit-dialog" id="add-quartet-member-dialog-{{ quartet.id }}">
+        <form action="/quartets/{{ quartet.id }}/members/add" method="post">
           <div class="dialog-header">
-            <h3>{{ quartet.name }} Members</h3>
+            <h3>Add Member</h3>
             <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
           </div>
-          <div class="modal-list">
-            {% for member in member_options %}
-              {% set assignment = quartet.members_by_id.get(member.id) if quartet.members_by_id is defined else None %}
-              <div class="modal-row quartet-member-row">
-                <label class="check-row row-title">
-                  <input type="checkbox" name="member_ids" value="{{ member.id }}" {% if assignment %}checked{% endif %}>
-                  <span>{{ member.last_name }}, {{ member.first_name }}</span>
-                </label>
-                <label>
-                  State
-                  <select name="member_{{ member.id }}_membership_state">
-                    <option value="primary" {% if assignment and assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
-                    <option value="alternate" {% if assignment and assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
-                  </select>
-                </label>
-                <label>
-                  Quartet Part
-                  <select name="member_{{ member.id }}_voice_part_id">
-                    <option value="">No part</option>
-                    {% for part in voice_parts %}
-                      <option value="{{ part.id }}" {% if assignment and assignment.voice_part_id == part.id %}selected{% endif %}>{{ part.part_name }}</option>
-                    {% endfor %}
-                  </select>
-                </label>
-                <label>
-                  Notes
-                  <input name="member_{{ member.id }}_role_notes" value="{{ assignment.role_notes if assignment else '' }}">
-                </label>
-              </div>
-            {% endfor %}
+          <div class="dialog-body">
+            <label>
+              Search Members
+              <input type="search" placeholder="Type a name" data-member-select-search data-member-select-target="add-member-select-{{ quartet.id }}">
+            </label>
+            <label>
+              Member
+              <select id="add-member-select-{{ quartet.id }}" name="member_id" size="8" required data-member-select>
+                {% for member in member_options %}
+                  {% if not quartet.members_by_id.get(member.id) %}
+                    <option value="{{ member.id }}" data-search="{{ member.last_name }} {{ member.first_name }}">{{ member.last_name }}, {{ member.first_name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              Quartet Part
+              <select name="voice_part_id">
+                <option value="">No part</option>
+                {% for part in voice_parts %}
+                  <option value="{{ part.id }}">{{ part.part_name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              Member State
+              <select name="membership_state">
+                <option value="primary">Primary</option>
+                <option value="alternate">Alternate</option>
+              </select>
+            </label>
+            <label>
+              Notes
+              <input name="role_notes">
+            </label>
           </div>
           <div class="dialog-actions">
             <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
-            <button type="submit">Save Membership</button>
+            <button type="submit">Add Member</button>
           </div>
         </form>
       </dialog>
+
+      {% for assigned_member in quartet.members %}
+        <dialog class="edit-dialog" id="edit-quartet-member-dialog-{{ quartet.id }}-{{ assigned_member.member_id }}">
+          <form action="/quartets/{{ quartet.id }}/members/{{ assigned_member.member_id }}" method="post">
+            <div class="dialog-header">
+              <h3>Edit Quartet Member</h3>
+              <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+            </div>
+            <div class="dialog-body">
+              <p><strong>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</strong></p>
+              <label>
+                Quartet Part
+                <select name="voice_part_id">
+                  <option value="">No part</option>
+                  {% for part in voice_parts %}
+                    <option value="{{ part.id }}" {% if assigned_member.voice_part_id == part.id %}selected{% endif %}>{{ part.part_name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>
+                Member State
+                <select name="membership_state">
+                  <option value="primary" {% if assigned_member.membership_state == 'primary' %}selected{% endif %}>Primary</option>
+                  <option value="alternate" {% if assigned_member.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+                </select>
+              </label>
+              <label>
+                Notes
+                <input name="role_notes" value="{{ assigned_member.role_notes or '' }}">
+              </label>
+            </div>
+            <div class="dialog-actions">
+              <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+              <button type="submit">Save Member</button>
+            </div>
+          </form>
+        </dialog>
+
+        <dialog class="edit-dialog" id="delete-quartet-member-dialog-{{ quartet.id }}-{{ assigned_member.member_id }}">
+          <form action="/quartets/{{ quartet.id }}/members/{{ assigned_member.member_id }}/delete" method="post">
+            <div class="dialog-header">
+              <h3>Remove Quartet Member</h3>
+              <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+            </div>
+            <div class="dialog-body">
+              <p><strong>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</strong></p>
+              <p>This removes the member from {{ quartet.name }}. It does not remove them from the member roster.</p>
+            </div>
+            <div class="dialog-actions">
+              <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+              <button type="submit" class="danger-button">Remove Member</button>
+            </div>
+          </form>
+        </dialog>
+      {% endfor %}
     {% endif %}
 
     {% if current_user.role == "administrator" %}

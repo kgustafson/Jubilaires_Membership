@@ -782,7 +782,11 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
             WHERE mvp.member_id = m.id
         ) part_summary ON true
         WHERE mq.quartet_id = :quartet_id
-        ORDER BY mq.membership_state, m.last_name, m.first_name
+        ORDER BY
+            CASE mq.membership_state WHEN 'primary' THEN 1 ELSE 2 END,
+            quartet_vp.part_name NULLS LAST,
+            m.last_name,
+            m.first_name
         """,
         {"quartet_id": quartet_id},
     )
@@ -870,6 +874,44 @@ def update_quartet_members(quartet_id: int, assignments: list[dict[str, str]]) -
                 "role_notes": assignment.get("role_notes", "").strip() or None,
             },
         )
+
+
+def upsert_quartet_member(quartet_id: int, values: dict[str, str]) -> None:
+    member_id = optional_int(values.get("member_id", ""))
+    if not member_id:
+        return
+    membership_state = values.get("membership_state", "primary")
+    if membership_state not in {"primary", "alternate"}:
+        membership_state = "primary"
+    db.execute(
+        """
+        INSERT INTO member_quartet (member_id, quartet_id, membership_state, voice_part_id, role_notes)
+        VALUES (:member_id, :quartet_id, :membership_state, :voice_part_id, :role_notes)
+        ON CONFLICT (member_id, quartet_id) DO UPDATE
+        SET
+            membership_state = EXCLUDED.membership_state,
+            voice_part_id = EXCLUDED.voice_part_id,
+            role_notes = EXCLUDED.role_notes
+        """,
+        {
+            "member_id": member_id,
+            "quartet_id": quartet_id,
+            "membership_state": membership_state,
+            "voice_part_id": optional_int(values.get("voice_part_id", "")),
+            "role_notes": values.get("role_notes", "").strip() or None,
+        },
+    )
+
+
+def delete_quartet_member(quartet_id: int, member_id: int) -> None:
+    db.execute(
+        """
+        DELETE FROM member_quartet
+        WHERE quartet_id = :quartet_id
+          AND member_id = :member_id
+        """,
+        {"quartet_id": quartet_id, "member_id": member_id},
+    )
 
 
 def update_quartet_picture_path(quartet_id: int, picture_path: str) -> None:

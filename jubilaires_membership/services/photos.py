@@ -65,7 +65,9 @@ def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
         image = ImageOps.exif_transpose(image)
-        image.thumbnail(QUARTET_SIZE, Image.Resampling.LANCZOS)
+        scale = min(QUARTET_SIZE[0] / image.width, QUARTET_SIZE[1] / image.height)
+        resized_size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
+        image = image.resize(resized_size, Image.Resampling.LANCZOS)
         canvas = Image.new("RGB", QUARTET_SIZE, "white")
         converted = image.convert("RGB")
         left = (QUARTET_SIZE[0] - converted.width) // 2

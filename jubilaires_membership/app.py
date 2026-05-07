@@ -434,6 +434,52 @@ async def update_quartet_members(request: Request, quartet_id: int):
     return RedirectResponse(url=f"/quartets?members_saved={quartet_id}", status_code=303)
 
 
+@app.post("/quartets/{quartet_id}/members/add")
+async def add_quartet_member(request: Request, quartet_id: int):
+    require_quartet_manager(request, quartet_id)
+    if not members.quartet_detail(quartet_id):
+        raise HTTPException(status_code=404, detail="Quartet not found.")
+    form = await request.form()
+    member_id = (form.get("member_id") or "").strip()
+    if not member_id:
+        return RedirectResponse(url=f"/quartets?member_required={quartet_id}", status_code=303)
+    members.upsert_quartet_member(
+        quartet_id,
+        {
+            "member_id": member_id,
+            "membership_state": form.get("membership_state") or "primary",
+            "voice_part_id": form.get("voice_part_id") or "",
+            "role_notes": form.get("role_notes") or "",
+        },
+    )
+    return RedirectResponse(url=f"/quartets?member_added={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}/members/{member_id}")
+async def edit_quartet_member(request: Request, quartet_id: int, member_id: int):
+    require_quartet_manager(request, quartet_id)
+    if not members.quartet_detail(quartet_id):
+        raise HTTPException(status_code=404, detail="Quartet not found.")
+    form = await request.form()
+    members.upsert_quartet_member(
+        quartet_id,
+        {
+            "member_id": str(member_id),
+            "membership_state": form.get("membership_state") or "primary",
+            "voice_part_id": form.get("voice_part_id") or "",
+            "role_notes": form.get("role_notes") or "",
+        },
+    )
+    return RedirectResponse(url=f"/quartets?member_saved={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}/members/{member_id}/delete")
+async def delete_quartet_member(request: Request, quartet_id: int, member_id: int):
+    require_quartet_manager(request, quartet_id)
+    members.delete_quartet_member(quartet_id, member_id)
+    return RedirectResponse(url=f"/quartets?member_deleted={quartet_id}", status_code=303)
+
+
 @app.post("/quartets/{quartet_id}/photo")
 async def update_quartet_photo(request: Request, quartet_id: int):
     require_quartet_manager(request, quartet_id)

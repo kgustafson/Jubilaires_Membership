@@ -296,4 +296,17 @@
     select.addEventListener("change", updateTarget);
     updateTarget();
   });
+
+  document.querySelectorAll("[data-member-select-search]").forEach((input) => {
+    const select = document.getElementById(input.dataset.memberSelectTarget);
+    if (!select) {
+      return;
+    }
+    input.addEventListener("input", () => {
+      const query = normalize(input.value);
+      [...select.options].forEach((option) => {
+        option.hidden = query && !normalize(option.dataset.search || option.textContent).includes(query);
+      });
+    });
+  });
 })();

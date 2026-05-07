@@ -1081,25 +1081,61 @@ textarea {
   gap: 10px;
 }
 
-.quartet-part-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.quartet-part-list span {
-  background: var(--brand-soft);
-  border-radius: 999px;
-  color: var(--brand);
-  font-size: 12px;
-  font-weight: 800;
-  padding: 5px 8px;
-}
-
 .quartet-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.quartet-member-list {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quartet-member-item {
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.quartet-member-item:last-child {
+  border-bottom: 0;
+}
+
+.quartet-member-item strong,
+.quartet-member-item span {
+  display: block;
+}
+
+.quartet-member-item span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.quartet-member-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.compact-icon-button {
+  font-size: 14px;
+  height: 30px;
+  width: 30px;
+}
+
+.danger-icon-button {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.danger-icon-button:hover {
+  background: #fecaca;
 }
 
 .quartet-member-row {

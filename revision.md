@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.30 - 5/7/2026
+
+Refined Quartet Management member workflows and photo sizing.
+
+- Changed quartet member display to a primary-then-alternate list.
+- Added per-member edit and remove controls on quartet cards.
+- Changed the quartet Members action into Add Member with a searchable member selector modal.
+- Kept add/edit controls collecting quartet part and primary/alternate state.
+- Updated quartet photo normalization to upscale smaller uploads to the standard 2000x1600 size.
+
 ## v1.0.29 - 5/7/2026
 
 Added quartet-specific voice parts.
