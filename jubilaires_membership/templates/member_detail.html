@@ -135,12 +135,53 @@
   </div>
 
   <div class="detail-panel">
+    <h2>Leadership Roles</h2>
+    <ul>
+      {% for role in member.leadership_roles %}
+        <li>{{ role.role_name }} <small>{{ role.source_system or "Internal" }}</small></li>
+      {% else %}
+        <li>No leadership roles listed.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="detail-panel">
     <h2>Classifications</h2>
     <ul>
       {% for classification in member.classifications %}
         <li>{{ classification.classification_type|title }}: {{ classification.name }} <small>{{ classification.source_system }}</small></li>
       {% else %}
         <li>No external classifications.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="detail-panel">
+    <h2>Choir Genius</h2>
+    {% for account in member.external_accounts %}
+      <dl>
+        <dt>Username</dt>
+        <dd>{{ account.username or "Not listed" }}</dd>
+        <dt>Member ID</dt>
+        <dd>{{ account.member_number or "Not listed" }}</dd>
+        <dt>Contact Pref</dt>
+        <dd>{{ account.contact_pref or "Not listed" }}</dd>
+        <dt>Email Pref</dt>
+        <dd>{{ account.email_pref or "Not listed" }}</dd>
+        <dt>Dues Paid Until</dt>
+        <dd>{{ account.dues_paid_until or "Not listed" }}</dd>
+        <dt>Skills</dt>
+        <dd>{{ account.skills or "Not listed" }}</dd>
+      </dl>
+    {% else %}
+      <p>No Choir Genius account data.</p>
+    {% endfor %}
+    <h3>Emergency Contacts</h3>
+    <ul>
+      {% for contact in member.emergency_contacts %}
+        <li>{{ contact.raw_contact }}</li>
+      {% else %}
+        <li>No emergency contacts listed.</li>
       {% endfor %}
     </ul>
   </div>

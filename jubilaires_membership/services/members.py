@@ -203,6 +203,34 @@ def member_detail(member_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id},
     )
+    member["leadership_roles"] = db.fetch_all(
+        """
+        SELECT mr.role_name, mra.start_date, mra.end_date, mra.source_system
+        FROM member_role_assignment mra
+        JOIN member_role mr ON mr.id = mra.role_id
+        WHERE mra.member_id = :member_id
+        ORDER BY mr.role_name
+        """,
+        {"member_id": member_id},
+    )
+    member["emergency_contacts"] = db.fetch_all(
+        """
+        SELECT *
+        FROM member_emergency_contact
+        WHERE member_id = :member_id
+        ORDER BY id
+        """,
+        {"member_id": member_id},
+    )
+    member["external_accounts"] = db.fetch_all(
+        """
+        SELECT *
+        FROM member_external_account
+        WHERE member_id = :member_id
+        ORDER BY source_system
+        """,
+        {"member_id": member_id},
+    )
     member["classifications"] = db.fetch_all(
         """
         SELECT

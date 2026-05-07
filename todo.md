@@ -14,7 +14,8 @@
 - [x] Add external classification tables for Choir Genius roles, subgroups, and labels.
 - [ ] Add quartet lifecycle fields: active/inactive state, formation date, and deactivation date.
 - [ ] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
-- [ ] Add many-to-many member role assignments with start date and end date so role history can be tracked over time.
+- [x] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
+- [x] Add many-to-many member role assignments with start date and end date so role history can be tracked over time.
 
 ## Import Cleanup
 
@@ -22,7 +23,7 @@
 - [x] Fix quartet import.
 - [x] Extract embedded roster photos into `static/photos`.
 - [ ] Review imported family records and correct spouse/child/other relationships.
-- [ ] Parse member birthday and anniversary values from roster dates.
+- [x] Parse member birthday and anniversary values from Choir Genius exports.
 - [ ] Decide when to drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
 
 ## Web Interface

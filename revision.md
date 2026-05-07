@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.8 - 5/7/2026
+
+Added Choir Genius account import and data overwrite support.
+
+- Added `member_external_account`, `member_emergency_contact`, `member_role`, and `member_role_assignment` tables.
+- Added repeatable `scripts/import_choir_genius_accounts.py` importer.
+- Imported the 161-row Choir Genius CSV export with CSV values taking precedence over generated roster data for matched members.
+- Added support for Choir Genius member-since dates, birthdays, anniversaries, addresses, emails, phones, voice parts, spouse data, emergency contacts, dues dates, skills, account identifiers, classifications, and leadership roles.
+- Displayed Choir Genius account data, emergency contacts, and leadership roles on member detail pages.
+
 ## v1.0.7 - 5/6/2026
 
 Added database support for Choir Genius classifications.
