@@ -69,6 +69,15 @@ def username_exists(username: str) -> bool:
     return bool(db.fetch_one("SELECT 1 FROM app_user WHERE username = :username", {"username": normalize_username(username)}))
 
 
+def username_exists_for_other_user(username: str, user_id: int) -> bool:
+    return bool(
+        db.fetch_one(
+            "SELECT 1 FROM app_user WHERE username = :username AND id <> :user_id",
+            {"username": normalize_username(username), "user_id": user_id},
+        )
+    )
+
+
 def matching_member(first_name: str, last_name: str, email: str) -> Optional[dict]:
     return db.fetch_one(
         """
@@ -173,12 +182,13 @@ def set_password(user_id: int, password: str) -> None:
     )
 
 
-def update_account(user_id: int, first_name: str, last_name: str, email: str, password: str = "") -> None:
+def update_account(user_id: int, first_name: str, last_name: str, email: str, username: str, password: str = "") -> None:
     params = {
         "user_id": user_id,
         "first_name": first_name.strip(),
         "last_name": last_name.strip(),
         "email": normalize_email(email),
+        "username": normalize_username(username),
     }
     password_sql = ""
     if password:
@@ -190,6 +200,7 @@ def update_account(user_id: int, first_name: str, last_name: str, email: str, pa
         SET first_name = :first_name,
             last_name = :last_name,
             email = :email,
+            username = :username,
             updated_at = now()
             {password_sql}
         WHERE id = :user_id

@@ -36,6 +36,17 @@ def require_admin(request: Request) -> dict:
     return user
 
 
+def can_edit_member(user: dict | None, member_id: int) -> bool:
+    return is_admin(user) or bool(user and user.get("member_id") == member_id)
+
+
+def require_member_editor(request: Request, member_id: int) -> dict:
+    user = current_user(request)
+    if not can_edit_member(user, member_id):
+        raise HTTPException(status_code=403, detail="You can only edit your own member information.")
+    return user
+
+
 def view_context(request: Request, **values):
     values.setdefault("current_user", current_user(request))
     return values
@@ -125,17 +136,19 @@ async def update_account(request: Request):
     if not user:
         return RedirectResponse(url="/login?next=/account", status_code=303)
     form = await request.form()
-    values = {key: (form.get(key) or "").strip() for key in ("first_name", "last_name", "email")}
+    values = {key: (form.get(key) or "").strip() for key in ("first_name", "last_name", "email", "username")}
     password = form.get("password") or ""
     confirm_password = form.get("confirm_password") or ""
     if not all(values.values()):
-        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="First name, last name, and email are required."))
+        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="First name, last name, email, and username are required."))
     if auth.email_exists_for_other_user(values["email"], user["id"]):
         return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="That email is already used by another account."))
+    if auth.username_exists_for_other_user(values["username"], user["id"]):
+        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="That username already exists. Choose another username."))
     if password or confirm_password:
         if not password or password != confirm_password:
             return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="Passwords do not match."))
-    auth.update_account(user["id"], values["first_name"], values["last_name"], values["email"], password)
+    auth.update_account(user["id"], values["first_name"], values["last_name"], values["email"], values["username"], password)
     return RedirectResponse(url="/account?saved=1", status_code=303)
 
 
@@ -198,15 +211,17 @@ def member_detail(request: Request, member_id: int):
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
+    user = current_user(request)
     return templates.TemplateResponse(
         request,
         "member_detail.html",
-        view_context(request, member=member, family_relationships=members.FAMILY_RELATIONSHIPS),
+        view_context(request, member=member, family_relationships=members.FAMILY_RELATIONSHIPS, can_edit_member=can_edit_member(user, member_id)),
     )
 
 
 @app.get("/members/{member_id}/edit", response_class=HTMLResponse)
 def edit_member_form(request: Request, member_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -227,6 +242,7 @@ def edit_member_form(request: Request, member_id: int):
 
 @app.post("/members/{member_id}/edit")
 async def update_member(request: Request, member_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -333,6 +349,7 @@ async def update_member(request: Request, member_id: int):
 
 @app.post("/members/{member_id}/family")
 async def add_member_family(request: Request, member_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -355,6 +372,7 @@ async def add_member_family(request: Request, member_id: int):
 
 @app.get("/members/{member_id}/family/{family_id}/edit", response_class=HTMLResponse)
 def edit_member_family_form(request: Request, member_id: int, family_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -376,6 +394,7 @@ def edit_member_family_form(request: Request, member_id: int, family_id: int):
 
 @app.post("/members/{member_id}/family/{family_id}/edit")
 async def update_member_family(request: Request, member_id: int, family_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -401,7 +420,8 @@ async def update_member_family(request: Request, member_id: int, family_id: int)
 
 
 @app.post("/members/{member_id}/family/{family_id}/delete")
-def delete_member_family(member_id: int, family_id: int):
+def delete_member_family(request: Request, member_id: int, family_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -418,6 +438,7 @@ def uploaded_photo(form, field_name: str) -> UploadFile | None:
 
 @app.post("/members/{member_id}/photo")
 async def update_member_photo(request: Request, member_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")
@@ -439,6 +460,7 @@ async def update_member_photo(request: Request, member_id: int):
 
 @app.post("/members/{member_id}/family/{family_id}/photo")
 async def update_family_photo(request: Request, member_id: int, family_id: int):
+    require_member_editor(request, member_id)
     member = members.member_detail(member_id)
     if not member:
         raise HTTPException(status_code=404, detail="Member not found.")

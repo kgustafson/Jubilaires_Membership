@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.23 - 5/7/2026
+
+Tightened account and member edit permissions.
+
+- Added username editing to the account information page with duplicate username validation.
+- Added member edit authorization so non-admin users can only edit the member record linked to their login.
+- Hid member edit, family edit, family remove, and add-family controls from member records the current user cannot edit.
+
 ## v1.0.22 - 5/7/2026
 
 Added account profile access from the header.

@@ -9,7 +9,9 @@
   {% endif %}
   <h1>{{ member.first_name }} {{ member.last_name }}</h1>
   <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
-  <a class="button inline-action" href="/members/{{ member.id }}/edit">Edit Member</a>
+  {% if can_edit_member %}
+    <a class="button inline-action" href="/members/{{ member.id }}/edit">Edit Member</a>
+  {% endif %}
 </section>
 
 <section class="detail-grid">
@@ -45,53 +47,57 @@
               {% if person.email_address %} · <a href="mailto:{{ person.email_address }}">{{ person.email_address }}</a>{% endif %}
             </small>
           </span>
-          <a class="text-button" href="/members/{{ member.id }}/family/{{ person.id }}/edit">Edit</a>
-          <form action="/members/{{ member.id }}/family/{{ person.id }}/delete" method="post">
-            <button class="text-button" type="submit">Remove</button>
-          </form>
+          {% if can_edit_member %}
+            <a class="text-button" href="/members/{{ member.id }}/family/{{ person.id }}/edit">Edit</a>
+            <form action="/members/{{ member.id }}/family/{{ person.id }}/delete" method="post">
+              <button class="text-button" type="submit">Remove</button>
+            </form>
+          {% endif %}
         </li>
       {% else %}
         <li>No family listed.</li>
       {% endfor %}
     </ul>
-    <form class="stacked-form" action="/members/{{ member.id }}/family" method="post">
-      <h3>Add Family</h3>
-      <div class="form-grid">
+    {% if can_edit_member %}
+      <form class="stacked-form" action="/members/{{ member.id }}/family" method="post">
+        <h3>Add Family</h3>
+        <div class="form-grid">
+          <label>
+            First
+            <input name="first_name" required>
+          </label>
+          <label>
+            Last
+            <input name="last_name">
+          </label>
+          <label>
+            Relationship
+            <select name="relationship">
+              {% for relationship in family_relationships %}
+                <option value="{{ relationship }}">{{ relationship|title }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Email
+            <input type="email" name="email_address">
+          </label>
+          <label>
+            Date of Birth
+            <input type="date" name="date_of_birth">
+          </label>
+        </div>
         <label>
-          First
-          <input name="first_name" required>
+          Picture Path
+          <input name="picture_path" placeholder="/absolute/path/or/static/url">
         </label>
         <label>
-          Last
-          <input name="last_name">
+          Notes
+          <textarea name="notes" rows="2"></textarea>
         </label>
-        <label>
-          Relationship
-          <select name="relationship">
-            {% for relationship in family_relationships %}
-              <option value="{{ relationship }}">{{ relationship|title }}</option>
-            {% endfor %}
-          </select>
-        </label>
-        <label>
-          Email
-          <input type="email" name="email_address">
-        </label>
-        <label>
-          Date of Birth
-          <input type="date" name="date_of_birth">
-        </label>
-      </div>
-      <label>
-        Picture Path
-        <input name="picture_path" placeholder="/absolute/path/or/static/url">
-      </label>
-      <label>
-        Notes
-        <textarea name="notes" rows="2"></textarea>
-      </label>
-      <button type="submit">Add</button>
-    </form>
+        <button type="submit">Add</button>
+      </form>
+    {% endif %}
   </div>
 
   <div class="detail-panel">
