@@ -6,7 +6,7 @@
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="2">Family</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="3">Part</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="4">Status</button></th>
-      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="5" data-sort-type="date">Start</button></th>
+      <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="5" data-sort-type="number">Years Active</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="6">Phone</button></th>
       <th aria-sort="none"><button class="sort-button" type="button" data-sort-index="7">Email</button></th>
     </tr>
@@ -23,7 +23,7 @@
         <td>{{ member.family_names or "" }}</td>
         <td>{{ member.part_names or "" }}</td>
         <td>{{ member.status_code|title if member.status_code else "" }}</td>
-        <td>{{ member.membership_start_date or "" }}</td>
+        <td>{{ member.years_active if member.years_active is not none else "" }}</td>
         <td>{{ member.primary_phone or "" }}</td>
         <td>{{ member.primary_email or "" }}</td>
       </tr>

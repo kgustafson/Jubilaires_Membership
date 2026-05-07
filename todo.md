@@ -24,7 +24,7 @@
 - [x] Normalize extracted roster photos to 512x512 JPEG files.
 - [ ] Review imported family records and correct spouse/child/other relationships.
 - [x] Parse member birthday and anniversary values from Choir Genius exports.
-- [ ] Decide when to drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
+- [x] Drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
 
 ## Web Interface
 

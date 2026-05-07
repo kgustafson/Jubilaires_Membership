@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.18 - 5/7/2026
+
+Removed legacy derived date fields from the roster model.
+
+- Added a migration to drop legacy `years_with_group`, birthday month/day, and spouse birthday month/day columns.
+- Retired old initialization logic that referenced legacy birthday and years-with-group columns.
+- Replaced the dashboard roster Start column with derived Years Active.
+- Calculated Years Active from start date to inactive date for inactive members, or to the current date for active members.
+- Added numeric sorting support for the derived Years Active roster column.
+
 ## v1.0.17 - 5/7/2026
 
 Expanded Photo Review assignment management.

@@ -96,7 +96,16 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             m.last_name,
             m.first_name,
             family_summary.family_names,
-            m.membership_start_date,
+            CASE
+                WHEN m.membership_start_date IS NULL THEN NULL
+                ELSE GREATEST(
+                    0,
+                    date_part(
+                        'year',
+                        age(COALESCE(m.inactive_date, CURRENT_DATE), m.membership_start_date)
+                    )::int
+                )
+            END AS years_active,
             part_summary.part_names,
             ms.status_code,
             primary_phone.phone_number AS primary_phone,

@@ -12,6 +12,11 @@
       rightValue = rightValue ? Date.parse(rightValue) : Number.POSITIVE_INFINITY;
     }
 
+    if (type === "number") {
+      leftValue = leftValue ? Number(leftValue) : Number.POSITIVE_INFINITY;
+      rightValue = rightValue ? Number(rightValue) : Number.POSITIVE_INFINITY;
+    }
+
     const result = leftValue > rightValue ? 1 : leftValue < rightValue ? -1 : 0;
     return direction === "ascending" ? result : -result;
   };
