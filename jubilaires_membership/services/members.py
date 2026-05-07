@@ -29,6 +29,10 @@ def optional_int(value: str) -> int | None:
     return int(value) if value.strip() else None
 
 
+def optional_bool(value: str | None) -> bool:
+    return value in {"1", "true", "on", "yes"}
+
+
 def dashboard_counts() -> dict:
     counts = db.fetch_one(
         """
@@ -195,7 +199,15 @@ def member_detail(member_id: int) -> Optional[dict]:
     )
     member["quartets"] = db.fetch_all(
         """
-        SELECT q.name, mq.membership_state, mq.role_notes
+        SELECT
+            q.id,
+            q.name,
+            q.is_active,
+            q.formation_date,
+            q.deactivation_date,
+            q.notes,
+            mq.membership_state,
+            mq.role_notes
         FROM member_quartet mq
         JOIN quartet q ON q.id = mq.quartet_id
         WHERE mq.member_id = :member_id
@@ -203,6 +215,8 @@ def member_detail(member_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id},
     )
+    member["voice_part_ids"] = [part["id"] for part in member["voice_parts"]]
+    member["quartets_by_id"] = {quartet["id"]: quartet for quartet in member["quartets"]}
     member["leadership_roles"] = db.fetch_all(
         """
         SELECT mr.role_name, mra.start_date, mra.end_date, mra.source_system
@@ -246,6 +260,60 @@ def member_detail(member_id: int) -> Optional[dict]:
         {"member_id": member_id},
     )
     return member
+
+
+def update_member_voice_parts(member_id: int, voice_part_ids: list[int]) -> None:
+    db.execute("DELETE FROM member_voice_part WHERE member_id = :member_id", {"member_id": member_id})
+    for index, voice_part_id in enumerate(dict.fromkeys(voice_part_ids)):
+        db.execute(
+            """
+            INSERT INTO member_voice_part (member_id, voice_part_id, is_primary)
+            VALUES (:member_id, :voice_part_id, :is_primary)
+            """,
+            {
+                "member_id": member_id,
+                "voice_part_id": voice_part_id,
+                "is_primary": index == 0,
+            },
+        )
+
+
+def update_quartet_catalog(quartet_id: int, values: dict[str, str]) -> None:
+    db.execute(
+        """
+        UPDATE quartet
+        SET
+            is_active = :is_active,
+            formation_date = :formation_date,
+            deactivation_date = :deactivation_date,
+            notes = :notes
+        WHERE id = :quartet_id
+        """,
+        {
+            "quartet_id": quartet_id,
+            "is_active": optional_bool(values.get("is_active")),
+            "formation_date": optional_date(values.get("formation_date", "")),
+            "deactivation_date": optional_date(values.get("deactivation_date", "")),
+            "notes": values.get("notes", "").strip() or None,
+        },
+    )
+
+
+def update_member_quartets(member_id: int, assignments: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_quartet WHERE member_id = :member_id", {"member_id": member_id})
+    for assignment in assignments:
+        db.execute(
+            """
+            INSERT INTO member_quartet (member_id, quartet_id, membership_state, role_notes)
+            VALUES (:member_id, :quartet_id, :membership_state, :role_notes)
+            """,
+            {
+                "member_id": member_id,
+                "quartet_id": int(assignment["quartet_id"]),
+                "membership_state": assignment["membership_state"] if assignment["membership_state"] in {"primary", "alternate"} else "primary",
+                "role_notes": assignment.get("role_notes", "").strip() or None,
+            },
+        )
 
 
 def update_member(member_id: int, values: dict[str, str]) -> None:
@@ -382,6 +450,16 @@ def delete_family_member(member_id: int, family_id: int) -> None:
 
 def voice_parts() -> list[dict]:
     return db.fetch_all("SELECT id, part_name FROM voice_part ORDER BY part_name")
+
+
+def quartets() -> list[dict]:
+    return db.fetch_all(
+        """
+        SELECT id, name, is_active, formation_date, deactivation_date, notes
+        FROM quartet
+        ORDER BY is_active DESC, name
+        """
+    )
 
 
 def statuses() -> list[dict]:

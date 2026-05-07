@@ -604,6 +604,133 @@ textarea {
   margin-top: 4px;
 }
 
+.form-section {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 14px;
+}
+
+.form-section h3 {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.assignment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.field-summary {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.edit-dialog {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(22, 52, 71, .26);
+  color: var(--ink);
+  max-width: min(720px, calc(100vw - 32px));
+  padding: 0;
+  width: 560px;
+}
+
+.wide-dialog {
+  max-width: min(1120px, calc(100vw - 32px));
+  width: 1080px;
+}
+
+.edit-dialog::backdrop {
+  background: rgba(15, 23, 42, .38);
+}
+
+.dialog-header,
+.dialog-actions {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.dialog-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.dialog-actions {
+  border-top: 1px solid var(--line);
+  justify-content: flex-end;
+}
+
+.dialog-header h3 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.icon-button {
+  align-items: center;
+  background: var(--brand-soft);
+  color: var(--ink);
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  padding: 0;
+  width: 34px;
+}
+
+.edit-dialog .check-grid,
+.edit-dialog .quartet-editor {
+  padding: 16px;
+}
+
+.check-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+}
+
+.check-row {
+  align-items: center;
+  color: var(--ink);
+  display: flex;
+  font-size: 14px;
+  font-weight: 700;
+  gap: 8px;
+  text-transform: none;
+}
+
+.check-row input {
+  min-height: auto;
+}
+
+.quartet-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.quartet-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(160px, 1.2fr) repeat(5, minmax(130px, 1fr));
+  padding: 12px;
+}
+
+.quartet-name {
+  align-self: end;
+}
+
+.quartet-notes {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 900px) {
   .app-header {
     align-items: stretch;
@@ -634,7 +761,9 @@ textarea {
 
   .metrics,
   .filters,
-  .detail-grid {
+  .detail-grid,
+  .check-grid,
+  .quartet-row {
     grid-template-columns: 1fr;
   }
 

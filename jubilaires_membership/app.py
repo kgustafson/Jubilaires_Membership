@@ -60,7 +60,12 @@ def edit_member_form(request: Request, member_id: int):
     return templates.TemplateResponse(
         request,
         "member_edit.html",
-        {"member": member, "statuses": members.statuses()},
+        {
+            "member": member,
+            "statuses": members.statuses(),
+            "voice_parts": members.voice_parts(),
+            "quartets": members.quartets(),
+        },
     )
 
 
@@ -75,6 +80,31 @@ async def update_member(request: Request, member_id: int):
     if not first_name or not last_name:
         return RedirectResponse(url=f"/members/{member_id}/edit?name_required=1", status_code=303)
     members.update_member(member_id, {key: str(form.get(key) or "") for key in form.keys()})
+    voice_part_ids = [int(value) for value in form.getlist("voice_part_ids") if str(value).isdigit()]
+    members.update_member_voice_parts(member_id, voice_part_ids)
+
+    selected_quartet_ids = {str(value) for value in form.getlist("quartet_ids")}
+    quartet_assignments = []
+    for quartet in members.quartets():
+        quartet_id = str(quartet["id"])
+        members.update_quartet_catalog(
+            quartet["id"],
+            {
+                "is_active": form.get(f"quartet_{quartet_id}_is_active") or "",
+                "formation_date": form.get(f"quartet_{quartet_id}_formation_date") or "",
+                "deactivation_date": form.get(f"quartet_{quartet_id}_deactivation_date") or "",
+                "notes": form.get(f"quartet_{quartet_id}_notes") or "",
+            },
+        )
+        if quartet_id in selected_quartet_ids:
+            quartet_assignments.append(
+                {
+                    "quartet_id": quartet_id,
+                    "membership_state": form.get(f"quartet_{quartet_id}_membership_state") or "primary",
+                    "role_notes": form.get(f"quartet_{quartet_id}_role_notes") or "",
+                }
+            )
+    members.update_member_quartets(member_id, quartet_assignments)
     return RedirectResponse(url=f"/members/{member_id}?saved=1", status_code=303)
 
 

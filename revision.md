@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.11 - 5/7/2026
+
+Added member voice part and quartet editors.
+
+- Added quartet lifecycle fields: active state, formation date, and deactivation date.
+- Added a member edit voice part multi-select editor.
+- Added quartet membership editing with primary/alternate assignment state.
+- Added quartet lifecycle editing from the member edit workflow.
+- Updated member detail pages to show quartet active/inactive and lifecycle dates.
+
 ## v1.0.10 - 5/7/2026
 
 Added database recovery planning.

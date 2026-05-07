@@ -127,7 +127,16 @@
     <h2>Quartets</h2>
     <ul>
       {% for quartet in member.quartets %}
-        <li>{{ quartet.name }} <small>{{ quartet.membership_state|title }}</small>{% if quartet.role_notes %}: {{ quartet.role_notes }}{% endif %}</li>
+        <li>
+          {{ quartet.name }}
+          <small>
+            {{ quartet.membership_state|title }}
+            · {{ "Active" if quartet.is_active else "Inactive" }}
+            {% if quartet.formation_date %} · Formed {{ quartet.formation_date }}{% endif %}
+            {% if quartet.deactivation_date %} · Deactivated {{ quartet.deactivation_date }}{% endif %}
+          </small>
+          {% if quartet.role_notes %}: {{ quartet.role_notes }}{% endif %}
+        </li>
       {% else %}
         <li>No quartets listed.</li>
       {% endfor %}

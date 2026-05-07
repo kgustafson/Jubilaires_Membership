@@ -35,9 +35,9 @@
 - [ ] Build administrator workflows with permission to change anything in the database.
 - [x] Build member edit form.
 - [x] Build family add/edit/delete workflow.
-- [ ] Build voice part multi-select editor.
-- [ ] Build quartet membership editor with primary/alternate selector.
-- [ ] Build quartet editor for active/inactive state, formation date, and deactivation date.
+- [x] Build voice part multi-select editor.
+- [x] Build quartet membership editor with primary/alternate selector.
+- [x] Build quartet editor for active/inactive state, formation date, and deactivation date.
 - [ ] Build member role assignment editor with start/end dates.
 - [ ] Build address editor.
 - [ ] Build phone/email editor.

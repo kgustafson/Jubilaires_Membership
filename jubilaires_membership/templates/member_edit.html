@@ -62,6 +62,85 @@
       Notes
       <textarea name="notes" rows="8">{{ member.notes or '' }}</textarea>
     </label>
+    <section class="form-section">
+      <h3>Assignments</h3>
+      <div class="assignment-actions">
+        <button type="button" class="secondary-button" data-open-dialog="voice-parts-dialog">Voice Parts</button>
+        <button type="button" class="secondary-button" data-open-dialog="quartets-dialog">Quartets</button>
+      </div>
+      <p class="field-summary">
+        Voice: {{ member.part_names or "None" }} ·
+        Quartets: {{ member.quartets|map(attribute='name')|join(', ') if member.quartets else "None" }}
+      </p>
+    </section>
+
+    <dialog class="edit-dialog" id="voice-parts-dialog">
+      <div class="dialog-header">
+        <h3>Voice Parts</h3>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+      </div>
+      <div class="check-grid">
+        {% for part in voice_parts %}
+          <label class="check-row">
+            <input type="checkbox" name="voice_part_ids" value="{{ part.id }}" {% if part.id in member.voice_part_ids %}checked{% endif %}>
+            <span>{{ part.part_name }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <div class="dialog-actions">
+        <button type="button" data-close-dialog>Done</button>
+      </div>
+    </dialog>
+
+    <dialog class="edit-dialog wide-dialog" id="quartets-dialog">
+      <div class="dialog-header">
+        <h3>Quartets</h3>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+      </div>
+      <div class="quartet-editor">
+        {% for quartet in quartets %}
+          {% set assignment = member.quartets_by_id.get(quartet.id) %}
+          <div class="quartet-row">
+            <label class="check-row quartet-name">
+              <input type="checkbox" name="quartet_ids" value="{{ quartet.id }}" {% if assignment %}checked{% endif %}>
+              <span>{{ quartet.name }}</span>
+            </label>
+            <label>
+              Member State
+              <select name="quartet_{{ quartet.id }}_membership_state">
+                <option value="primary" {% if assignment and assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
+                <option value="alternate" {% if assignment and assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+              </select>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="quartet_{{ quartet.id }}_is_active" value="1" {% if quartet.is_active %}checked{% endif %}>
+              <span>Active Quartet</span>
+            </label>
+            <label>
+              Formation Date
+              <input type="date" name="quartet_{{ quartet.id }}_formation_date" value="{{ quartet.formation_date or '' }}">
+            </label>
+            <label>
+              Deactivation Date
+              <input type="date" name="quartet_{{ quartet.id }}_deactivation_date" value="{{ quartet.deactivation_date or '' }}">
+            </label>
+            <label>
+              Member Notes
+              <input name="quartet_{{ quartet.id }}_role_notes" value="{{ assignment.role_notes if assignment else '' }}">
+            </label>
+            <label class="quartet-notes">
+              Quartet Notes
+              <input name="quartet_{{ quartet.id }}_notes" value="{{ quartet.notes or '' }}">
+            </label>
+          </div>
+        {% else %}
+          <p>No quartets have been imported yet.</p>
+        {% endfor %}
+      </div>
+      <div class="dialog-actions">
+        <button type="button" data-close-dialog>Done</button>
+      </div>
+    </dialog>
     <div class="form-actions">
       <button type="submit">Save</button>
       <a class="button secondary-button" href="/members/{{ member.id }}">Cancel</a>

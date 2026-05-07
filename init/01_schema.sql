@@ -17,6 +17,9 @@ CREATE TABLE voice_part (
 CREATE TABLE quartet (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(120) NOT NULL UNIQUE,
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    formation_date  DATE,
+    deactivation_date DATE,
     notes           TEXT
 );
 
