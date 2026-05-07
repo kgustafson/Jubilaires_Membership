@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 
-from jubilaires_membership.services import auth, members, photos
+from jubilaires_membership.services import auth, backups, members, photos
 
 
 app = FastAPI(title="Jubilaires Membership")
@@ -297,6 +297,59 @@ async def reset_user_two_factor(request: Request, user_id: int):
     require_admin(request)
     auth.reset_two_factor(user_id)
     return RedirectResponse(url="/admin/users?two_factor_reset=1", status_code=303)
+
+
+@app.get("/admin/database", response_class=HTMLResponse)
+def database_admin(request: Request):
+    require_admin(request)
+    return templates.TemplateResponse(
+        request,
+        "admin_database.html",
+        view_context(request, backups=backups.list_backups()),
+    )
+
+
+@app.post("/admin/database/backup", response_class=HTMLResponse)
+def create_database_backup(request: Request):
+    require_admin(request)
+    try:
+        backup = backups.create_backup()
+        message = f"Created backup {backup['name']}."
+        error = ""
+    except backups.DatabaseBackupError as exc:
+        message = ""
+        error = str(exc)
+    return templates.TemplateResponse(
+        request,
+        "admin_database.html",
+        view_context(request, backups=backups.list_backups(), message=message, error=error),
+    )
+
+
+@app.post("/admin/database/restore", response_class=HTMLResponse)
+async def restore_database_backup(request: Request):
+    require_admin(request)
+    form = await request.form()
+    upload = form.get("backup_file")
+    backup_name = (form.get("backup_name") or "").strip()
+    try:
+        if hasattr(upload, "filename") and upload.filename and hasattr(upload, "file"):
+            backups.restore_uploaded_backup(upload.file)
+            message = f"Restored database from uploaded file {upload.filename}."
+        elif backup_name:
+            backups.restore_backup(backup_name)
+            message = f"Restored database from backup {backup_name}."
+        else:
+            raise backups.DatabaseBackupError("Choose a backup file before restoring.")
+        error = ""
+    except backups.DatabaseBackupError as exc:
+        message = ""
+        error = str(exc)
+    return templates.TemplateResponse(
+        request,
+        "admin_database.html",
+        view_context(request, backups=backups.list_backups(), message=message, error=error),
+    )
 
 
 @app.get("/members/{member_id}", response_class=HTMLResponse)

@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.27 - 5/7/2026
+
+Added database backup and recovery administration.
+
+- Added an administrator-only Database page.
+- Added one-click PostgreSQL backups stored in `backups/` using `YYYY-MM-DD-XXX.dump` names with daily ordinal increments.
+- Added recovery from an existing saved backup or an uploaded backup file selected through a file picker.
+- Added restore confirmation modals and backup/recovery status messaging.
+
 ## v1.0.26 - 5/7/2026
 
 Fixed default inactive row visibility on the dashboard.

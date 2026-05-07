@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Database Backup and Recovery - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Database Backup and Recovery</h1>
+    <p>Create database backups and restore from a previous backup file.</p>
+  </div>
+</section>
+
+{% if error %}
+  <p class="form-error">{{ error }}</p>
+{% endif %}
+
+{% if message %}
+  <p class="success-message">{{ message }}</p>
+{% endif %}
+
+<section class="detail-grid database-grid">
+  <article class="detail-panel">
+    <div class="section-header flush-header">
+      <h2>Create Backup</h2>
+    </div>
+    <p class="muted-copy">Backups are stored in the project backup directory using the next available daily ordinal, such as 2026-05-07-001.dump.</p>
+    <form action="/admin/database/backup" method="post">
+      <button type="submit">Create Backup</button>
+    </form>
+  </article>
+
+  <article class="detail-panel">
+    <div class="section-header flush-header">
+      <h2>Recover From File</h2>
+    </div>
+    <p class="muted-copy">Restore from a PostgreSQL custom-format backup file selected from this machine.</p>
+    <form action="/admin/database/restore" method="post" enctype="multipart/form-data">
+      <label>
+        Backup File
+        <input type="file" name="backup_file" accept=".dump,.backup,.pgdump,application/octet-stream" required>
+      </label>
+      <div class="form-actions">
+        <button type="button" class="danger-button" data-open-dialog="upload-restore-dialog">Restore Uploaded Backup</button>
+      </div>
+      <dialog class="edit-dialog" id="upload-restore-dialog">
+        <div class="dialog-header">
+          <h3>Restore Uploaded Backup</h3>
+          <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+        </div>
+        <div class="dialog-body">
+          <p>This will replace the current database with the selected backup file. The restore cannot be undone unless you have another backup.</p>
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+          <button type="submit" class="danger-button">Restore Database</button>
+        </div>
+      </dialog>
+    </form>
+  </article>
+</section>
+
+<section class="table-section database-table-section">
+  <div class="section-header">
+    <h2>Saved Backups</h2>
+    <span class="result-count">{{ backups|length }} available</span>
+  </div>
+  {% if backups %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Backup File</th>
+          <th>Created</th>
+          <th>Size</th>
+          <th>Recovery</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for backup in backups %}
+          <tr>
+            <td><strong>{{ backup.name }}</strong></td>
+            <td>{{ backup.created_at.strftime("%m/%d/%Y %I:%M %p") }}</td>
+            <td>{{ backup.size_label }}</td>
+            <td>
+              <form action="/admin/database/restore" method="post">
+                <input type="hidden" name="backup_name" value="{{ backup.name }}">
+                <button type="button" class="danger-button compact-button" data-open-dialog="restore-dialog-{{ loop.index }}">Restore</button>
+                <dialog class="edit-dialog" id="restore-dialog-{{ loop.index }}">
+                  <div class="dialog-header">
+                    <h3>Restore Backup</h3>
+                    <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+                  </div>
+                  <div class="dialog-body">
+                    <p><strong>{{ backup.name }}</strong></p>
+                    <p>This will replace the current database with this backup. The restore cannot be undone unless you have another backup.</p>
+                  </div>
+                  <div class="dialog-actions">
+                    <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+                    <button type="submit" class="danger-button">Restore Database</button>
+                  </div>
+                </dialog>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-state">No database backups have been created yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

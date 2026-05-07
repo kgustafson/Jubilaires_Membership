@@ -1021,6 +1021,29 @@ textarea {
   margin-top: 18px;
 }
 
+.database-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.database-grid label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.database-table-section {
+  margin-top: 18px;
+}
+
+.muted-copy {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
 .row-title {
   min-width: 0;
 }

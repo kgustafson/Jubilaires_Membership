@@ -53,6 +53,7 @@
           {% if current_user.role == "administrator" %}
             <a class="sidebar-link {% if request.url.path == '/photos/unassigned' %}active{% endif %}" href="/photos/unassigned">Photo Review</a>
             <a class="sidebar-link {% if request.url.path == '/admin/users' %}active{% endif %}" href="/admin/users">User Administration</a>
+            <a class="sidebar-link {% if request.url.path == '/admin/database' %}active{% endif %}" href="/admin/database">Database</a>
           {% endif %}
           <span class="sidebar-link disabled">Admin Settings</span>
         </nav>
