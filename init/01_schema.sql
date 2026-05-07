@@ -20,6 +20,7 @@ CREATE TABLE quartet (
     is_active       BOOLEAN NOT NULL DEFAULT TRUE,
     formation_date  DATE,
     deactivation_date DATE,
+    picture_path    TEXT,
     notes           TEXT
 );
 

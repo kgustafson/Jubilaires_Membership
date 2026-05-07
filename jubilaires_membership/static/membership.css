@@ -1038,6 +1038,59 @@ textarea {
   margin-top: 18px;
 }
 
+.quartet-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.quartet-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.quartet-card-header {
+  align-items: start;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+.quartet-card h2 {
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+
+.quartet-photo {
+  aspect-ratio: 5 / 4;
+  border-radius: 8px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.quartet-stats {
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 10px;
+}
+
+.quartet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quartet-member-row {
+  grid-template-columns: minmax(180px, 1fr) minmax(130px, .7fr) minmax(180px, 1fr);
+}
+
 .muted-copy {
   color: var(--muted);
   line-height: 1.5;
@@ -1284,7 +1337,8 @@ textarea {
   .contact-row,
   .phone-row,
   .address-row,
-  .user-admin-row {
+  .user-admin-row,
+  .quartet-member-row {
     grid-template-columns: 1fr;
   }
 

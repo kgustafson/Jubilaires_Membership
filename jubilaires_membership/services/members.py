@@ -717,10 +717,165 @@ def voice_parts() -> list[dict]:
 def quartets() -> list[dict]:
     return db.fetch_all(
         """
-        SELECT id, name, is_active, formation_date, deactivation_date, notes
+        SELECT id, name, is_active, formation_date, deactivation_date, picture_path, notes
         FROM quartet
         ORDER BY is_active DESC, name
         """
+    )
+
+
+def quartet_rows() -> list[dict]:
+    return db.fetch_all(
+        """
+        SELECT
+            q.id,
+            q.name,
+            q.is_active,
+            q.formation_date,
+            q.deactivation_date,
+            q.picture_path,
+            q.notes,
+            COUNT(mq.member_id) FILTER (WHERE mq.membership_state = 'primary') AS primary_count,
+            COUNT(mq.member_id) FILTER (WHERE mq.membership_state = 'alternate') AS alternate_count,
+            string_agg(
+                trim(concat_ws(' ', m.first_name, m.last_name)) || ' (' || mq.membership_state || ')',
+                ', ' ORDER BY mq.membership_state DESC, m.last_name, m.first_name
+            ) AS member_summary
+        FROM quartet q
+        LEFT JOIN member_quartet mq ON mq.quartet_id = q.id
+        LEFT JOIN member m ON m.id = mq.member_id
+        GROUP BY q.id
+        ORDER BY q.is_active DESC, q.name
+        """
+    )
+
+
+def quartet_detail(quartet_id: int) -> Optional[dict]:
+    quartet = db.fetch_one(
+        """
+        SELECT id, name, is_active, formation_date, deactivation_date, picture_path, notes
+        FROM quartet
+        WHERE id = :quartet_id
+        """,
+        {"quartet_id": quartet_id},
+    )
+    if not quartet:
+        return None
+    quartet["members"] = db.fetch_all(
+        """
+        SELECT
+            mq.member_id,
+            mq.membership_state,
+            mq.role_notes,
+            m.first_name,
+            m.last_name,
+            part_summary.part_names
+        FROM member_quartet mq
+        JOIN member m ON m.id = mq.member_id
+        LEFT JOIN LATERAL (
+            SELECT string_agg(vp.part_name, ', ' ORDER BY mvp.is_primary DESC, vp.part_name) AS part_names
+            FROM member_voice_part mvp
+            JOIN voice_part vp ON vp.id = mvp.voice_part_id
+            WHERE mvp.member_id = m.id
+        ) part_summary ON true
+        WHERE mq.quartet_id = :quartet_id
+        ORDER BY mq.membership_state, m.last_name, m.first_name
+        """,
+        {"quartet_id": quartet_id},
+    )
+    quartet["members_by_id"] = {member["member_id"]: member for member in quartet["members"]}
+    return quartet
+
+
+def primary_quartet_member_ids(quartet_id: int) -> set[int]:
+    rows = db.fetch_all(
+        """
+        SELECT member_id
+        FROM member_quartet
+        WHERE quartet_id = :quartet_id
+          AND membership_state = 'primary'
+        """,
+        {"quartet_id": quartet_id},
+    )
+    return {row["member_id"] for row in rows}
+
+
+def create_quartet(values: dict[str, str]) -> int:
+    row = db.fetch_one_write(
+        """
+        INSERT INTO quartet (name, is_active, formation_date, deactivation_date, notes)
+        VALUES (:name, :is_active, :formation_date, :deactivation_date, :notes)
+        RETURNING id
+        """,
+        {
+            "name": values["name"].strip(),
+            "is_active": optional_bool(values.get("is_active")),
+            "formation_date": optional_date(values.get("formation_date", "")),
+            "deactivation_date": optional_date(values.get("deactivation_date", "")),
+            "notes": values.get("notes", "").strip() or None,
+        },
+    )
+    return row["id"]
+
+
+def update_quartet(quartet_id: int, values: dict[str, str]) -> None:
+    db.execute(
+        """
+        UPDATE quartet
+        SET
+            name = :name,
+            is_active = :is_active,
+            formation_date = :formation_date,
+            deactivation_date = :deactivation_date,
+            notes = :notes
+        WHERE id = :quartet_id
+        """,
+        {
+            "quartet_id": quartet_id,
+            "name": values["name"].strip(),
+            "is_active": optional_bool(values.get("is_active")),
+            "formation_date": optional_date(values.get("formation_date", "")),
+            "deactivation_date": optional_date(values.get("deactivation_date", "")),
+            "notes": values.get("notes", "").strip() or None,
+        },
+    )
+
+
+def delete_quartet(quartet_id: int) -> None:
+    db.execute("DELETE FROM quartet WHERE id = :quartet_id", {"quartet_id": quartet_id})
+
+
+def update_quartet_members(quartet_id: int, assignments: list[dict[str, str]]) -> None:
+    db.execute("DELETE FROM member_quartet WHERE quartet_id = :quartet_id", {"quartet_id": quartet_id})
+    for assignment in assignments:
+        member_id = optional_int(assignment.get("member_id", ""))
+        if not member_id:
+            continue
+        membership_state = assignment.get("membership_state", "primary")
+        if membership_state not in {"primary", "alternate"}:
+            membership_state = "primary"
+        db.execute(
+            """
+            INSERT INTO member_quartet (member_id, quartet_id, membership_state, role_notes)
+            VALUES (:member_id, :quartet_id, :membership_state, :role_notes)
+            """,
+            {
+                "member_id": member_id,
+                "quartet_id": quartet_id,
+                "membership_state": membership_state,
+                "role_notes": assignment.get("role_notes", "").strip() or None,
+            },
+        )
+
+
+def update_quartet_picture_path(quartet_id: int, picture_path: str) -> None:
+    db.execute(
+        """
+        UPDATE quartet
+        SET picture_path = :picture_path
+        WHERE id = :quartet_id
+        """,
+        {"quartet_id": quartet_id, "picture_path": picture_path.strip() or None},
     )
 
 

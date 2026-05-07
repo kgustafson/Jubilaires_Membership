@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.28 - 5/7/2026
+
+Added quartet management.
+
+- Added a Quartet Management page with quartet creation, editing, deletion, and membership editing by quartet.
+- Allowed administrators and primary members of a quartet to modify that quartet.
+- Added quartet photo storage with larger 10x8 group photo normalization.
+- Added a quartet photo database column and migration.
+
 ## v1.0.27 - 5/7/2026
 
 Added database backup and recovery administration.

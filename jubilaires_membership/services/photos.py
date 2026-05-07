@@ -16,6 +16,8 @@ MANIFEST_PATH = PHOTO_ROOT / "manifest.csv"
 ROSTER_PHOTO_DIR = PHOTO_ROOT / "roster"
 PROFILE_PHOTO_DIR = PHOTO_ROOT / "profile"
 PROFILE_SIZE = 512
+QUARTET_PHOTO_DIR = PHOTO_ROOT / "quartets"
+QUARTET_SIZE = (2000, 1600)
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
@@ -59,12 +61,33 @@ def normalize_profile_image(source: BinaryIO | bytes) -> Image.Image:
         return image.convert("RGB")
 
 
+def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
+    payload = source if isinstance(source, bytes) else source.read()
+    with Image.open(BytesIO(payload)) as image:
+        image = ImageOps.exif_transpose(image)
+        image.thumbnail(QUARTET_SIZE, Image.Resampling.LANCZOS)
+        canvas = Image.new("RGB", QUARTET_SIZE, "white")
+        converted = image.convert("RGB")
+        left = (QUARTET_SIZE[0] - converted.width) // 2
+        top = (QUARTET_SIZE[1] - converted.height) // 2
+        canvas.paste(converted, (left, top))
+        return canvas
+
+
 def save_profile_upload(source: BinaryIO | bytes, folder: str, filename_stem: str) -> str:
     destination_dir = PROFILE_PHOTO_DIR / safe_stem(folder)
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / f"{safe_stem(filename_stem)}.jpg"
     image = normalize_profile_image(source)
     image.save(destination, format="JPEG", quality=86, optimize=True)
+    return static_path(destination)
+
+
+def save_quartet_upload(source: BinaryIO | bytes, filename_stem: str) -> str:
+    QUARTET_PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+    destination = QUARTET_PHOTO_DIR / f"{safe_stem(filename_stem)}.jpg"
+    image = normalize_quartet_image(source)
+    image.save(destination, format="JPEG", quality=88, optimize=True)
     return static_path(destination)
 
 

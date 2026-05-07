@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% import "_photo_picker.html" as photo_ui %}
+
+{% block title %}Quartet Management - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Quartet Management</h1>
+    <p>Create quartets, manage quartet membership, and maintain group photos.</p>
+  </div>
+  {% if current_user.role == "administrator" %}
+    <button type="button" data-open-dialog="new-quartet-dialog">New Quartet</button>
+  {% endif %}
+</section>
+
+{% if request.query_params.get("name_required") %}
+  <p class="form-error">Quartet name is required.</p>
+{% endif %}
+{% if request.query_params.get("created") %}
+  <p class="success-message">Quartet created.</p>
+{% endif %}
+{% if request.query_params.get("saved") %}
+  <p class="success-message">Quartet saved.</p>
+{% endif %}
+{% if request.query_params.get("members_saved") %}
+  <p class="success-message">Quartet membership saved.</p>
+{% endif %}
+{% if request.query_params.get("photo_saved") %}
+  <p class="success-message">Quartet photo saved.</p>
+{% endif %}
+{% if request.query_params.get("photo_removed") %}
+  <p class="success-message">Quartet photo removed.</p>
+{% endif %}
+{% if request.query_params.get("deleted") %}
+  <p class="success-message">Quartet deleted.</p>
+{% endif %}
+
+{% if current_user.role == "administrator" %}
+  <dialog class="edit-dialog" id="new-quartet-dialog">
+    <form action="/quartets" method="post">
+      <div class="dialog-header">
+        <h3>New Quartet</h3>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+      </div>
+      <div class="dialog-body">
+        <label>
+          Name
+          <input name="name" required>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" name="is_active" value="1" checked>
+          <span>Active Quartet</span>
+        </label>
+        <label>
+          Formation Date
+          <input type="date" name="formation_date">
+        </label>
+        <label>
+          Deactivation Date
+          <input type="date" name="deactivation_date">
+        </label>
+        <label>
+          Notes
+          <textarea name="notes" rows="5"></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+        <button type="submit">Create Quartet</button>
+      </div>
+    </form>
+  </dialog>
+{% endif %}
+
+<section class="quartet-grid">
+  {% for quartet in quartets %}
+    {% set can_manage = quartet.id in manageable_quartet_ids %}
+    <article class="quartet-card">
+      {% if quartet.picture_path %}
+        <img class="quartet-photo" src="{{ quartet.picture_path }}" alt="">
+      {% endif %}
+      <div class="quartet-card-header">
+        <div>
+          <h2>{{ quartet.name }}</h2>
+          <p class="field-summary">{{ "Active" if quartet.is_active else "Inactive" }}</p>
+        </div>
+        <span class="muted-label">{{ quartet.primary_count or 0 }} primary</span>
+      </div>
+      <div class="quartet-stats">
+        <span>{{ quartet.alternate_count or 0 }} alternates</span>
+        {% if quartet.formation_date %}
+          <span>Formed {{ quartet.formation_date }}</span>
+        {% endif %}
+        {% if quartet.deactivation_date %}
+          <span>Deactivated {{ quartet.deactivation_date }}</span>
+        {% endif %}
+      </div>
+      <p class="muted-copy">{{ quartet.member_summary or "No members assigned yet." }}</p>
+      {% if quartet.notes %}
+        <p>{{ quartet.notes }}</p>
+      {% endif %}
+      <div class="quartet-actions">
+        {% if can_manage %}
+          <button type="button" class="secondary-button compact-button" data-open-dialog="edit-quartet-dialog-{{ quartet.id }}">Edit</button>
+          <button type="button" class="secondary-button compact-button" data-open-dialog="quartet-members-dialog-{{ quartet.id }}">Members</button>
+          <button type="button" class="secondary-button compact-button" data-open-dialog="quartet-photo-dialog-{{ quartet.id }}">Photo</button>
+        {% endif %}
+        {% if current_user.role == "administrator" %}
+          <button type="button" class="danger-button compact-button" data-open-dialog="delete-quartet-dialog-{{ quartet.id }}">Delete</button>
+        {% endif %}
+      </div>
+    </article>
+
+    {% if can_manage %}
+      <dialog class="edit-dialog" id="edit-quartet-dialog-{{ quartet.id }}">
+        <form action="/quartets/{{ quartet.id }}" method="post">
+          <div class="dialog-header">
+            <h3>Edit Quartet</h3>
+            <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+          </div>
+          <div class="dialog-body">
+            <label>
+              Name
+              <input name="name" value="{{ quartet.name }}" required>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="is_active" value="1" {% if quartet.is_active %}checked{% endif %}>
+              <span>Active Quartet</span>
+            </label>
+            <label>
+              Formation Date
+              <input type="date" name="formation_date" value="{{ quartet.formation_date or '' }}">
+            </label>
+            <label>
+              Deactivation Date
+              <input type="date" name="deactivation_date" value="{{ quartet.deactivation_date or '' }}">
+            </label>
+            <label>
+              Notes
+              <textarea name="notes" rows="5">{{ quartet.notes or '' }}</textarea>
+            </label>
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+            <button type="submit">Save Quartet</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog class="edit-dialog wide-dialog" id="quartet-members-dialog-{{ quartet.id }}">
+        <form action="/quartets/{{ quartet.id }}/members" method="post">
+          <div class="dialog-header">
+            <h3>{{ quartet.name }} Members</h3>
+            <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+          </div>
+          <div class="modal-list">
+            {% for member in member_options %}
+              {% set assignment = quartet.members_by_id.get(member.id) if quartet.members_by_id is defined else None %}
+              <div class="modal-row quartet-member-row">
+                <label class="check-row row-title">
+                  <input type="checkbox" name="member_ids" value="{{ member.id }}" {% if assignment %}checked{% endif %}>
+                  <span>{{ member.last_name }}, {{ member.first_name }}</span>
+                </label>
+                <label>
+                  State
+                  <select name="member_{{ member.id }}_membership_state">
+                    <option value="primary" {% if assignment and assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
+                    <option value="alternate" {% if assignment and assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+                  </select>
+                </label>
+                <label>
+                  Notes
+                  <input name="member_{{ member.id }}_role_notes" value="{{ assignment.role_notes if assignment else '' }}">
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+            <button type="submit">Save Membership</button>
+          </div>
+        </form>
+      </dialog>
+    {% endif %}
+
+    {% if current_user.role == "administrator" %}
+      <dialog class="edit-dialog" id="delete-quartet-dialog-{{ quartet.id }}">
+        <form action="/quartets/{{ quartet.id }}/delete" method="post">
+          <input type="hidden" name="confirm_delete" value="1">
+          <div class="dialog-header">
+            <h3>Delete Quartet</h3>
+            <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+          </div>
+          <div class="dialog-body">
+            <p><strong>{{ quartet.name }}</strong></p>
+            <p>This delete is permanent and will remove all member assignments for this quartet.</p>
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" data-close-dialog>Cancel Delete</button>
+            <button type="submit" class="danger-button">Delete Permanently</button>
+          </div>
+        </form>
+      </dialog>
+    {% endif %}
+
+    {% if can_manage %}
+      {{ photo_ui.photo_picker(
+        "quartet-photo-dialog-" ~ quartet.id,
+        "/quartets/" ~ quartet.id ~ "/photo",
+        quartet.picture_path,
+        [],
+        quartet.name ~ " Photo",
+        "Quartet uploads are saved as 2000x1600 JPEG images for 10x8 group photos.",
+        False
+      ) }}
+    {% endif %}
+  {% else %}
+    <p class="empty-state">No quartets have been created yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

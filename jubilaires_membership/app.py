@@ -52,6 +52,21 @@ def require_member_editor(request: Request, member_id: int) -> dict:
     return user
 
 
+def can_manage_quartet(user: dict | None, quartet_id: int) -> bool:
+    return is_admin(user) or bool(
+        user
+        and user.get("member_id")
+        and int(user["member_id"]) in members.primary_quartet_member_ids(quartet_id)
+    )
+
+
+def require_quartet_manager(request: Request, quartet_id: int) -> dict:
+    user = current_user(request)
+    if not can_manage_quartet(user, quartet_id):
+        raise HTTPException(status_code=403, detail="Only administrators and primary quartet members can modify this quartet.")
+    return user
+
+
 def view_context(request: Request, **values):
     values.setdefault("current_user", current_user(request))
     return values
@@ -350,6 +365,97 @@ async def restore_database_backup(request: Request):
         "admin_database.html",
         view_context(request, backups=backups.list_backups(), message=message, error=error),
     )
+
+
+@app.get("/quartets", response_class=HTMLResponse)
+def quartet_management(request: Request):
+    user = current_user(request)
+    quartet_rows = members.quartet_rows()
+    for index, quartet in enumerate(quartet_rows):
+        quartet_rows[index] = {**quartet, **(members.quartet_detail(quartet["id"]) or {})}
+    manageable_quartet_ids = {quartet["id"] for quartet in quartet_rows if can_manage_quartet(user, quartet["id"])}
+    return templates.TemplateResponse(
+        request,
+        "quartets.html",
+        view_context(
+            request,
+            quartets=quartet_rows,
+            member_options=members.member_options(),
+            manageable_quartet_ids=manageable_quartet_ids,
+        ),
+    )
+
+
+@app.post("/quartets")
+async def create_quartet(request: Request):
+    require_admin(request)
+    form = await request.form()
+    name = (form.get("name") or "").strip()
+    if not name:
+        return RedirectResponse(url="/quartets?name_required=1", status_code=303)
+    quartet_id = members.create_quartet({key: str(form.get(key) or "") for key in form.keys()})
+    return RedirectResponse(url=f"/quartets?created={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}")
+async def update_quartet(request: Request, quartet_id: int):
+    require_quartet_manager(request, quartet_id)
+    if not members.quartet_detail(quartet_id):
+        raise HTTPException(status_code=404, detail="Quartet not found.")
+    form = await request.form()
+    name = (form.get("name") or "").strip()
+    if not name:
+        return RedirectResponse(url="/quartets?name_required=1", status_code=303)
+    members.update_quartet(quartet_id, {key: str(form.get(key) or "") for key in form.keys()})
+    return RedirectResponse(url=f"/quartets?saved={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}/members")
+async def update_quartet_members(request: Request, quartet_id: int):
+    require_quartet_manager(request, quartet_id)
+    if not members.quartet_detail(quartet_id):
+        raise HTTPException(status_code=404, detail="Quartet not found.")
+    form = await request.form()
+    selected_member_ids = {str(value) for value in form.getlist("member_ids")}
+    assignments = []
+    for member in members.member_options():
+        member_id = str(member["id"])
+        if member_id in selected_member_ids:
+            assignments.append(
+                {
+                    "member_id": member_id,
+                    "membership_state": form.get(f"member_{member_id}_membership_state") or "primary",
+                    "role_notes": form.get(f"member_{member_id}_role_notes") or "",
+                }
+            )
+    members.update_quartet_members(quartet_id, assignments)
+    return RedirectResponse(url=f"/quartets?members_saved={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}/photo")
+async def update_quartet_photo(request: Request, quartet_id: int):
+    require_quartet_manager(request, quartet_id)
+    quartet = members.quartet_detail(quartet_id)
+    if not quartet:
+        raise HTTPException(status_code=404, detail="Quartet not found.")
+    form = await request.form()
+    if form.get("remove_photo"):
+        members.update_quartet_picture_path(quartet_id, "")
+        return RedirectResponse(url=f"/quartets?photo_removed={quartet_id}", status_code=303)
+    upload = uploaded_photo(form, "photo_upload")
+    if upload:
+        picture_path = photos.save_quartet_upload(upload.file, f"quartet-{quartet_id}-{quartet['name']}")
+        members.update_quartet_picture_path(quartet_id, picture_path)
+    return RedirectResponse(url=f"/quartets?photo_saved={quartet_id}", status_code=303)
+
+
+@app.post("/quartets/{quartet_id}/delete")
+async def delete_quartet(request: Request, quartet_id: int):
+    require_admin(request)
+    form = await request.form()
+    if form.get("confirm_delete") == "1":
+        members.delete_quartet(quartet_id)
+    return RedirectResponse(url="/quartets?deleted=1", status_code=303)
 
 
 @app.get("/members/{member_id}", response_class=HTMLResponse)

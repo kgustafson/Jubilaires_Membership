@@ -1,4 +1,4 @@
-{% macro photo_picker(dialog_id, action, current_path, choices, title) %}
+{% macro photo_picker(dialog_id, action, current_path, choices, title, helper_text="Uploads are saved as 512x512 profile images.", show_choices=True) %}
 <dialog class="edit-dialog wide-dialog photo-dialog" id="{{ dialog_id }}">
   <form class="photo-picker" action="{{ action }}" method="post" enctype="multipart/form-data">
     <div class="dialog-header">
@@ -21,7 +21,7 @@
           >
           <span data-photo-empty {% if current_path %}hidden{% endif %}>No photo selected</span>
         </div>
-        <p class="field-summary">Uploads are saved as 512x512 profile images.</p>
+        <p class="field-summary">{{ helper_text }}</p>
         {% if current_path %}
           <label class="check-row remove-photo-row">
             <input type="checkbox" name="remove_photo" value="1">
@@ -29,23 +29,25 @@
           </label>
         {% endif %}
       </section>
-      <section class="photo-select-panel">
-        <h4>Select Existing</h4>
-        <div class="photo-choice-grid">
-          {% for photo in choices %}
-            <label class="photo-choice">
-              <input type="radio" name="selected_photo_path" value="{{ photo.path }}">
-              <img src="{{ photo.path }}" alt="">
-              <span>{{ photo.name }}</span>
-              {% if photo.width and photo.height %}
-                <small>{{ photo.width }}x{{ photo.height }}</small>
-              {% endif %}
-            </label>
-          {% else %}
-            <p>No photos are available yet.</p>
-          {% endfor %}
-        </div>
-      </section>
+      {% if show_choices %}
+        <section class="photo-select-panel">
+          <h4>Select Existing</h4>
+          <div class="photo-choice-grid">
+            {% for photo in choices %}
+              <label class="photo-choice">
+                <input type="radio" name="selected_photo_path" value="{{ photo.path }}">
+                <img src="{{ photo.path }}" alt="">
+                <span>{{ photo.name }}</span>
+                {% if photo.width and photo.height %}
+                  <small>{{ photo.width }}x{{ photo.height }}</small>
+                {% endif %}
+              </label>
+            {% else %}
+              <p>No photos are available yet.</p>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
     </div>
     <div class="dialog-actions">
       <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
