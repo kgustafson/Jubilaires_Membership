@@ -39,6 +39,7 @@
         <span class="sidebar-link disabled">Dues Tracking</span>
         <span class="sidebar-link disabled">Communications</span>
         <span class="sidebar-link disabled">Reports</span>
+        <a class="sidebar-link {% if request.url.path == '/photos/unassigned' %}active{% endif %}" href="/photos/unassigned">Photo Review</a>
         <span class="sidebar-link disabled">Admin Settings</span>
       </nav>
     </aside>

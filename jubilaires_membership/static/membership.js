@@ -161,4 +161,94 @@
       button.closest("dialog")?.close();
     });
   });
+
+  const setPreview = (picker, fileOrUrl) => {
+    const preview = picker.querySelector("[data-photo-preview]");
+    const empty = picker.querySelector("[data-photo-empty]");
+    if (!preview) {
+      return;
+    }
+
+    if (fileOrUrl instanceof File) {
+      preview.src = URL.createObjectURL(fileOrUrl);
+    } else {
+      preview.src = fileOrUrl || "";
+    }
+    preview.hidden = !preview.src;
+    if (empty) {
+      empty.hidden = Boolean(preview.src);
+    }
+  };
+
+  const setFileInput = (input, file) => {
+    const transfer = new DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
+  document.querySelectorAll(".photo-picker").forEach((picker) => {
+    const dropzone = picker.querySelector("[data-photo-dropzone]");
+    const fileInput = picker.querySelector("[data-photo-file]");
+    if (!dropzone || !fileInput) {
+      return;
+    }
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (file) {
+        picker.querySelectorAll('input[name="selected_photo_path"]').forEach((input) => {
+          input.checked = false;
+        });
+        setPreview(picker, file);
+      }
+    });
+
+    picker.querySelectorAll('input[name="selected_photo_path"]').forEach((input) => {
+      input.addEventListener("change", () => {
+        fileInput.value = "";
+        setPreview(picker, input.value);
+      });
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropzone.classList.add("active");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.remove("active");
+      });
+    });
+
+    dropzone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
+      if (file) {
+        setFileInput(fileInput, file);
+      }
+    });
+
+    dropzone.addEventListener("paste", (event) => {
+      const file = [...event.clipboardData.files].find((item) => item.type.startsWith("image/"));
+      if (file) {
+        event.preventDefault();
+        setFileInput(fileInput, file);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-photo-target-type]").forEach((select) => {
+    const form = select.closest("form");
+    const updateTarget = () => {
+      const assigningFamily = select.value === "family";
+      form.querySelector("[data-member-target]")?.toggleAttribute("hidden", assigningFamily);
+      form.querySelector("[data-family-target]")?.toggleAttribute("hidden", !assigningFamily);
+    };
+    select.addEventListener("change", updateTarget);
+    updateTarget();
+  });
 })();

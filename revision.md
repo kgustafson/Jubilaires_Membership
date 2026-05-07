@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.14 - 5/7/2026
+
+Added member and family photo management.
+
+- Added Pillow-backed profile photo processing that stores uploaded photos as 512x512 JPEG images.
+- Added reusable photo picker modals with file selection, drag/drop, clipboard paste, preview, and existing-photo selection.
+- Added member and family photo upload/select controls.
+- Added a Photo Review page for unassigned roster photos with assignment controls for members and family records.
+- Updated the sidebar and todo list for the new photo review workflow.
+
 ## v1.0.13 - 5/7/2026
 
 Added image processing dependency for photo workflows.

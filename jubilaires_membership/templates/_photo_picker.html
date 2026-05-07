@@ -1,0 +1,50 @@
+{% macro photo_picker(dialog_id, action, current_path, choices, title) %}
+<dialog class="edit-dialog wide-dialog photo-dialog" id="{{ dialog_id }}">
+  <form class="photo-picker" action="{{ action }}" method="post" enctype="multipart/form-data">
+    <div class="dialog-header">
+      <h3>{{ title }}</h3>
+      <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+    </div>
+    <div class="photo-picker-grid">
+      <section class="photo-upload-panel">
+        <h4>Upload Or Paste</h4>
+        <label class="photo-dropzone" tabindex="0" data-photo-dropzone>
+          <input type="file" name="photo_upload" accept="image/*" data-photo-file>
+          <span>Choose a photo, drag one here, or paste an image from the clipboard.</span>
+        </label>
+        <div class="photo-preview-frame">
+          <img
+            src="{{ current_path or '' }}"
+            alt=""
+            data-photo-preview
+            {% if not current_path %}hidden{% endif %}
+          >
+          <span data-photo-empty {% if current_path %}hidden{% endif %}>No photo selected</span>
+        </div>
+        <p class="field-summary">Uploads are saved as 512x512 profile images.</p>
+      </section>
+      <section class="photo-select-panel">
+        <h4>Select Existing</h4>
+        <div class="photo-choice-grid">
+          {% for photo in choices %}
+            <label class="photo-choice">
+              <input type="radio" name="selected_photo_path" value="{{ photo.path }}">
+              <img src="{{ photo.path }}" alt="">
+              <span>{{ photo.name }}</span>
+              {% if photo.width and photo.height %}
+                <small>{{ photo.width }}x{{ photo.height }}</small>
+              {% endif %}
+            </label>
+          {% else %}
+            <p>No photos are available yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+      <button type="submit">Save Photo</button>
+    </div>
+  </form>
+</dialog>
+{% endmacro %}

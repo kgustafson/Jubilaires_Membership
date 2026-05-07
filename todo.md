@@ -44,8 +44,8 @@
 - [x] Change dashboard member table to include sortable/filterable controls on each column header.
 - [x] Make dashboard metric cards clickable filters: Members, Active, Tenor, Lead, Baritone, Bass should filter the roster table when clicked.
 - [x] Add a prominent search feature at the top of the dashboard.
-- [ ] Add member and family photo upload/select controls.
-- [ ] Add unassigned roster photo review page.
+- [x] Add member and family photo upload/select controls.
+- [x] Add unassigned roster photo review page.
 
 ## Views And Reports
 

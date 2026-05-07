@@ -556,6 +556,81 @@ def delete_family_member(member_id: int, family_id: int) -> None:
     )
 
 
+def update_member_picture_path(member_id: int, picture_path: str) -> None:
+    db.execute(
+        """
+        UPDATE member
+        SET picture_path = :picture_path,
+            updated_at = now()
+        WHERE id = :member_id
+        """,
+        {"member_id": member_id, "picture_path": picture_path.strip() or None},
+    )
+
+
+def update_family_picture_path(member_id: int, family_id: int, picture_path: str) -> None:
+    db.execute(
+        """
+        UPDATE member_family
+        SET picture_path = :picture_path,
+            updated_at = now()
+        WHERE id = :family_id
+          AND member_id = :member_id
+        """,
+        {"member_id": member_id, "family_id": family_id, "picture_path": picture_path.strip() or None},
+    )
+
+
+def assigned_picture_paths() -> set[str]:
+    rows = db.fetch_all(
+        """
+        SELECT picture_path
+        FROM member
+        WHERE picture_path IS NOT NULL
+          AND picture_path <> ''
+        UNION
+        SELECT picture_path
+        FROM member_family
+        WHERE picture_path IS NOT NULL
+          AND picture_path <> ''
+        """
+    )
+    return {row["picture_path"] for row in rows}
+
+
+def member_options() -> list[dict]:
+    return db.fetch_all(
+        """
+        SELECT id, first_name, last_name
+        FROM member
+        ORDER BY last_name, first_name
+        """
+    )
+
+
+def family_options() -> list[dict]:
+    return db.fetch_all(
+        """
+        SELECT
+            mf.id,
+            mf.member_id,
+            mf.first_name,
+            mf.last_name,
+            mf.relationship,
+            m.first_name AS member_first_name,
+            m.last_name AS member_last_name
+        FROM member_family mf
+        JOIN member m ON m.id = mf.member_id
+        ORDER BY m.last_name, m.first_name, mf.first_name, mf.last_name
+        """
+    )
+
+
+def family_owner_id(family_id: int) -> int | None:
+    row = db.fetch_one("SELECT member_id FROM member_family WHERE id = :family_id", {"family_id": family_id})
+    return row["member_id"] if row else None
+
+
 def voice_parts() -> list[dict]:
     return db.fetch_all("SELECT id, part_name FROM voice_part ORDER BY part_name")
 

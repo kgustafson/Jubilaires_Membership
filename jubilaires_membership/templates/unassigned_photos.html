@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Photo Review - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Photo Review</h1>
+    <p>Roster photos that are not assigned to a member or family record.</p>
+  </div>
+</section>
+
+<section class="photo-review-grid">
+  {% for photo in photos %}
+    <article class="photo-review-card">
+      <img src="{{ photo.path }}" alt="">
+      <div>
+        <strong>{{ photo.name }}</strong>
+        <small>
+          {% if photo.width and photo.height %}{{ photo.width }}x{{ photo.height }}{% endif %}
+          {% if photo.description %} · {{ photo.description }}{% endif %}
+        </small>
+      </div>
+      <form action="/photos/assign" method="post" class="photo-assign-form">
+        <input type="hidden" name="photo_path" value="{{ photo.path }}">
+        <label>
+          Assign To
+          <select name="target_type" data-photo-target-type>
+            <option value="member">Member</option>
+            <option value="family">Family</option>
+          </select>
+        </label>
+        <label data-member-target>
+          Member
+          <select name="member_id">
+            <option value="">Choose member</option>
+            {% for member in members %}
+              <option value="{{ member.id }}">{{ member.last_name }}, {{ member.first_name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label data-family-target hidden>
+          Family
+          <select name="family_id">
+            <option value="">Choose family member</option>
+            {% for family in families %}
+              <option value="{{ family.id }}" data-member-id="{{ family.member_id }}">
+                {{ family.member_last_name }}, {{ family.member_first_name }} - {{ family.first_name }}{% if family.last_name %} {{ family.last_name }}{% endif %} ({{ family.relationship|title }})
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit">Assign</button>
+      </form>
+    </article>
+  {% else %}
+    <div class="detail-panel">
+      <h2>All Set</h2>
+      <p>No unassigned roster photos found.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

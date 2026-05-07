@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from jubilaires_membership.services import members
+from jubilaires_membership.services import members, photos
 
 
 app = FastAPI(title="Jubilaires Membership")
@@ -66,6 +68,7 @@ def edit_member_form(request: Request, member_id: int):
             "voice_parts": members.voice_parts(),
             "quartets": members.quartets(),
             "roles": members.member_roles(),
+            "photo_choices": photos.photo_choices(),
         },
     )
 
@@ -209,7 +212,12 @@ def edit_member_family_form(request: Request, member_id: int, family_id: int):
     return templates.TemplateResponse(
         request,
         "family_edit.html",
-        {"member": member, "person": person, "family_relationships": members.FAMILY_RELATIONSHIPS},
+        {
+            "member": member,
+            "person": person,
+            "family_relationships": members.FAMILY_RELATIONSHIPS,
+            "photo_choices": photos.photo_choices(),
+        },
     )
 
 
@@ -246,3 +254,82 @@ def delete_member_family(member_id: int, family_id: int):
         raise HTTPException(status_code=404, detail="Member not found.")
     members.delete_family_member(member_id, family_id)
     return RedirectResponse(url=f"/members/{member_id}?family_deleted=1", status_code=303)
+
+
+def uploaded_photo(form, field_name: str) -> UploadFile | None:
+    upload = form.get(field_name)
+    if hasattr(upload, "filename") and upload.filename and hasattr(upload, "file"):
+        return upload
+    return None
+
+
+@app.post("/members/{member_id}/photo")
+async def update_member_photo(request: Request, member_id: int):
+    member = members.member_detail(member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found.")
+    form = await request.form()
+    upload = uploaded_photo(form, "photo_upload")
+    selected_photo = (form.get("selected_photo_path") or "").strip()
+    picture_path = ""
+    if upload:
+        picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}")
+    elif selected_photo:
+        picture_path = selected_photo
+    if picture_path:
+        members.update_member_picture_path(member_id, picture_path)
+    return RedirectResponse(url=f"/members/{member_id}/edit?photo_saved=1", status_code=303)
+
+
+@app.post("/members/{member_id}/family/{family_id}/photo")
+async def update_family_photo(request: Request, member_id: int, family_id: int):
+    member = members.member_detail(member_id)
+    if not member:
+        raise HTTPException(status_code=404, detail="Member not found.")
+    person = members.family_member(member_id, family_id)
+    if not person:
+        raise HTTPException(status_code=404, detail="Family member not found.")
+    form = await request.form()
+    upload = uploaded_photo(form, "photo_upload")
+    selected_photo = (form.get("selected_photo_path") or "").strip()
+    picture_path = ""
+    if upload:
+        picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}")
+    elif selected_photo:
+        picture_path = selected_photo
+    if picture_path:
+        members.update_family_picture_path(member_id, family_id, picture_path)
+    return RedirectResponse(url=f"/members/{member_id}/family/{family_id}/edit?photo_saved=1", status_code=303)
+
+
+@app.get("/photos/unassigned", response_class=HTMLResponse)
+def unassigned_photos(request: Request):
+    return templates.TemplateResponse(
+        request,
+        "unassigned_photos.html",
+        {
+            "photos": photos.unassigned_roster_photos(members.assigned_picture_paths()),
+            "members": members.member_options(),
+            "families": members.family_options(),
+        },
+    )
+
+
+@app.post("/photos/assign")
+async def assign_photo(request: Request):
+    form = await request.form()
+    photo_path = (form.get("photo_path") or "").strip()
+    target_type = (form.get("target_type") or "").strip()
+    member_id = int(form.get("member_id") or 0)
+    family_id = int(form.get("family_id") or 0)
+    if not photo_path:
+        return RedirectResponse(url="/photos/unassigned?missing_photo=1", status_code=303)
+    if target_type == "family" and family_id:
+        member_id = members.family_owner_id(family_id) or member_id
+    if target_type == "family" and member_id and family_id:
+        members.update_family_picture_path(member_id, family_id, photo_path)
+    elif target_type == "member" and member_id:
+        members.update_member_picture_path(member_id, photo_path)
+    else:
+        return RedirectResponse(url="/photos/unassigned?missing_target=1", status_code=303)
+    return RedirectResponse(url="/photos/unassigned?assigned=1", status_code=303)

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "_photo_picker.html" as photo_ui %}
 
 {% block title %}Edit Family - Fairfax Jubil-Aires Membership{% endblock %}
 
@@ -41,6 +42,17 @@
         <input name="picture_path" value="{{ person.picture_path or '' }}">
       </label>
     </div>
+    <section class="form-section">
+      <h3>Photo</h3>
+      <div class="photo-inline">
+        {% if person.picture_path %}
+          <img class="profile-photo" src="{{ person.picture_path }}" alt="">
+        {% else %}
+          <span class="photo-placeholder">No photo</span>
+        {% endif %}
+        <button type="button" class="secondary-button" data-open-dialog="family-photo-dialog">Upload Or Select Photo</button>
+      </div>
+    </section>
     <label>
       Notes
       <textarea name="notes" rows="5">{{ person.notes or '' }}</textarea>
@@ -51,4 +63,11 @@
     </div>
   </section>
 </form>
+{{ photo_ui.photo_picker(
+  "family-photo-dialog",
+  "/members/" ~ member.id ~ "/family/" ~ person.id ~ "/photo",
+  person.picture_path,
+  photo_choices,
+  "Family Photo"
+) }}
 {% endblock %}
