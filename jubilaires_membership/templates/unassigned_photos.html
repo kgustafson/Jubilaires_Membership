@@ -6,7 +6,7 @@
 <section class="page-heading">
   <div>
     <h1>Photo Review</h1>
-    <p>Roster photos that are not assigned to a member or family record.</p>
+    <p>Roster photos and their current member or family assignment.</p>
   </div>
 </section>
 
@@ -20,14 +20,26 @@
           {% if photo.width and photo.height %}{{ photo.width }}x{{ photo.height }}{% endif %}
           {% if photo.description %} · {{ photo.description }}{% endif %}
         </small>
+        {% if photo.assignment %}
+          <small class="assignment-pill">
+            Assigned to
+            {% if photo.assignment.target_type == "member" %}
+              {{ photo.assignment.last_name }}, {{ photo.assignment.first_name }}
+            {% else %}
+              {{ photo.assignment.member_last_name }}, {{ photo.assignment.member_first_name }} - {{ photo.assignment.first_name }}{% if photo.assignment.last_name %} {{ photo.assignment.last_name }}{% endif %}
+            {% endif %}
+          </small>
+        {% else %}
+          <small class="assignment-pill unassigned">Unassigned</small>
+        {% endif %}
       </div>
       <form action="/photos/assign" method="post" class="photo-assign-form">
         <input type="hidden" name="photo_path" value="{{ photo.path }}">
         <label>
           Assign To
           <select name="target_type" data-photo-target-type>
-            <option value="member">Member</option>
-            <option value="family">Family</option>
+            <option value="member" {% if photo.assignment and photo.assignment.target_type == "member" %}selected{% endif %}>Member</option>
+            <option value="family" {% if photo.assignment and photo.assignment.target_type == "family" %}selected{% endif %}>Family</option>
           </select>
         </label>
         <label data-member-target>
@@ -35,7 +47,7 @@
           <select name="member_id">
             <option value="">Choose member</option>
             {% for member in members %}
-              <option value="{{ member.id }}">{{ member.last_name }}, {{ member.first_name }}</option>
+              <option value="{{ member.id }}" {% if photo.assignment and photo.assignment.target_type == "member" and photo.assignment.member_id == member.id %}selected{% endif %}>{{ member.last_name }}, {{ member.first_name }}</option>
             {% endfor %}
           </select>
         </label>
@@ -44,7 +56,7 @@
           <select name="family_id">
             <option value="">Choose family member</option>
             {% for family in families %}
-              <option value="{{ family.id }}" data-member-id="{{ family.member_id }}">
+              <option value="{{ family.id }}" data-member-id="{{ family.member_id }}" {% if photo.assignment and photo.assignment.target_type == "family" and photo.assignment.family_id == family.id %}selected{% endif %}>
                 {{ family.member_last_name }}, {{ family.member_first_name }} - {{ family.first_name }}{% if family.last_name %} {{ family.last_name }}{% endif %} ({{ family.relationship|title }})
               </option>
             {% endfor %}
@@ -52,11 +64,17 @@
         </label>
         <button type="submit">Assign</button>
       </form>
+      {% if photo.assignment %}
+        <form action="/photos/remove" method="post" class="photo-remove-form">
+          <input type="hidden" name="photo_path" value="{{ photo.path }}">
+          <button type="submit" class="secondary-button">Remove Assignment</button>
+        </form>
+      {% endif %}
     </article>
   {% else %}
     <div class="detail-panel">
-      <h2>All Set</h2>
-      <p>No unassigned roster photos found.</p>
+      <h2>No Photos</h2>
+      <p>No roster photos found.</p>
     </div>
   {% endfor %}
 </section>

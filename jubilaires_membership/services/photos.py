@@ -140,3 +140,31 @@ def unassigned_roster_photos(assigned_paths: set[str]) -> list[dict[str, str | i
             }
         )
     return photos
+
+
+def roster_photos(assignments: dict[str, dict] | None = None) -> list[dict[str, str | int | None]]:
+    assignments = assignments or {}
+    roster = []
+    for row in roster_manifest_rows():
+        path = row.get("static_path", "")
+        try:
+            source = path_from_static_url(path)
+        except ValueError:
+            continue
+        if not source.exists() or source.suffix.lower() not in IMAGE_EXTENSIONS:
+            continue
+        width, height = image_dimensions(source)
+        assignment = assignments.get(path)
+        roster.append(
+            {
+                "position": row.get("position", ""),
+                "path": path,
+                "name": Path(path).name,
+                "description": row.get("description", ""),
+                "width": width,
+                "height": height,
+                "assignment": assignment,
+                "is_assigned": bool(assignment),
+            }
+        )
+    return roster

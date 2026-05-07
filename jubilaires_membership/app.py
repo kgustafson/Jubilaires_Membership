@@ -310,11 +310,12 @@ async def update_family_photo(request: Request, member_id: int, family_id: int):
 
 @app.get("/photos/unassigned", response_class=HTMLResponse)
 def unassigned_photos(request: Request):
+    assignments = members.photo_assignments()
     return templates.TemplateResponse(
         request,
         "unassigned_photos.html",
         {
-            "photos": photos.unassigned_roster_photos(members.assigned_picture_paths()),
+            "photos": photos.roster_photos(assignments),
             "members": members.member_options(),
             "families": members.family_options(),
         },
@@ -330,6 +331,7 @@ async def assign_photo(request: Request):
     family_id = int(form.get("family_id") or 0)
     if not photo_path:
         return RedirectResponse(url="/photos/unassigned?missing_photo=1", status_code=303)
+    members.clear_picture_path(photo_path)
     if target_type == "family" and family_id:
         member_id = members.family_owner_id(family_id) or member_id
     if target_type == "family" and member_id and family_id:
@@ -339,3 +341,12 @@ async def assign_photo(request: Request):
     else:
         return RedirectResponse(url="/photos/unassigned?missing_target=1", status_code=303)
     return RedirectResponse(url="/photos/unassigned?assigned=1", status_code=303)
+
+
+@app.post("/photos/remove")
+async def remove_photo_assignment(request: Request):
+    form = await request.form()
+    photo_path = (form.get("photo_path") or "").strip()
+    if photo_path:
+        members.clear_picture_path(photo_path)
+    return RedirectResponse(url="/photos/unassigned?removed=1", status_code=303)

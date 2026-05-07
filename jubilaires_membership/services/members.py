@@ -598,6 +598,63 @@ def assigned_picture_paths() -> set[str]:
     return {row["picture_path"] for row in rows}
 
 
+def photo_assignments() -> dict[str, dict]:
+    rows = db.fetch_all(
+        """
+        SELECT
+            'member' AS target_type,
+            m.id AS member_id,
+            NULL::integer AS family_id,
+            m.picture_path,
+            m.first_name,
+            m.last_name,
+            NULL::text AS relationship,
+            NULL::text AS member_first_name,
+            NULL::text AS member_last_name
+        FROM member m
+        WHERE m.picture_path IS NOT NULL
+          AND m.picture_path <> ''
+        UNION ALL
+        SELECT
+            'family' AS target_type,
+            mf.member_id,
+            mf.id AS family_id,
+            mf.picture_path,
+            mf.first_name,
+            mf.last_name,
+            mf.relationship,
+            m.first_name AS member_first_name,
+            m.last_name AS member_last_name
+        FROM member_family mf
+        JOIN member m ON m.id = mf.member_id
+        WHERE mf.picture_path IS NOT NULL
+          AND mf.picture_path <> ''
+        """
+    )
+    return {row["picture_path"]: row for row in rows}
+
+
+def clear_picture_path(picture_path: str) -> None:
+    db.execute(
+        """
+        UPDATE member
+        SET picture_path = NULL,
+            updated_at = now()
+        WHERE picture_path = :picture_path
+        """,
+        {"picture_path": picture_path},
+    )
+    db.execute(
+        """
+        UPDATE member_family
+        SET picture_path = NULL,
+            updated_at = now()
+        WHERE picture_path = :picture_path
+        """,
+        {"picture_path": picture_path},
+    )
+
+
 def member_options() -> list[dict]:
     return db.fetch_all(
         """

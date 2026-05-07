@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.17 - 5/7/2026
+
+Expanded Photo Review assignment management.
+
+- Changed Photo Review to show all roster photos, including already assigned photos.
+- Added assignment status labels for member and family photo assignments.
+- Preselected the current member or family target in each photo assignment form.
+- Added Photo Review remove-assignment controls for assigned photos.
+- Updated reassignment saves to clear any previous owner before assigning the selected photo.
+
 ## v1.0.16 - 5/7/2026
 
 Improved photo assignment safeguards.

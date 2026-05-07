@@ -927,6 +927,21 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.assignment-pill {
+  background: var(--brand-soft);
+  border-radius: 6px;
+  color: var(--brand);
+  display: inline-block;
+  font-weight: 700;
+  margin-top: 8px;
+  padding: 5px 7px;
+}
+
+.assignment-pill.unassigned {
+  background: #f1f5f9;
+  color: var(--muted);
+}
+
 .photo-review-grid {
   display: grid;
   gap: 14px;
@@ -961,6 +976,10 @@ textarea {
   font-weight: 700;
   gap: 5px;
   text-transform: uppercase;
+}
+
+.photo-remove-form {
+  display: grid;
 }
 
 @media (max-width: 900px) {
