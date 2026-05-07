@@ -717,6 +717,51 @@ textarea {
   max-width: 720px;
 }
 
+.two-factor-panel {
+  max-width: 620px;
+}
+
+.totp-qr-code {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: block;
+  height: 220px;
+  margin: 18px auto;
+  width: 220px;
+}
+
+.manual-secret {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 10px 12px;
+}
+
+.manual-secret summary {
+  color: var(--brand);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.recovery-code-list {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+  margin: 18px 0;
+  padding: 0;
+}
+
+.recovery-code-list li {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-weight: 800;
+  padding: 10px;
+  text-align: center;
+}
+
 .form-error,
 .success-message {
   border-radius: 8px;

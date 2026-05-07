@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Set Up Two-Factor Authentication - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="auth-panel two-factor-panel">
+  {% if setup_complete %}
+    <h1>Save Recovery Codes</h1>
+    <p class="success-message">Two-factor authentication is enabled for your administrator account.</p>
+    <p class="field-summary">Store these recovery codes somewhere safe. Each code can be used once if you cannot access Google Authenticator.</p>
+    <ul class="recovery-code-list">
+      {% for code in recovery_codes %}
+        <li><code>{{ code }}</code></li>
+      {% endfor %}
+    </ul>
+    <a class="button inline-action" href="/">Continue</a>
+  {% else %}
+    <h1>Set Up Google Authenticator</h1>
+    {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+    <p class="field-summary">Scan this QR code with Google Authenticator, then enter the 6-digit code from the app.</p>
+    <img class="totp-qr-code" src="{{ qr_code_data_url }}" alt="Google Authenticator setup QR code">
+    <details class="manual-secret">
+      <summary>Use setup key instead</summary>
+      <p><code>{{ secret }}</code></p>
+    </details>
+    <form class="stacked-form" action="/two-factor/setup" method="post">
+      <label>
+        Authentication code
+        <input name="code" inputmode="numeric" autocomplete="one-time-code" required>
+      </label>
+      <button type="submit">Enable Two-Factor Authentication</button>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

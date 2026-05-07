@@ -17,11 +17,16 @@ APP_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_ROOT.parent
 app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
-PUBLIC_PATHS = {"/login", "/register"}
+PUBLIC_PATHS = {"/login", "/register", "/two-factor/setup", "/two-factor/verify"}
 
 
 def current_user(request: Request) -> dict | None:
     user_id = request.session.get("user_id")
+    return auth.user_by_id(int(user_id)) if user_id else None
+
+
+def pending_two_factor_user(request: Request) -> dict | None:
+    user_id = request.session.get("pending_2fa_user_id")
     return auth.user_by_id(int(user_id)) if user_id else None
 
 
@@ -50,6 +55,14 @@ def require_member_editor(request: Request, member_id: int) -> dict:
 def view_context(request: Request, **values):
     values.setdefault("current_user", current_user(request))
     return values
+
+
+def complete_login(request: Request, user: dict) -> RedirectResponse:
+    next_url = safe_redirect_path(request.session.get("login_next"))
+    request.session.clear()
+    request.session["user_id"] = user["id"]
+    auth.record_login(user["id"])
+    return RedirectResponse(url=next_url, status_code=303)
 
 
 @app.middleware("http")
@@ -111,15 +124,88 @@ async def login(request: Request):
         return templates.TemplateResponse(request, "login.html", {"error": "Invalid username or password.", "next_url": form.get("next") or "/"})
     if not user.get("role"):
         return templates.TemplateResponse(request, "login.html", {"error": "Your registration is awaiting administrator approval.", "next_url": form.get("next") or "/"})
-    request.session["user_id"] = user["id"]
-    auth.record_login(user["id"])
-    return RedirectResponse(url=safe_redirect_path(form.get("next")), status_code=303)
+    if user.get("role") == "administrator":
+        request.session.clear()
+        request.session["pending_2fa_user_id"] = user["id"]
+        request.session["login_next"] = safe_redirect_path(form.get("next"))
+        if user.get("totp_enabled_at"):
+            return RedirectResponse(url="/two-factor/verify", status_code=303)
+        return RedirectResponse(url="/two-factor/setup", status_code=303)
+    request.session["login_next"] = safe_redirect_path(form.get("next"))
+    return complete_login(request, user)
 
 
 @app.post("/logout")
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/login?logged_out=1", status_code=303)
+
+
+@app.get("/two-factor/setup", response_class=HTMLResponse)
+def two_factor_setup_form(request: Request):
+    user = pending_two_factor_user(request)
+    if not user or user.get("role") != "administrator":
+        return RedirectResponse(url="/login", status_code=303)
+    if user.get("totp_enabled_at"):
+        return RedirectResponse(url="/two-factor/verify", status_code=303)
+    secret = auth.ensure_totp_secret(user["id"])
+    uri = auth.totp_uri(user, secret)
+    return templates.TemplateResponse(
+        request,
+        "two_factor_setup.html",
+        {"current_user": None, "secret": secret, "qr_code_data_url": auth.qr_code_data_url(uri), "otpauth_uri": uri},
+    )
+
+
+@app.post("/two-factor/setup", response_class=HTMLResponse)
+async def two_factor_setup(request: Request):
+    user = pending_two_factor_user(request)
+    if not user or user.get("role") != "administrator":
+        return RedirectResponse(url="/login", status_code=303)
+    form = await request.form()
+    secret = auth.ensure_totp_secret(user["id"])
+    if not auth.verify_totp(secret, form.get("code") or ""):
+        uri = auth.totp_uri(user, secret)
+        return templates.TemplateResponse(
+            request,
+            "two_factor_setup.html",
+            {
+                "current_user": None,
+                "secret": secret,
+                "qr_code_data_url": auth.qr_code_data_url(uri),
+                "otpauth_uri": uri,
+                "error": "Invalid authentication code.",
+            },
+        )
+    recovery_codes = auth.enable_totp(user["id"])
+    complete_login(request, user)
+    return templates.TemplateResponse(
+        request,
+        "two_factor_setup.html",
+        {"current_user": user, "setup_complete": True, "recovery_codes": recovery_codes},
+    )
+
+
+@app.get("/two-factor/verify", response_class=HTMLResponse)
+def two_factor_verify_form(request: Request):
+    user = pending_two_factor_user(request)
+    if not user or user.get("role") != "administrator":
+        return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse(request, "two_factor_verify.html", {"current_user": None})
+
+
+@app.post("/two-factor/verify", response_class=HTMLResponse)
+async def two_factor_verify(request: Request):
+    user = pending_two_factor_user(request)
+    if not user or user.get("role") != "administrator":
+        return RedirectResponse(url="/login", status_code=303)
+    form = await request.form()
+    code = form.get("code") or ""
+    valid_totp = bool(user.get("totp_secret") and auth.verify_totp(user["totp_secret"], code))
+    valid_recovery = auth.consume_recovery_code(user["id"], code)
+    if not valid_totp and not valid_recovery:
+        return templates.TemplateResponse(request, "two_factor_verify.html", {"current_user": None, "error": "Invalid authentication or recovery code."})
+    return complete_login(request, user)
 
 
 @app.get("/account", response_class=HTMLResponse)
@@ -204,6 +290,13 @@ async def change_user_password(request: Request, user_id: int):
         return RedirectResponse(url=f"{return_to}?password_error=1", status_code=303)
     auth.set_password(user_id, password)
     return RedirectResponse(url=f"{return_to}?password_changed=1", status_code=303)
+
+
+@app.post("/admin/users/{user_id}/reset-two-factor")
+async def reset_user_two_factor(request: Request, user_id: int):
+    require_admin(request)
+    auth.reset_two_factor(user_id)
+    return RedirectResponse(url="/admin/users?two_factor_reset=1", status_code=303)
 
 
 @app.get("/members/{member_id}", response_class=HTMLResponse)

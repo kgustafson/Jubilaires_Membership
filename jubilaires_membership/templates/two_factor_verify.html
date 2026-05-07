@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Two-Factor Authentication - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="auth-panel two-factor-panel">
+  <h1>Two-Factor Authentication</h1>
+  {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+  <form class="stacked-form" action="/two-factor/verify" method="post">
+    <label>
+      Authenticator or recovery code
+      <input name="code" autocomplete="one-time-code" required>
+    </label>
+    <button type="submit">Verify</button>
+  </form>
+  <p class="field-summary">Use the 6-digit code from Google Authenticator, or one of your saved recovery codes.</p>
+</section>
+{% endblock %}

@@ -58,7 +58,9 @@
         <th>Username</th>
         <th>Email</th>
         <th>Role</th>
+        <th>Two-Factor</th>
         <th>Member Link</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -69,10 +71,26 @@
           <td>{{ user.email }}</td>
           <td>{{ user.role or "Pending" }}</td>
           <td>
+            {% if user.role == "administrator" %}
+              {{ "Enabled" if user.totp_enabled_at else "Setup required" }}
+            {% else %}
+              <span class="muted-label">Not required</span>
+            {% endif %}
+          </td>
+          <td>
             {% if user.member_id %}
               {{ user.member_last_name }}, {{ user.member_first_name }}
             {% else %}
               <span class="muted-label">Unmatched</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.role == "administrator" and user.totp_enabled_at %}
+              <form action="/admin/users/{{ user.id }}/reset-two-factor" method="post">
+                <button class="secondary-button compact-button" type="submit">Reset 2FA</button>
+              </form>
+            {% else %}
+              <span class="muted-label">-</span>
             {% endif %}
           </td>
         </tr>

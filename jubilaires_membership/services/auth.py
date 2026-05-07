@@ -3,12 +3,20 @@ from __future__ import annotations
 import hashlib
 import hmac
 import os
+import base64
+import secrets
+from io import BytesIO
 from typing import Optional
+from urllib.parse import quote
+
+import pyotp
+import qrcode
 
 from jubilaires_membership import db
 
 
 ROLES = {"member", "administrator"}
+TOTP_ISSUER = "Fairfax Jubil-Aires"
 
 
 def hash_password(password: str) -> str:
@@ -127,6 +135,95 @@ def authenticate(username: str, password: str) -> Optional[dict]:
 def record_login(user_id: int) -> None:
     db.execute(
         "UPDATE app_user SET last_login_at = now(), updated_at = now() WHERE id = :user_id",
+        {"user_id": user_id},
+    )
+
+
+def new_totp_secret() -> str:
+    return pyotp.random_base32()
+
+
+def ensure_totp_secret(user_id: int) -> str:
+    user = user_by_id(user_id)
+    if user and user.get("totp_secret"):
+        return user["totp_secret"]
+    secret = new_totp_secret()
+    db.execute(
+        "UPDATE app_user SET totp_secret = :secret, updated_at = now() WHERE id = :user_id",
+        {"user_id": user_id, "secret": secret},
+    )
+    return secret
+
+
+def totp_uri(user: dict, secret: str) -> str:
+    account_name = quote(f"{TOTP_ISSUER}:{user['username']}")
+    issuer = quote(TOTP_ISSUER)
+    return f"otpauth://totp/{account_name}?secret={secret}&issuer={issuer}"
+
+
+def qr_code_data_url(value: str) -> str:
+    image = qrcode.make(value)
+    output = BytesIO()
+    image.save(output, format="PNG")
+    return f"data:image/png;base64,{base64.b64encode(output.getvalue()).decode('ascii')}"
+
+
+def verify_totp(secret: str, code: str) -> bool:
+    normalized = "".join(char for char in code if char.isdigit())
+    if len(normalized) != 6:
+        return False
+    return bool(pyotp.TOTP(secret).verify(normalized, valid_window=1))
+
+
+def generate_recovery_codes(user_id: int, count: int = 10) -> list[str]:
+    db.execute("DELETE FROM app_user_recovery_code WHERE user_id = :user_id", {"user_id": user_id})
+    codes = []
+    for _ in range(count):
+        code = "-".join(secrets.token_hex(2).upper() for _ in range(3))
+        codes.append(code)
+        db.execute(
+            "INSERT INTO app_user_recovery_code (user_id, code_hash) VALUES (:user_id, :code_hash)",
+            {"user_id": user_id, "code_hash": hash_password(code)},
+        )
+    return codes
+
+
+def enable_totp(user_id: int) -> list[str]:
+    db.execute(
+        "UPDATE app_user SET totp_enabled_at = now(), updated_at = now() WHERE id = :user_id",
+        {"user_id": user_id},
+    )
+    return generate_recovery_codes(user_id)
+
+
+def consume_recovery_code(user_id: int, code: str) -> bool:
+    normalized = code.strip().upper()
+    if not normalized:
+        return False
+    rows = db.fetch_all(
+        "SELECT id, code_hash FROM app_user_recovery_code WHERE user_id = :user_id AND used_at IS NULL ORDER BY id",
+        {"user_id": user_id},
+    )
+    for row in rows:
+        if verify_password(normalized, row["code_hash"]):
+            db.execute(
+                "UPDATE app_user_recovery_code SET used_at = now() WHERE id = :id",
+                {"id": row["id"]},
+            )
+            return True
+    return False
+
+
+def reset_two_factor(user_id: int) -> None:
+    db.execute("DELETE FROM app_user_recovery_code WHERE user_id = :user_id", {"user_id": user_id})
+    db.execute(
+        """
+        UPDATE app_user
+        SET totp_secret = NULL,
+            totp_enabled_at = NULL,
+            updated_at = now()
+        WHERE id = :user_id
+        """,
         {"user_id": user_id},
     )
 

@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.24 - 5/7/2026
+
+Added administrator two-factor authentication.
+
+- Added Google Authenticator compatible TOTP setup for administrator accounts.
+- Required administrator accounts to complete TOTP setup or verification after password login.
+- Added one-time recovery codes stored as password-style hashes.
+- Added administrator reset controls for another administrator's two-factor setup.
+- Added TOTP and QR-code dependencies for local, no-SMS two-factor authentication.
+
 ## v1.0.23 - 5/7/2026
 
 Tightened account and member edit permissions.
@@ -206,7 +216,7 @@ Added version display and independent name sorting.
 - Made `Last` and `First` independently sortable from the roster headers.
 - Added Git tag `v1.0.1`.
 
-## v1.0.0 - 4/5/2026
+## v1.0.0 - 5/5/2026
 
 Baseline internal membership portal configuration and capabilities.
 

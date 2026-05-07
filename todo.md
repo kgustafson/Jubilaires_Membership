@@ -36,7 +36,9 @@
 - [x] Add username changes to the user account information page.
 - [x] Add self-service password change from the account information page.
 - [x] Restrict non-admin member edits to the logged-in user's linked member record.
-- [ ] Add two-factor authentication using Google Authenticator.
+- [x] Add two-factor authentication using Google Authenticator for administrator accounts.
+- [x] Add recovery codes for administrator two-factor authentication.
+- [x] Add administrator reset workflow for another administrator's two-factor setup.
 
 ## Web Interface
 
