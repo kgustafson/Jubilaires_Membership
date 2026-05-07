@@ -56,6 +56,15 @@ def email_exists(email: str) -> bool:
     return bool(db.fetch_one("SELECT 1 FROM app_user WHERE email = :email", {"email": normalize_email(email)}))
 
 
+def email_exists_for_other_user(email: str, user_id: int) -> bool:
+    return bool(
+        db.fetch_one(
+            "SELECT 1 FROM app_user WHERE email = :email AND id <> :user_id",
+            {"email": normalize_email(email), "user_id": user_id},
+        )
+    )
+
+
 def username_exists(username: str) -> bool:
     return bool(db.fetch_one("SELECT 1 FROM app_user WHERE username = :username", {"username": normalize_username(username)}))
 
@@ -106,6 +115,13 @@ def authenticate(username: str, password: str) -> Optional[dict]:
     return user
 
 
+def record_login(user_id: int) -> None:
+    db.execute(
+        "UPDATE app_user SET last_login_at = now(), updated_at = now() WHERE id = :user_id",
+        {"user_id": user_id},
+    )
+
+
 def pending_users() -> list[dict]:
     return db.fetch_all(
         """
@@ -154,6 +170,31 @@ def set_password(user_id: int, password: str) -> None:
     db.execute(
         "UPDATE app_user SET password_hash = :password_hash, updated_at = now() WHERE id = :user_id",
         {"user_id": user_id, "password_hash": hash_password(password)},
+    )
+
+
+def update_account(user_id: int, first_name: str, last_name: str, email: str, password: str = "") -> None:
+    params = {
+        "user_id": user_id,
+        "first_name": first_name.strip(),
+        "last_name": last_name.strip(),
+        "email": normalize_email(email),
+    }
+    password_sql = ""
+    if password:
+        password_sql = ", password_hash = :password_hash"
+        params["password_hash"] = hash_password(password)
+    db.execute(
+        f"""
+        UPDATE app_user
+        SET first_name = :first_name,
+            last_name = :last_name,
+            email = :email,
+            updated_at = now()
+            {password_sql}
+        WHERE id = :user_id
+        """,
+        params,
     )
 
 

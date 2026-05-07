@@ -101,6 +101,7 @@ async def login(request: Request):
     if not user.get("role"):
         return templates.TemplateResponse(request, "login.html", {"error": "Your registration is awaiting administrator approval.", "next_url": form.get("next") or "/"})
     request.session["user_id"] = user["id"]
+    auth.record_login(user["id"])
     return RedirectResponse(url=safe_redirect_path(form.get("next")), status_code=303)
 
 
@@ -108,6 +109,34 @@ async def login(request: Request):
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/login?logged_out=1", status_code=303)
+
+
+@app.get("/account", response_class=HTMLResponse)
+def account_form(request: Request):
+    user = current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/account", status_code=303)
+    return templates.TemplateResponse(request, "account.html", view_context(request, account=user))
+
+
+@app.post("/account", response_class=HTMLResponse)
+async def update_account(request: Request):
+    user = current_user(request)
+    if not user:
+        return RedirectResponse(url="/login?next=/account", status_code=303)
+    form = await request.form()
+    values = {key: (form.get(key) or "").strip() for key in ("first_name", "last_name", "email")}
+    password = form.get("password") or ""
+    confirm_password = form.get("confirm_password") or ""
+    if not all(values.values()):
+        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="First name, last name, and email are required."))
+    if auth.email_exists_for_other_user(values["email"], user["id"]):
+        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="That email is already used by another account."))
+    if password or confirm_password:
+        if not password or password != confirm_password:
+            return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="Passwords do not match."))
+    auth.update_account(user["id"], values["first_name"], values["last_name"], values["email"], password)
+    return RedirectResponse(url="/account?saved=1", status_code=303)
 
 
 @app.get("/register", response_class=HTMLResponse)

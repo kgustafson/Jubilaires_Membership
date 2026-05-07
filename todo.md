@@ -31,6 +31,9 @@
 - [x] Add login/logout capability.
 - [x] Add user account table linked to members.
 - [x] Add roles/permissions: member and administrator.
+- [x] Add last login date to the top header after login.
+- [x] Add user account information page from the header profile name.
+- [x] Add self-service password change from the account information page.
 - [ ] Add two-factor authentication using Google Authenticator.
 
 ## Web Interface

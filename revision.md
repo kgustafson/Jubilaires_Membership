@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.0.22 - 5/7/2026
+
+Added account profile access from the header.
+
+- Added last-login tracking for application users.
+- Added a header account link that opens the current user's account information form.
+- Added account self-service editing for first name, last name, email, and password changes.
+- Updated Authentication todo items for last-login display, account profile, and self-service password changes.
+
 ## v1.0.21 - 5/7/2026
 
 Updated inactive member classification rules.

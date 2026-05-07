@@ -131,6 +131,27 @@ a:hover {
   gap: 9px;
 }
 
+.user-profile:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.user-profile-copy {
+  display: grid;
+  gap: 1px;
+}
+
+.user-profile-copy strong {
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.user-profile-copy small {
+  color: rgba(255, 255, 255, .72);
+  font-size: 12px;
+  font-weight: 650;
+}
+
 .avatar {
   align-items: center;
   background: var(--accent);
@@ -690,6 +711,10 @@ textarea {
   border-top: 0;
   margin-top: 18px;
   padding-top: 0;
+}
+
+.account-panel {
+  max-width: 720px;
 }
 
 .form-error,

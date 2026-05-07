@@ -24,10 +24,13 @@
           <label class="sr-only" for="header-member-search">Search members</label>
           <input id="header-member-search" type="search" name="q" placeholder="Search members" data-roster-search>
         </form>
-        <div class="user-profile" aria-label="Current user">
+        <a class="user-profile" href="/account" aria-label="Current user account">
           <span class="avatar">{{ current_user.first_name[:1] }}{{ current_user.last_name[:1] }}</span>
-          <span>{{ current_user.first_name }} {{ current_user.last_name }}</span>
-        </div>
+          <span class="user-profile-copy">
+            <strong>{{ current_user.first_name }} {{ current_user.last_name }}</strong>
+            <small>Last login: {{ current_user.last_login_at.strftime("%m/%d/%Y %I:%M %p") if current_user.last_login_at else "first login" }}</small>
+          </span>
+        </a>
         <form action="/logout" method="post">
           <button class="secondary-button" type="submit">Logout</button>
         </form>

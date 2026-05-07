@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS app_user (
     username            VARCHAR(80) NOT NULL UNIQUE,
     password_hash       TEXT NOT NULL,
     role                VARCHAR(40) CHECK (role IN ('member', 'administrator')),
+    last_login_at       TIMESTAMPTZ,
     approved_at         TIMESTAMPTZ,
     approved_by_user_id INT REFERENCES app_user(id) ON DELETE SET NULL,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),

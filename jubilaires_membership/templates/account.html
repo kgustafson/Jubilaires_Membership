@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - Fairfax Jubil-Aires Membership{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>My Account</h1>
+    <p>Manage your login profile and password.</p>
+  </div>
+</section>
+
+<section class="detail-panel account-panel">
+  {% if request.query_params.get("saved") %}<p class="success-message">Account information saved.</p>{% endif %}
+  {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+  <form class="stacked-form" action="/account" method="post">
+    <div class="form-grid">
+      <label>
+        First name
+        <input name="first_name" autocomplete="given-name" value="{{ account.first_name }}" required>
+      </label>
+      <label>
+        Last name
+        <input name="last_name" autocomplete="family-name" value="{{ account.last_name }}" required>
+      </label>
+    </div>
+    <label>
+      Email
+      <input type="email" name="email" autocomplete="email" value="{{ account.email }}" required>
+    </label>
+    <div class="form-section">
+      <h3>Change Password</h3>
+      <div class="form-grid">
+        <label>
+          New password
+          <input type="password" name="password" autocomplete="new-password">
+        </label>
+        <label>
+          Confirm new password
+          <input type="password" name="confirm_password" autocomplete="new-password">
+        </label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a class="button secondary-button" href="/">Cancel</a>
+      <button type="submit">Save Account</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
