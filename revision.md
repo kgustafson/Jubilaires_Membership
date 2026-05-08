@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.3 - 5/8/2026
+
+Documented the release workflow.
+
+- Added `docs/release_workflow.md` with development, release candidate, production, and hotfix branching rules.
+- Documented version tag patterns for development revisions, release candidates, production releases, and hotfixes.
+- Added database migration expectations for schema changes across development and production.
+- Linked the release workflow from the README.
+
 ## v1.1.2 - 5/8/2026
 
 Added production Docker environment scaffolding.

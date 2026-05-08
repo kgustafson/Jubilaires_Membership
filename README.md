@@ -22,6 +22,10 @@ cp .env.example .env
 
 `.env` is intentionally ignored by Git.
 
+## Release Workflow
+
+Development, release candidate, production, hotfix, and branching rules are documented in [docs/release_workflow.md](docs/release_workflow.md).
+
 ## Start the full Docker stack
 
 ```bash
