@@ -2,7 +2,7 @@
 
 Jubilaires Barbershop Group membership database with a FastAPI/Jinja web front end.
 
-This project is operationally separate from all other projects. It should use its own virtual environment, Docker services, database, ports, secrets, backups, media storage, deployment pipeline, and AWS resources.
+This project is operationally separate from all other projects. It should use its own virtual environment, Docker services, database, ports, secrets, backups, media storage, deployment pipeline, and production hosting resources.
 
 ## Stack
 
@@ -11,6 +11,16 @@ This project is operationally separate from all other projects. It should use it
 - Jinja2 templates
 - SQLAlchemy
 - Adminer for direct database inspection
+
+## Environment
+
+Copy `.env.example` to `.env` before production deployment and replace the placeholder secrets:
+
+```bash
+cp .env.example .env
+```
+
+`.env` is intentionally ignored by Git.
 
 ## Start the full Docker stack
 
@@ -25,6 +35,16 @@ Persistent host directories are mounted into the app container:
 
 - `jubilaires_membership/static/photos` for member, family, roster, and quartet photos.
 - `backups` for database backup files.
+
+## Start the production Docker stack
+
+The production compose file runs PostgreSQL, the app, and a Caddy reverse proxy. It does not run Adminer or publish PostgreSQL to the host.
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+Caddy serves the app through the domain configured as `JUBILAIRES_DOMAIN` in `.env`.
 
 ## Separation Requirements
 

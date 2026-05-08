@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.1.2 - 5/8/2026
+
+Added production Docker environment scaffolding.
+
+- Added `.env.example` for environment and secret configuration.
+- Updated the development Docker Compose file to read database, session, and port settings from environment variables with local defaults.
+- Added `docker-compose.prod.yml` for a production stack without Adminer or a published database port.
+- Added Caddy as the production reverse proxy for HTTP/HTTPS traffic.
+- Documented development and production Docker startup commands.
+
 ## v1.1.1 - 5/8/2026
 
 Added an application Docker container.
