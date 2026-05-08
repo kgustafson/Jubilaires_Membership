@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.38 - 5/7/2026
+
+Restyled quartet contact modals.
+
+- Reworked quartet member contact modals into a simple address-card layout.
+- Showed the member name at 14pt, followed by an optional photo.
+- Bolded phone numbers and email addresses and formatted mailing addresses with line breaks.
+- Removed contact-label prefixes from phone and email values.
+- Split mailing addresses into street, optional second line, city/state, and ZIP lines.
+
 ## v1.0.37 - 5/7/2026
 
 Simplified quartet member rows.

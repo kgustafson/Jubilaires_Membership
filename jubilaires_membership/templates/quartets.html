@@ -233,39 +233,16 @@
       {% for assigned_member in quartet.members %}
         <dialog class="edit-dialog" id="quartet-member-contact-dialog-{{ quartet.id }}-{{ assigned_member.member_id }}">
           <div class="dialog-header">
-            <h3>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</h3>
+            <h3 class="contact-summary-name">{{ assigned_member.first_name }} {{ assigned_member.last_name }}</h3>
             <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
           </div>
           <div class="dialog-body contact-summary">
-            <div class="contact-summary-heading">
-              {% if assigned_member.picture_path %}
-                <img class="contact-summary-photo" src="{{ assigned_member.picture_path }}" alt="">
-              {% else %}
-                <span class="contact-summary-photo contact-summary-placeholder" aria-hidden="true">{{ assigned_member.first_name[:1] }}{{ assigned_member.last_name[:1] }}</span>
-              {% endif %}
-              <div>
-                <strong>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</strong>
-                <span>{{ assigned_member.part_names or "No member voice parts listed" }}</span>
-              </div>
-            </div>
-            <dl class="contact-summary-list">
-              <div>
-                <dt>Phone</dt>
-                <dd>{{ assigned_member.phone_numbers or "None listed" }}</dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd>{{ assigned_member.email_addresses or "None listed" }}</dd>
-              </div>
-              <div>
-                <dt>Mailing Address</dt>
-                <dd>{{ assigned_member.mailing_addresses or "None listed" }}</dd>
-              </div>
-              <div>
-                <dt>Voice Parts</dt>
-                <dd>{{ assigned_member.part_names or "None listed" }}</dd>
-              </div>
-            </dl>
+            {% if assigned_member.picture_path %}
+              <img class="contact-summary-photo" src="{{ assigned_member.picture_path }}" alt="">
+            {% endif %}
+            <div class="contact-summary-line">phone: <strong>{{ assigned_member.phone_numbers or "None listed" }}</strong></div>
+            <div class="contact-summary-line contact-summary-spaced">email: <strong>{{ assigned_member.email_addresses or "None listed" }}</strong></div>
+            <div class="contact-summary-address">{{ assigned_member.mailing_addresses or "No mailing address listed" }}</div>
           </div>
           <div class="dialog-actions">
             <button type="button" class="secondary-button" data-close-dialog>Close</button>

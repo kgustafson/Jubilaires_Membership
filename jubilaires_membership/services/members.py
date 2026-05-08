@@ -787,7 +787,7 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
         ) part_summary ON true
         LEFT JOIN LATERAL (
             SELECT string_agg(
-                trim(concat_ws(' ', COALESCE(label, phone_type), phone_number)),
+                phone_number,
                 ', ' ORDER BY is_primary DESC, id
             ) AS phone_numbers
             FROM member_phone
@@ -795,7 +795,7 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
         ) phone_summary ON true
         LEFT JOIN LATERAL (
             SELECT string_agg(
-                trim(concat_ws(' ', COALESCE(label, ''), email_address)),
+                email_address,
                 ', ' ORDER BY is_primary DESC, id
             ) AS email_addresses
             FROM member_email
@@ -804,10 +804,30 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
         LEFT JOIN LATERAL (
             SELECT string_agg(
                 CASE
+                    WHEN array_length(string_to_array(raw_address, ','), 1) >= 6 THEN concat_ws(
+                        E'\n',
+                        NULLIF(trim((string_to_array(raw_address, ','))[1]), ''),
+                        NULLIF(trim((string_to_array(raw_address, ','))[2]), ''),
+                        trim((string_to_array(raw_address, ','))[3]) || ', ' ||
+                            trim((string_to_array(raw_address, ','))[4]),
+                        trim((string_to_array(raw_address, ','))[5])
+                    )
+                    WHEN array_length(string_to_array(raw_address, ','), 1) >= 5 THEN concat_ws(
+                        E'\n',
+                        trim((string_to_array(raw_address, ','))[1]),
+                        trim((string_to_array(raw_address, ','))[2]) || ', ' ||
+                            trim((string_to_array(raw_address, ','))[3]),
+                        trim((string_to_array(raw_address, ','))[4])
+                    )
                     WHEN NULLIF(raw_address, '') IS NOT NULL THEN raw_address
-                    ELSE trim(concat_ws(', ', NULLIF(street, ''), NULLIF(city, ''), NULLIF(state, ''), NULLIF(postal_code, '')))
+                    ELSE concat_ws(
+                        E'\n',
+                        NULLIF(street, ''),
+                        NULLIF(trim(concat_ws(' ', NULLIF(city, '') || ',', NULLIF(state, ''))), ''),
+                        NULLIF(postal_code, '')
+                    )
                 END,
-                ' | ' ORDER BY is_primary DESC, id
+                E'\n\n' ORDER BY is_primary DESC, id
             ) AS mailing_addresses
             FROM member_address
             WHERE member_id = m.id

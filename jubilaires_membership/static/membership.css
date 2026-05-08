@@ -1178,61 +1178,37 @@ textarea {
   background: #fecaca;
 }
 
-.contact-summary-heading {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-}
-
-.contact-summary-heading strong,
-.contact-summary-heading span {
-  display: block;
-}
-
-.contact-summary-heading span {
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 2px;
-}
-
 .contact-summary-photo {
-  align-items: center;
-  aspect-ratio: 1;
   border-radius: 8px;
-  display: inline-flex;
-  font-weight: 800;
-  height: 58px;
-  justify-content: center;
+  display: block;
+  margin: 10px 0 14px;
+  max-height: 220px;
+  max-width: 100%;
   object-fit: cover;
-  width: 58px;
+  width: auto;
 }
 
-.contact-summary-placeholder {
-  background: var(--brand-soft);
-  color: var(--brand);
-}
-
-.contact-summary-list {
-  display: grid;
-  gap: 10px;
+.contact-summary-name {
+  color: var(--ink);
+  font-size: 14pt;
+  font-weight: 800;
+  line-height: 1.2;
   margin: 0;
 }
 
-.contact-summary-list div {
-  border-top: 1px solid var(--line);
-  padding-top: 10px;
+.contact-summary-line {
+  color: var(--ink);
+  line-height: 1.5;
 }
 
-.contact-summary-list dt {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
+.contact-summary-spaced {
+  margin-top: 16px;
 }
 
-.contact-summary-list dd {
-  margin: 4px 0 0;
+.contact-summary-address {
+  line-height: 1.45;
+  margin-top: 16px;
+  white-space: pre-line;
 }
 
 .quartet-member-row {
