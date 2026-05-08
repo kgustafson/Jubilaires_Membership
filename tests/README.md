@@ -11,8 +11,10 @@ pip install -r requirements-dev.txt
 Run them while the app and database are running:
 
 ```bash
-pytest tests
+scripts/run_smoke_tests.sh
 ```
+
+The script runs pytest in verbose mode, so each smoke test is listed with its result.
 
 Environment overrides:
 

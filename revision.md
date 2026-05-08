@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.51 - 5/8/2026
+
+Added smoke test runner script.
+
+- Added `scripts/run_smoke_tests.sh` to run the pytest/httpx smoke suite in verbose mode.
+- Documented the script as the preferred smoke test command.
+- Verified the script reports each test with its pass, skip, or failure status.
+
 ## v1.0.50 - 5/8/2026
 
 Added pytest/httpx web smoke tests.
