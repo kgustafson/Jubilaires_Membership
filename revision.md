@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.41 - 5/7/2026
+
+Imported 2025 chapter role source data.
+
+- Added a transcribed 2025 Specified Chapter Roles source file.
+- Added an idempotent import script for 2025 member role assignments.
+- Loaded roles with 2025 start and end dates into the member role tables.
+
 ## v1.0.40 - 5/7/2026
 
 Normalized quartet contact phone display.
