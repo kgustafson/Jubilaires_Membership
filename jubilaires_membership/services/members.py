@@ -795,7 +795,18 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
                         WHEN lower(coalesce(label, phone_type, '')) IN ('work', 'office', 'o', 'w') THEN 'O'
                         ELSE NULLIF(upper(coalesce(phone_type, label, '')), '')
                     END,
-                    phone_number
+                    CASE
+                        WHEN length(regexp_replace(phone_number, '\D', '', 'g')) = 10 THEN
+                            '(' || substring(regexp_replace(phone_number, '\D', '', 'g') from 1 for 3) || ') ' ||
+                            substring(regexp_replace(phone_number, '\D', '', 'g') from 4 for 3) || '-' ||
+                            substring(regexp_replace(phone_number, '\D', '', 'g') from 7 for 4)
+                        WHEN length(regexp_replace(phone_number, '\D', '', 'g')) = 11
+                            AND substring(regexp_replace(phone_number, '\D', '', 'g') from 1 for 1) = '1' THEN
+                            '(' || substring(regexp_replace(phone_number, '\D', '', 'g') from 2 for 3) || ') ' ||
+                            substring(regexp_replace(phone_number, '\D', '', 'g') from 5 for 3) || '-' ||
+                            substring(regexp_replace(phone_number, '\D', '', 'g') from 8 for 4)
+                        ELSE phone_number
+                    END
                 )),
                 ', ' ORDER BY is_primary DESC, id
             ) AS phone_numbers

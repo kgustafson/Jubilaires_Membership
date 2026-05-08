@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.40 - 5/7/2026
+
+Normalized quartet contact phone display.
+
+- Formatted standard 10-digit phone numbers as `(XXX) XXX-XXXX`.
+- Accepted leading `1` country-code numbers and displayed them in the same local format.
+- Left non-standard phone numbers unchanged.
+
 ## v1.0.39 - 5/7/2026
 
 Refined quartet contact phone labels.
