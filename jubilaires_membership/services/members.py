@@ -237,14 +237,27 @@ def member_detail(member_id: int) -> Optional[dict]:
     member["quartets_by_id"] = {quartet["id"]: quartet for quartet in member["quartets"]}
     member["leadership_roles"] = db.fetch_all(
         """
-        SELECT mr.id AS role_id, mr.role_name, mra.start_date, mra.end_date, mra.source_system, mra.notes
+        SELECT
+            mra.id AS assignment_id,
+            mr.id AS role_id,
+            mr.role_name,
+            mra.start_date,
+            mra.end_date,
+            mra.source_system,
+            mra.notes,
+            (
+                (mra.start_date IS NULL OR mra.start_date <= CURRENT_DATE)
+                AND (mra.end_date IS NULL OR mra.end_date >= date_trunc('year', CURRENT_DATE)::date)
+            ) AS is_current
         FROM member_role_assignment mra
         JOIN member_role mr ON mr.id = mra.role_id
         WHERE mra.member_id = :member_id
-        ORDER BY mr.role_name
+        ORDER BY mra.start_date DESC NULLS LAST, mra.end_date DESC NULLS LAST, mr.role_name, mra.id DESC
         """,
         {"member_id": member_id},
     )
+    member["current_leadership_roles"] = [role for role in member["leadership_roles"] if role["is_current"]]
+    member["prior_leadership_roles"] = [role for role in member["leadership_roles"] if not role["is_current"]]
     member["leadership_roles_by_id"] = {role["role_id"]: role for role in member["leadership_roles"]}
     member["emergency_contacts"] = db.fetch_all(
         """
@@ -411,7 +424,7 @@ def update_member_role_assignments(member_id: int, assignments: list[dict[str, s
         role_name = assignment.get("role_name", "").strip()
         role_id = optional_int(assignment.get("role_id", ""))
         if not role_id and role_name:
-            role_id = db.fetch_one(
+            role_id = db.fetch_one_write(
                 """
                 INSERT INTO member_role (role_name)
                 VALUES (:role_name)

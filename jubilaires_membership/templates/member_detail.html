@@ -150,12 +150,31 @@
   </div>
 
   <div class="detail-panel">
-    <h2>Leadership Roles</h2>
+    <h2>Current Roles</h2>
     <ul>
-      {% for role in member.leadership_roles %}
-        <li>{{ role.role_name }} <small>{{ role.source_system or "Internal" }}</small></li>
+      {% if not member.current_leadership_roles %}
+        <li>No current roles listed.</li>
       {% else %}
-        <li>No leadership roles listed.</li>
+        {% for role in member.current_leadership_roles %}
+          <li>
+            {{ role.role_name }}
+            <small>{{ role.start_date or "No start" }} to {{ role.end_date or "Present" }}</small>
+          </li>
+        {% endfor %}
+      {% endif %}
+    </ul>
+  </div>
+
+  <div class="detail-panel">
+    <h2>Prior Roles</h2>
+    <ul>
+      {% for role in member.prior_leadership_roles %}
+        <li>
+          {{ role.role_name }}
+          <small>{{ role.start_date or "No start" }} to {{ role.end_date or "Present" }}</small>
+        </li>
+      {% else %}
+        <li>No prior roles listed.</li>
       {% endfor %}
     </ul>
   </div>

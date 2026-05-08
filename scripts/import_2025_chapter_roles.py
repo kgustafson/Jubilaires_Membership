@@ -55,6 +55,10 @@ def import_roles() -> None:
     lookup = member_lookup()
     missing: list[str] = []
     loaded = 0
+    db.execute(
+        "DELETE FROM member_role_assignment WHERE source_system = :source_system",
+        {"source_system": SOURCE_SYSTEM},
+    )
 
     with SOURCE_PATH.open(newline="") as source_file:
         for row in csv.DictReader(source_file):
@@ -73,11 +77,6 @@ def import_roles() -> None:
                 VALUES (
                     :member_id, :role_id, :start_date, :end_date, :source_system, :notes
                 )
-                ON CONFLICT (member_id, role_id, source_system) DO UPDATE SET
-                    start_date = EXCLUDED.start_date,
-                    end_date = EXCLUDED.end_date,
-                    notes = EXCLUDED.notes,
-                    imported_at = now()
                 """,
                 {
                     "member_id": member["id"],

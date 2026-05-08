@@ -168,14 +168,14 @@ CREATE TABLE member_role (
 );
 
 CREATE TABLE member_role_assignment (
+    id                  SERIAL PRIMARY KEY,
     member_id           INT NOT NULL REFERENCES member(id) ON DELETE CASCADE,
     role_id             INT NOT NULL REFERENCES member_role(id) ON DELETE CASCADE,
     start_date          DATE,
     end_date            DATE,
     source_system       VARCHAR(80),
     notes               TEXT,
-    imported_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
-    PRIMARY KEY (member_id, role_id, source_system)
+    imported_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE roster_source (

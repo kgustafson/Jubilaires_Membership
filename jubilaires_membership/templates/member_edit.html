@@ -86,9 +86,20 @@
       </div>
       <p class="field-summary">
         Voice: {{ member.part_names or "None" }} ·
-        Quartets: {{ member.quartets|map(attribute='name')|join(', ') if member.quartets else "None" }} ·
-        Roles: {{ member.leadership_roles|map(attribute='role_name')|join(', ') if member.leadership_roles else "None" }}
+        Quartets: {{ member.quartets|map(attribute='name')|join(', ') if member.quartets else "None" }}
       </p>
+      <div class="field-summary role-summary" data-role-summary>
+        <strong>Roles:</strong>
+        <span data-role-summary-list>
+          {% if member.leadership_roles %}
+            {% for assignment in member.leadership_roles %}
+              {{ assignment.role_name }}{% if assignment.start_date or assignment.end_date %} ({{ assignment.start_date or "No start" }} to {{ assignment.end_date or "Present" }}){% endif %}{% if not loop.last %}; {% endif %}
+            {% endfor %}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
     </section>
 
     <dialog class="edit-dialog" id="voice-parts-dialog">
@@ -164,51 +175,84 @@
         <h3>Member Roles</h3>
         <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
       </div>
-      <div class="modal-list">
-        {% for role in roles %}
-          {% set assignment = member.leadership_roles_by_id.get(role.id) %}
-          <div class="modal-row role-row">
-            <label class="check-row row-title">
-              <input type="checkbox" name="role_ids" value="{{ role.id }}" {% if assignment %}checked{% endif %}>
-              <span>{{ role.role_name }}</span>
-            </label>
-            <input type="hidden" name="role_{{ role.id }}_source_system" value="{{ assignment.source_system if assignment else 'Manual' }}">
-            <label>
-              Start Date
-              <input type="date" name="role_{{ role.id }}_start_date" value="{{ assignment.start_date if assignment else '' }}">
-            </label>
-            <label>
-              End Date
-              <input type="date" name="role_{{ role.id }}_end_date" value="{{ assignment.end_date if assignment else '' }}">
-            </label>
-            <label class="wide-field">
-              Notes
-              <input name="role_{{ role.id }}_notes" value="{{ assignment.notes if assignment else '' }}">
-            </label>
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-role-assignment>Add Role</button>
+      </div>
+      <div class="modal-list role-assignment-list" data-role-assignment-list>
+        {% for assignment in member.leadership_roles %}
+          {% set key = 'existing_' ~ assignment.assignment_id %}
+          <div class="modal-row role-row role-assignment-row" data-role-assignment-row>
+            <input type="hidden" name="role_assignment_keys" value="{{ key }}">
+            <input type="hidden" name="role_assignment_{{ key }}_source_system" value="{{ assignment.source_system or 'Manual' }}">
+            <input type="hidden" name="role_assignment_{{ key }}_notes" value="{{ assignment.notes or '' }}">
+            <div class="role-assignment-display">
+              <strong data-role-display-name>{{ assignment.role_name }}</strong>
+              <span data-role-display-dates>{{ assignment.start_date or "No start" }} to {{ assignment.end_date or "Present" }}</span>
+            </div>
+            <div class="role-assignment-fields" hidden>
+              <label class="wide-field">
+                Role
+                <select name="role_assignment_{{ key }}_role_id" data-role-select>
+                  <option value="">Select role</option>
+                  {% for role in roles %}
+                    <option value="{{ role.id }}" {% if role.id == assignment.role_id %}selected{% endif %}>{{ role.role_name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <input type="hidden" name="role_assignment_{{ key }}_role_name" data-role-name-input value="">
+              <label>
+                Start Date
+                <input type="date" name="role_assignment_{{ key }}_start_date" value="{{ assignment.start_date or '' }}" data-role-start>
+              </label>
+              <label>
+                End Date
+                <input type="date" name="role_assignment_{{ key }}_end_date" value="{{ assignment.end_date or '' }}" data-role-end>
+              </label>
+            </div>
+            <div class="role-assignment-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-role-assignment aria-label="Edit {{ assignment.role_name }}">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-role-assignment aria-label="Delete {{ assignment.role_name }}">x</button>
+            </div>
           </div>
-        {% endfor %}
-        {% for i in range(3) %}
-          <input type="hidden" name="new_role_keys" value="{{ i }}">
-          <div class="modal-row role-row">
-            <label class="row-title">
-              New Role
-              <input name="new_role_{{ i }}_name" placeholder="Role name">
-            </label>
-            <label>
-              Start Date
-              <input type="date" name="new_role_{{ i }}_start_date">
-            </label>
-            <label>
-              End Date
-              <input type="date" name="new_role_{{ i }}_end_date">
-            </label>
-            <label class="wide-field">
-              Notes
-              <input name="new_role_{{ i }}_notes">
-            </label>
-          </div>
+        {% else %}
+          <p class="empty-state" data-empty-role-assignments>No roles assigned.</p>
         {% endfor %}
       </div>
+      <template id="role-assignment-template">
+        <div class="modal-row role-row role-assignment-row editing" data-role-assignment-row>
+          <input type="hidden" name="role_assignment_keys" value="__key__">
+          <input type="hidden" name="role_assignment___key___source_system" value="Manual">
+          <input type="hidden" name="role_assignment___key___notes" value="">
+          <div class="role-assignment-display">
+            <strong data-role-display-name>Select role</strong>
+            <span data-role-display-dates>No start to Present</span>
+          </div>
+          <div class="role-assignment-fields">
+            <label class="wide-field">
+              Role
+              <select name="role_assignment___key___role_id" data-role-select>
+                <option value="">Select role</option>
+                {% for role in roles %}
+                  <option value="{{ role.id }}">{{ role.role_name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <input type="hidden" name="role_assignment___key___role_name" data-role-name-input value="">
+            <label>
+              Start Date
+              <input type="date" name="role_assignment___key___start_date" data-role-start>
+            </label>
+            <label>
+              End Date
+              <input type="date" name="role_assignment___key___end_date" data-role-end>
+            </label>
+          </div>
+          <div class="role-assignment-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-role-assignment aria-label="Edit role">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-role-assignment aria-label="Delete role">x</button>
+          </div>
+        </div>
+      </template>
       <div class="dialog-actions">
         <button type="button" data-close-dialog>Done</button>
       </div>

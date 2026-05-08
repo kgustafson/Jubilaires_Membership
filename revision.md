@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.42 - 5/8/2026
+
+Reworked member role editing.
+
+- Allowed duplicate member role assignments across different service periods.
+- Changed role editing from checkbox selection to assignment rows with add, edit, and delete controls.
+- Added static role assignment summaries back on the member edit screen after closing the modal.
+
 ## v1.0.41 - 5/7/2026
 
 Imported 2025 chapter role source data.

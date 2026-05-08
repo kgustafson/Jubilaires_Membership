@@ -579,31 +579,17 @@ async def update_member(request: Request, member_id: int):
     members.update_member_quartets(member_id, quartet_assignments)
 
     role_assignments = []
-    selected_role_ids = {str(value) for value in form.getlist("role_ids")}
-    for role in members.member_roles():
-        role_id = str(role["id"])
-        if role_id in selected_role_ids:
-            role_assignments.append(
-                {
-                    "role_id": role_id,
-                    "start_date": form.get(f"role_{role_id}_start_date") or "",
-                    "end_date": form.get(f"role_{role_id}_end_date") or "",
-                    "source_system": form.get(f"role_{role_id}_source_system") or "Manual",
-                    "notes": form.get(f"role_{role_id}_notes") or "",
-                }
-            )
-    for key in form.getlist("new_role_keys"):
-        role_name = (form.get(f"new_role_{key}_name") or "").strip()
-        if role_name:
-            role_assignments.append(
-                {
-                    "role_name": role_name,
-                    "start_date": form.get(f"new_role_{key}_start_date") or "",
-                    "end_date": form.get(f"new_role_{key}_end_date") or "",
-                    "source_system": "Manual",
-                    "notes": form.get(f"new_role_{key}_notes") or "",
-                }
-            )
+    for key in form.getlist("role_assignment_keys"):
+        role_assignments.append(
+            {
+                "role_id": form.get(f"role_assignment_{key}_role_id") or "",
+                "role_name": form.get(f"role_assignment_{key}_role_name") or "",
+                "start_date": form.get(f"role_assignment_{key}_start_date") or "",
+                "end_date": form.get(f"role_assignment_{key}_end_date") or "",
+                "source_system": form.get(f"role_assignment_{key}_source_system") or "Manual",
+                "notes": form.get(f"role_assignment_{key}_notes") or "",
+            }
+        )
     members.update_member_role_assignments(member_id, role_assignments)
 
     email_rows = []

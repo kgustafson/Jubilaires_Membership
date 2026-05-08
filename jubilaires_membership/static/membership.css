@@ -957,7 +957,49 @@ textarea {
 }
 
 .role-row {
-  grid-template-columns: minmax(170px, 1.3fr) repeat(2, minmax(130px, 1fr)) minmax(180px, 1.4fr);
+  align-items: center;
+  grid-template-columns: minmax(220px, 1fr) auto;
+}
+
+.role-assignment-fields {
+  display: grid;
+  gap: 10px;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(220px, 1fr) repeat(2, minmax(130px, .5fr));
+}
+
+.role-assignment-fields[hidden] {
+  display: none;
+}
+
+.role-assignment-display {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.role-assignment-display span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.role-assignment-actions {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.role-summary {
+  display: block;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.modal-toolbar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
 }
 
 .contact-row {
@@ -1458,6 +1500,7 @@ textarea {
   .check-grid,
   .quartet-row,
   .role-row,
+  .role-assignment-fields,
   .contact-row,
   .phone-row,
   .address-row,

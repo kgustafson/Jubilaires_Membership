@@ -324,4 +324,115 @@
       renderChoices();
     });
   });
+
+  const roleDateLabel = (start, end) => `${start || "No start"} to ${end || "Present"}`;
+
+  const roleRowStartTime = (row) => {
+    const value = row.querySelector("[data-role-start]")?.value || "";
+    return value ? Date.parse(`${value}T00:00:00`) : Number.NEGATIVE_INFINITY;
+  };
+
+  const refreshRoleRow = (row) => {
+    const select = row.querySelector("[data-role-select]");
+    const roleNameInput = row.querySelector("[data-role-name-input]");
+    const roleName = select?.selectedOptions[0]?.textContent?.trim() || "Select role";
+    const start = row.querySelector("[data-role-start]")?.value || "";
+    const end = row.querySelector("[data-role-end]")?.value || "";
+    row.querySelector("[data-role-display-name]").textContent = roleName;
+    row.querySelector("[data-role-display-dates]").textContent = roleDateLabel(start, end);
+    if (roleNameInput) {
+      roleNameInput.value = select?.value ? "" : roleName;
+    }
+  };
+
+  const sortRoleRows = (list) => {
+    [...list.querySelectorAll("[data-role-assignment-row]")]
+      .sort((left, right) => roleRowStartTime(right) - roleRowStartTime(left))
+      .forEach((row) => list.append(row));
+  };
+
+  const refreshRoleSummary = () => {
+    const summary = document.querySelector("[data-role-summary-list]");
+    const list = document.querySelector("[data-role-assignment-list]");
+    if (!summary || !list) {
+      return;
+    }
+
+    const rows = [...list.querySelectorAll("[data-role-assignment-row]")];
+    if (!rows.length) {
+      summary.textContent = "None";
+      return;
+    }
+
+    summary.textContent = rows
+      .map((row) => {
+        const name = row.querySelector("[data-role-display-name]")?.textContent?.trim() || "Role";
+        const dates = row.querySelector("[data-role-display-dates]")?.textContent?.trim() || "";
+        return dates ? `${name} (${dates})` : name;
+      })
+      .join("; ");
+  };
+
+  const wireRoleRow = (row) => {
+    const fields = row.querySelector(".role-assignment-fields");
+    const editButton = row.querySelector("[data-edit-role-assignment]");
+    const deleteButton = row.querySelector("[data-delete-role-assignment]");
+    const list = row.closest("[data-role-assignment-list]");
+
+    row.querySelectorAll("[data-role-select], [data-role-start], [data-role-end]").forEach((input) => {
+      input.addEventListener("change", () => {
+        refreshRoleRow(row);
+        if (list) {
+          sortRoleRows(list);
+        }
+        refreshRoleSummary();
+      });
+    });
+
+    editButton?.addEventListener("click", () => {
+      fields?.toggleAttribute("hidden");
+      row.classList.toggle("editing", !fields?.hasAttribute("hidden"));
+    });
+
+    deleteButton?.addEventListener("click", () => {
+      row.remove();
+      list?.querySelector("[data-empty-role-assignments]")?.toggleAttribute(
+        "hidden",
+        Boolean(list.querySelector("[data-role-assignment-row]")),
+      );
+      refreshRoleSummary();
+    });
+
+    refreshRoleRow(row);
+  };
+
+  document.querySelectorAll("[data-role-assignment-list]").forEach((list) => {
+    list.querySelectorAll("[data-role-assignment-row]").forEach(wireRoleRow);
+    sortRoleRows(list);
+    refreshRoleSummary();
+  });
+
+  document.querySelectorAll("[data-add-role-assignment]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const list = document.querySelector("[data-role-assignment-list]");
+      const template = document.getElementById("role-assignment-template");
+      if (!list || !(template instanceof HTMLTemplateElement)) {
+        return;
+      }
+
+      const key = `new_${Date.now()}`;
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = template.innerHTML.replace(/__key__/g, key).trim();
+      const row = wrapper.firstElementChild;
+      if (!row) {
+        return;
+      }
+
+      list.querySelector("[data-empty-role-assignments]")?.setAttribute("hidden", "");
+      list.append(row);
+      wireRoleRow(row);
+      refreshRoleSummary();
+      row.querySelector("[data-role-select]")?.focus();
+    });
+  });
 })();
