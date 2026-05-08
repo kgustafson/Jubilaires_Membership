@@ -114,8 +114,13 @@
         <div class="quartet-member-list">
           {% for member in quartet.members %}
             <div class="quartet-member-item">
+              {% if member.picture_path %}
+                <img class="quartet-member-photo" src="{{ member.picture_path }}" alt="">
+              {% else %}
+                <span class="quartet-member-photo quartet-member-photo-placeholder" aria-hidden="true">{{ member.first_name[:1] }}{{ member.last_name[:1] }}</span>
+              {% endif %}
               <div class="quartet-member-copy">
-                <strong>{{ member.first_name }} {{ member.last_name }}</strong>
+                <button type="button" class="text-link-button" data-open-dialog="quartet-member-contact-dialog-{{ quartet.id }}-{{ member.member_id }}">{{ member.first_name }} {{ member.last_name }}</button>
                 <span>{{ member.membership_state|title }}{% if member.quartet_part_name %} · {{ member.quartet_part_name }}{% endif %}</span>
               </div>
               {% if can_manage %}
@@ -231,6 +236,47 @@
       </dialog>
 
       {% for assigned_member in quartet.members %}
+        <dialog class="edit-dialog" id="quartet-member-contact-dialog-{{ quartet.id }}-{{ assigned_member.member_id }}">
+          <div class="dialog-header">
+            <h3>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</h3>
+            <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+          </div>
+          <div class="dialog-body contact-summary">
+            <div class="contact-summary-heading">
+              {% if assigned_member.picture_path %}
+                <img class="contact-summary-photo" src="{{ assigned_member.picture_path }}" alt="">
+              {% else %}
+                <span class="contact-summary-photo contact-summary-placeholder" aria-hidden="true">{{ assigned_member.first_name[:1] }}{{ assigned_member.last_name[:1] }}</span>
+              {% endif %}
+              <div>
+                <strong>{{ assigned_member.first_name }} {{ assigned_member.last_name }}</strong>
+                <span>{{ assigned_member.part_names or "No member voice parts listed" }}</span>
+              </div>
+            </div>
+            <dl class="contact-summary-list">
+              <div>
+                <dt>Phone</dt>
+                <dd>{{ assigned_member.phone_numbers or "None listed" }}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{{ assigned_member.email_addresses or "None listed" }}</dd>
+              </div>
+              <div>
+                <dt>Mailing Address</dt>
+                <dd>{{ assigned_member.mailing_addresses or "None listed" }}</dd>
+              </div>
+              <div>
+                <dt>Voice Parts</dt>
+                <dd>{{ assigned_member.part_names or "None listed" }}</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" data-close-dialog>Close</button>
+          </div>
+        </dialog>
+
         <dialog class="edit-dialog" id="edit-quartet-member-dialog-{{ quartet.id }}-{{ assigned_member.member_id }}">
           <form action="/quartets/{{ quartet.id }}/members/{{ assigned_member.member_id }}" method="post">
             <div class="dialog-header">

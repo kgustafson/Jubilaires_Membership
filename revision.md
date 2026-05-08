@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.36 - 5/7/2026
+
+Added quartet member contact previews.
+
+- Added member profile thumbnails to quartet member rows.
+- Made quartet member names open contact summary modals.
+- Included phone numbers, emails, mailing addresses, and member voice parts in the quartet contact modal.
+
 ## v1.0.35 - 5/7/2026
 
 Trimmed quartet photo padding before resizing.

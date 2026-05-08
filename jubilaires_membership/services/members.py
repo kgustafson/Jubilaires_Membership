@@ -771,7 +771,11 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
             mq.role_notes,
             m.first_name,
             m.last_name,
-            part_summary.part_names
+            m.picture_path,
+            part_summary.part_names,
+            phone_summary.phone_numbers,
+            email_summary.email_addresses,
+            address_summary.mailing_addresses
         FROM member_quartet mq
         JOIN member m ON m.id = mq.member_id
         LEFT JOIN voice_part quartet_vp ON quartet_vp.id = mq.voice_part_id
@@ -781,6 +785,33 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
             JOIN voice_part vp ON vp.id = mvp.voice_part_id
             WHERE mvp.member_id = m.id
         ) part_summary ON true
+        LEFT JOIN LATERAL (
+            SELECT string_agg(
+                trim(concat_ws(' ', COALESCE(label, phone_type), phone_number)),
+                ', ' ORDER BY is_primary DESC, id
+            ) AS phone_numbers
+            FROM member_phone
+            WHERE member_id = m.id
+        ) phone_summary ON true
+        LEFT JOIN LATERAL (
+            SELECT string_agg(
+                trim(concat_ws(' ', COALESCE(label, ''), email_address)),
+                ', ' ORDER BY is_primary DESC, id
+            ) AS email_addresses
+            FROM member_email
+            WHERE member_id = m.id
+        ) email_summary ON true
+        LEFT JOIN LATERAL (
+            SELECT string_agg(
+                CASE
+                    WHEN NULLIF(raw_address, '') IS NOT NULL THEN raw_address
+                    ELSE trim(concat_ws(', ', NULLIF(street, ''), NULLIF(city, ''), NULLIF(state, ''), NULLIF(postal_code, '')))
+                END,
+                ' | ' ORDER BY is_primary DESC, id
+            ) AS mailing_addresses
+            FROM member_address
+            WHERE member_id = m.id
+        ) address_summary ON true
         WHERE mq.quartet_id = :quartet_id
         ORDER BY
             CASE mq.membership_state WHEN 'primary' THEN 1 ELSE 2 END,
