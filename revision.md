@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.4 - 5/8/2026
+
+Updated member edit improvement planning.
+
+- Added a Web Interface todo to redesign quartet, email, phone number, and address editors.
+- Noted that those editors should follow the same list/detail modal pattern used by member role assignments.
+
 ## v1.1.3 - 5/8/2026
 
 Documented the release workflow.
