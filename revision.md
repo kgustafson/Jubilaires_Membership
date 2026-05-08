@@ -1,5 +1,11 @@
 # Revision History
 
+## Release v1.1.0 - 5/8/2026
+
+Release v1.1.0 baselines the Fairfax Jubil-Aires Membership system as a standalone internal management portal for the chorus. The release includes the FastAPI/Jinja application, dedicated project virtual environment, PostgreSQL-backed data model, Docker-based development database, Git version tracking, and a professional admin-style interface with sidebar navigation, header account access, dashboard metrics, roster search, active/inactive filtering, sortable roster columns, normalized phone/address display, and member detail/edit workflows. The data model now supports members, family relationships, many-to-many voice parts, addresses, phones, emails, statuses, membership start/inactive dates, date of birth/death, anniversaries, external Choir Genius classifications, emergency contacts, internal member roles with historical start/end dates, and quartet assignments with primary/alternate state and quartet-specific voice parts.
+
+The release also includes major operating workflows for administrators and members: login/logout, registration adjudication, password hashing, role-based access, member self-service restrictions, administrator user management, Google Authenticator compatible two-factor authentication for administrators, recovery codes, and administrator 2FA reset. Data import and cleanup tools reconcile the chapter roster, Choir Genius exports, known aliases, duplicate members, inactive classifications, photos, leadership roles, and derived dates. Photo workflows support Pillow-based member and family photo uploads, clipboard paste, existing-photo selection, assignment review, removal, 512x512 profile normalization, quartet photo upload and 2000x1600 normalization, photo rotation, cache-busted rendering, and quartet contact popups. Quartet Management supports CRUD, lifecycle dates, membership editing by quartet, searchable add-member modals, contact summaries, and permission control for administrators and primary quartet members. Operations now include timestamped database backup and restore from the web and command line, pytest/httpx smoke tests with a verbose runner, revision history, Git tags, GitHub push support, and Linode deployment planning.
+
 ## v1.0.51 - 5/8/2026
 
 Added smoke test runner script.
