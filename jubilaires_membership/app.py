@@ -492,9 +492,12 @@ async def update_quartet_photo(request: Request, quartet_id: int):
         members.update_quartet_picture_path(quartet_id, "")
         return RedirectResponse(url=f"/quartets?photo_removed={quartet_id}", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
+    rotation = form.get("photo_rotation")
     if upload:
-        picture_path = photos.save_quartet_upload(upload.file, f"quartet-{quartet_id}-{quartet['name']}", form.get("photo_rotation"))
+        picture_path = photos.save_quartet_upload(upload.file, f"quartet-{quartet_id}-{quartet['name']}", rotation)
         members.update_quartet_picture_path(quartet_id, picture_path)
+    elif quartet.get("picture_path") and photos.normalized_rotation(rotation):
+        photos.rotate_static_photo(quartet["picture_path"], rotation)
     return RedirectResponse(url=f"/quartets?photo_saved={quartet_id}", status_code=303)
 
 
@@ -735,13 +738,17 @@ async def update_member_photo(request: Request, member_id: int):
         return RedirectResponse(url=f"/members/{member_id}/edit?photo_removed=1", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
     selected_photo = (form.get("selected_photo_path") or "").strip()
+    rotation = form.get("photo_rotation")
     picture_path = ""
     if upload:
-        picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}", form.get("photo_rotation"))
+        picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}", rotation)
     elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), member.get("picture_path")):
-        if photos.normalized_rotation(form.get("photo_rotation")):
-            photos.rotate_static_photo(selected_photo, form.get("photo_rotation"))
+        if photos.normalized_rotation(rotation):
+            photos.rotate_static_photo(selected_photo, rotation)
         picture_path = selected_photo
+    elif member.get("picture_path") and photos.normalized_rotation(rotation):
+        photos.rotate_static_photo(member["picture_path"], rotation)
+        picture_path = member["picture_path"]
     if picture_path:
         members.update_member_picture_path(member_id, picture_path)
     return RedirectResponse(url=f"/members/{member_id}/edit?photo_saved=1", status_code=303)
@@ -762,13 +769,17 @@ async def update_family_photo(request: Request, member_id: int, family_id: int):
         return RedirectResponse(url=f"/members/{member_id}/family/{family_id}/edit?photo_removed=1", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
     selected_photo = (form.get("selected_photo_path") or "").strip()
+    rotation = form.get("photo_rotation")
     picture_path = ""
     if upload:
-        picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}", form.get("photo_rotation"))
+        picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}", rotation)
     elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), person.get("picture_path")):
-        if photos.normalized_rotation(form.get("photo_rotation")):
-            photos.rotate_static_photo(selected_photo, form.get("photo_rotation"))
+        if photos.normalized_rotation(rotation):
+            photos.rotate_static_photo(selected_photo, rotation)
         picture_path = selected_photo
+    elif person.get("picture_path") and photos.normalized_rotation(rotation):
+        photos.rotate_static_photo(person["picture_path"], rotation)
+        picture_path = person["picture_path"]
     if picture_path:
         members.update_family_picture_path(member_id, family_id, picture_path)
     return RedirectResponse(url=f"/members/{member_id}/family/{family_id}/edit?photo_saved=1", status_code=303)

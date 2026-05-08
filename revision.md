@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.47 - 5/8/2026
+
+Persisted rotations for current assigned photos.
+
+- Applied Save Photo rotation to the currently assigned member photo when no new upload or selected photo is provided.
+- Applied the same current-photo rotation behavior for family and quartet photo dialogs.
+- Kept database photo paths unchanged while rewriting the image file in the saved orientation.
+
 ## v1.0.46 - 5/8/2026
 
 Formatted member detail mailing addresses.
