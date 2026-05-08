@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.5 - 5/8/2026
+
+Updated data model planning.
+
+- Added a todo to refactor member and family date fields into an important date table.
+- Captured required important date attributes: date, title, classification, and target member or family member reference.
+- Listed planned classifications including birthday, anniversary, deceased, inactive, and membership start.
+
 ## v1.1.4 - 5/8/2026
 
 Updated member edit improvement planning.
