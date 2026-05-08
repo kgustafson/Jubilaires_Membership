@@ -6,7 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageChops, ImageOps
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +45,15 @@ def crop_square(image: Image.Image) -> Image.Image:
     return image.crop((left, top, left + side, top + side))
 
 
+def trim_uniform_border(image: Image.Image, threshold: int = 18) -> Image.Image:
+    converted = image.convert("RGB")
+    background = Image.new("RGB", converted.size, converted.getpixel((0, 0)))
+    diff = ImageChops.difference(converted, background)
+    mask = diff.convert("L").point(lambda value: 255 if value > threshold else 0)
+    bbox = mask.getbbox()
+    return converted.crop(bbox) if bbox else converted
+
+
 def normalize_profile_image(source: BinaryIO | bytes) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
@@ -65,6 +74,7 @@ def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
         image = ImageOps.exif_transpose(image)
+        image = trim_uniform_border(image)
         scale = max(QUARTET_SIZE[0] / image.width, QUARTET_SIZE[1] / image.height)
         resized_size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
         image = image.resize(resized_size, Image.Resampling.LANCZOS)

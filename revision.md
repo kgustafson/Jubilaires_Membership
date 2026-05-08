@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.35 - 5/7/2026
+
+Trimmed quartet photo padding before resizing.
+
+- Added uniform border trimming before quartet photo cover-crop resizing.
+- Reprocessed existing quartet photos so image content fills the allocated 2000x1600 frame instead of sitting inside old padding.
+
 ## v1.0.34 - 5/7/2026
 
 Cleaned roster navigation.
