@@ -13,7 +13,7 @@
 <section class="photo-review-grid">
   {% for photo in photos %}
     <article class="photo-review-card">
-      <img src="{{ photo.path }}" alt="" data-review-photo-preview="{{ photo.path }}">
+      <img src="{{ photo_url(photo.path) }}" alt="" data-review-photo-preview="{{ photo.path }}">
       <div>
         <strong>{{ photo.name }}</strong>
         <small>

@@ -14,7 +14,7 @@
         </label>
         <div class="photo-preview-frame">
           <img
-            src="{{ current_path or '' }}"
+            src="{{ photo_url(current_path) if current_path else '' }}"
             alt=""
             data-photo-preview
             {% if not current_path %}hidden{% endif %}
@@ -48,7 +48,7 @@
             {% for photo in choices %}
               <label class="photo-choice">
                 <input type="radio" name="selected_photo_path" value="{{ photo.path }}">
-                <img src="{{ photo.path }}" alt="">
+                <img src="{{ photo_url(photo.path) }}" alt="">
                 <span>{{ photo.name }}</span>
                 {% if photo.width and photo.height %}
                   <small>{{ photo.width }}x{{ photo.height }}</small>

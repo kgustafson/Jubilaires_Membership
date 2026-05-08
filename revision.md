@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.45 - 5/8/2026
+
+Made saved photo rotations show everywhere immediately.
+
+- Added cache-busted photo display URLs based on each photo file's modification time.
+- Kept stored member, family, quartet, and roster photo paths clean while versioning rendered image tags.
+- Applied versioned photo URLs across member, family, quartet, picker, and photo review views.
+
 ## v1.0.44 - 5/8/2026
 
 Normalized dashboard phone display.

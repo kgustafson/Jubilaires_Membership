@@ -46,7 +46,7 @@
       <h3>Photo</h3>
       <div class="photo-inline">
         {% if person.picture_path %}
-          <img class="profile-photo" src="{{ person.picture_path }}" alt="">
+          <img class="profile-photo" src="{{ photo_url(person.picture_path) }}" alt="">
         {% else %}
           <span class="photo-placeholder">No photo</span>
         {% endif %}

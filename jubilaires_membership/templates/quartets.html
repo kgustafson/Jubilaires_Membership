@@ -90,7 +90,7 @@
     {% set can_manage = quartet.id in manageable_quartet_ids %}
     <article class="quartet-card">
       {% if quartet.picture_path %}
-        <img class="quartet-photo" src="{{ quartet.picture_path }}" alt="">
+        <img class="quartet-photo" src="{{ photo_url(quartet.picture_path) }}" alt="">
       {% else %}
         <div class="quartet-photo quartet-photo-placeholder" aria-hidden="true"></div>
       {% endif %}
@@ -238,7 +238,7 @@
           </div>
           <div class="dialog-body contact-summary">
             {% if assigned_member.picture_path %}
-              <img class="contact-summary-photo" src="{{ assigned_member.picture_path }}" alt="">
+              <img class="contact-summary-photo" src="{{ photo_url(assigned_member.picture_path) }}" alt="">
             {% endif %}
             <div class="contact-summary-line">phone: <strong>{{ assigned_member.phone_numbers or "None listed" }}</strong></div>
             <div class="contact-summary-line contact-summary-spaced">email: <strong>{{ assigned_member.email_addresses or "None listed" }}</strong></div>

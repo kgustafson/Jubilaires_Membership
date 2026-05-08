@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-heading">
   {% if member.picture_path %}
-    <img class="profile-photo" src="{{ member.picture_path }}" alt="">
+    <img class="profile-photo" src="{{ photo_url(member.picture_path) }}" alt="">
   {% endif %}
   <h1>{{ member.first_name }} {{ member.last_name }}</h1>
   <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
@@ -37,7 +37,7 @@
       {% for person in member.family %}
         <li>
           {% if person.picture_path %}
-            <img class="family-photo" src="{{ person.picture_path }}" alt="">
+            <img class="family-photo" src="{{ photo_url(person.picture_path) }}" alt="">
           {% endif %}
           <span>
             <strong>{{ person.first_name }}{% if person.last_name %} {{ person.last_name }}{% endif %}</strong>

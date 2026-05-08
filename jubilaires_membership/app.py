@@ -17,6 +17,7 @@ APP_ROOT = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_ROOT.parent
 app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
 templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
+templates.env.globals["photo_url"] = photos.versioned_static_url
 PUBLIC_PATHS = {"/login", "/register", "/two-factor/setup", "/two-factor/verify"}
 
 

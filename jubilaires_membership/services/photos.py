@@ -32,9 +32,23 @@ def static_path(path: Path) -> str:
 
 def path_from_static_url(value: str) -> Path:
     static_prefix = "/static/"
-    if not value.startswith(static_prefix):
+    clean_value = value.split("?", 1)[0]
+    if not clean_value.startswith(static_prefix):
         raise ValueError(f"Not a static path: {value}")
-    return STATIC_ROOT / value.removeprefix(static_prefix)
+    return STATIC_ROOT / clean_value.removeprefix(static_prefix)
+
+
+def versioned_static_url(value: str | None) -> str:
+    if not value:
+        return ""
+    try:
+        path = path_from_static_url(value)
+    except ValueError:
+        return value
+    if not path.exists():
+        return value
+    separator = "&" if "?" in value else "?"
+    return f"{value}{separator}v={path.stat().st_mtime_ns}"
 
 
 def crop_square(image: Image.Image) -> Image.Image:
