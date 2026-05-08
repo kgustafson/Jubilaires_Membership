@@ -79,7 +79,7 @@
 - [x] Verify no runtime paths, services, credentials, Docker resources, media storage, backups, or deployment scripts depend on Farrlind or any other project.
 - [x] Add database backup script.
 - [x] Add database recovery from backup.
-- [ ] Add web smoke tests.
+- [x] Add web smoke tests.
 - [ ] Containerize the membership application.
 - [ ] Plan migration to Linode.
 - [ ] Choose Linode deployment architecture for web app, database, static/media files, backups, and secrets.

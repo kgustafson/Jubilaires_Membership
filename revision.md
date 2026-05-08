@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.0.50 - 5/8/2026
+
+Added pytest/httpx web smoke tests.
+
+- Added a pytest/httpx smoke test suite under `tests/`.
+- Covered public auth pages, protected app views, admin pages, member edit/detail, quartet management, photo review, and script checks.
+- Added `requirements-dev.txt` for test dependencies.
+- Updated smoke test documentation with the pytest workflow.
+- Marked the web smoke test operations todo complete.
+
 ## v1.0.49 - 5/8/2026
 
 Added command-line database backup and restore scripts.
