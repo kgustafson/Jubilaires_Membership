@@ -12,6 +12,20 @@ This project is operationally separate from all other projects. It should use it
 - SQLAlchemy
 - Adminer for direct database inspection
 
+## Start the full Docker stack
+
+```bash
+docker compose up -d --build
+```
+
+The containerized web app will be available at http://127.0.0.1:8092.
+Adminer will be available at http://127.0.0.1:8081.
+
+Persistent host directories are mounted into the app container:
+
+- `jubilaires_membership/static/photos` for member, family, roster, and quartet photos.
+- `backups` for database backup files.
+
 ## Separation Requirements
 
 - Do not reuse another project's Python virtual environment.
@@ -19,10 +33,10 @@ This project is operationally separate from all other projects. It should use it
 - Keep all Jubilaires code, imports, static assets, extracted photos, and operational scripts under this project directory.
 - Use `JUBILAIRES_DATABASE_URL` for database overrides.
 
-## Start the database
+## Start the database only
 
 ```bash
-docker compose up -d
+docker compose up -d db adminer
 ```
 
 Adminer will be available at http://localhost:8081.

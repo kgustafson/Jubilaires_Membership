@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.1.1 - 5/8/2026
+
+Added an application Docker container.
+
+- Added a Dockerfile for the FastAPI/Jinja application.
+- Added the app service to Docker Compose on host port 8092.
+- Mounted profile/quartet/roster photos and database backups as persistent host directories.
+- Updated web backup and restore code so the container can use direct PostgreSQL client commands without requiring Docker socket access.
+- Marked application containerization complete in the Operations todo list.
+
 ## Release v1.1.0 - 5/8/2026
 
 Release v1.1.0 baselines the Fairfax Jubil-Aires Membership system as a standalone internal management portal for the chorus. The release includes the FastAPI/Jinja application, dedicated project virtual environment, PostgreSQL-backed data model, Docker-based development database, Git version tracking, and a professional admin-style interface with sidebar navigation, header account access, dashboard metrics, roster search, active/inactive filtering, sortable roster columns, normalized phone/address display, and member detail/edit workflows. The data model now supports members, family relationships, many-to-many voice parts, addresses, phones, emails, statuses, membership start/inactive dates, date of birth/death, anniversaries, external Choir Genius classifications, emergency contacts, internal member roles with historical start/end dates, and quartet assignments with primary/alternate state and quartet-specific voice parts.

@@ -80,7 +80,7 @@
 - [x] Add database backup script.
 - [x] Add database recovery from backup.
 - [x] Add web smoke tests.
-- [ ] Containerize the membership application.
+- [x] Containerize the membership application.
 - [ ] Plan migration to Linode.
 - [ ] Choose Linode deployment architecture for web app, database, static/media files, backups, and secrets.
 - [ ] Prepare production deployment checklist for Linode.

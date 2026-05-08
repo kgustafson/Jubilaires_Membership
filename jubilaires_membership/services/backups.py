@@ -15,6 +15,9 @@ BACKUP_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}-(\d{3})\.dump$")
 DB_CONTAINER = os.environ.get("JUBILAIRES_DB_CONTAINER", "jubilaires_membership_db")
 DB_NAME = os.environ.get("JUBILAIRES_DB_NAME", "jubilaires_membership")
 DB_USER = os.environ.get("JUBILAIRES_DB_USER", "admin")
+DB_HOST = os.environ.get("JUBILAIRES_DB_HOST")
+DB_PORT = os.environ.get("JUBILAIRES_DB_PORT", "5432")
+DB_PASSWORD = os.environ.get("JUBILAIRES_DB_PASSWORD")
 
 
 class DatabaseBackupError(RuntimeError):
@@ -74,10 +77,11 @@ def next_backup_path(today: date | None = None) -> Path:
 def create_backup() -> dict:
     backup_path = next_backup_path()
     result = subprocess.run(
-        ["docker", "exec", DB_CONTAINER, "pg_dump", "-U", DB_USER, "-d", DB_NAME, "-Fc"],
+        _backup_command(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
+        env=_database_command_env(),
     )
     if result.returncode != 0:
         raise DatabaseBackupError(_command_error(result))
@@ -111,25 +115,54 @@ def backup_path_for_name(backup_name: str) -> Path:
 
 def _restore_bytes(data: bytes) -> None:
     result = subprocess.run(
-        [
-            "docker",
-            "exec",
-            "-i",
-            DB_CONTAINER,
-            "pg_restore",
-            "-U",
-            DB_USER,
-            "-d",
-            DB_NAME,
-            "--clean",
-            "--if-exists",
-            "--no-owner",
-            "--no-privileges",
-        ],
+        _restore_command(),
         input=data,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         check=False,
+        env=_database_command_env(),
     )
     if result.returncode != 0:
         raise DatabaseBackupError(_command_error(result))
+
+
+def _database_command_env() -> dict[str, str]:
+    env = os.environ.copy()
+    if DB_PASSWORD:
+        env["PGPASSWORD"] = DB_PASSWORD
+    return env
+
+
+def _backup_command() -> list[str]:
+    if DB_HOST:
+        return [
+            "pg_dump",
+            "-h",
+            DB_HOST,
+            "-p",
+            DB_PORT,
+            "-U",
+            DB_USER,
+            "-d",
+            DB_NAME,
+            "-Fc",
+        ]
+    return ["docker", "exec", DB_CONTAINER, "pg_dump", "-U", DB_USER, "-d", DB_NAME, "-Fc"]
+
+
+def _restore_command() -> list[str]:
+    options = ["--clean", "--if-exists", "--no-owner", "--no-privileges"]
+    if DB_HOST:
+        return [
+            "pg_restore",
+            "-h",
+            DB_HOST,
+            "-p",
+            DB_PORT,
+            "-U",
+            DB_USER,
+            "-d",
+            DB_NAME,
+            *options,
+        ]
+    return ["docker", "exec", "-i", DB_CONTAINER, "pg_restore", "-U", DB_USER, "-d", DB_NAME, *options]
