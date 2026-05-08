@@ -262,9 +262,12 @@ def member_detail(member_id: int) -> Optional[dict]:
             q.deactivation_date,
             q.notes,
             mq.membership_state,
+            mq.voice_part_id,
+            vp.part_name AS quartet_part_name,
             mq.role_notes
         FROM member_quartet mq
         JOIN quartet q ON q.id = mq.quartet_id
+        LEFT JOIN voice_part vp ON vp.id = mq.voice_part_id
         WHERE mq.member_id = :member_id
         ORDER BY mq.membership_state, q.name
         """,
@@ -370,16 +373,22 @@ def update_quartet_catalog(quartet_id: int, values: dict[str, str]) -> None:
 
 def update_member_quartets(member_id: int, assignments: list[dict[str, str]]) -> None:
     db.execute("DELETE FROM member_quartet WHERE member_id = :member_id", {"member_id": member_id})
+    seen_quartet_ids = set()
     for assignment in assignments:
+        quartet_id = optional_int(assignment.get("quartet_id", ""))
+        if not quartet_id or quartet_id in seen_quartet_ids:
+            continue
+        seen_quartet_ids.add(quartet_id)
         db.execute(
             """
-            INSERT INTO member_quartet (member_id, quartet_id, membership_state, role_notes)
-            VALUES (:member_id, :quartet_id, :membership_state, :role_notes)
+            INSERT INTO member_quartet (member_id, quartet_id, membership_state, voice_part_id, role_notes)
+            VALUES (:member_id, :quartet_id, :membership_state, :voice_part_id, :role_notes)
             """,
             {
                 "member_id": member_id,
-                "quartet_id": int(assignment["quartet_id"]),
+                "quartet_id": quartet_id,
                 "membership_state": assignment["membership_state"] if assignment["membership_state"] in {"primary", "alternate"} else "primary",
+                "voice_part_id": optional_int(assignment.get("voice_part_id", "")),
                 "role_notes": assignment.get("role_notes", "").strip() or None,
             },
         )

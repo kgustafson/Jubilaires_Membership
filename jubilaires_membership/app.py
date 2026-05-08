@@ -559,27 +559,16 @@ async def update_member(request: Request, member_id: int):
     voice_part_ids = [int(value) for value in form.getlist("voice_part_ids") if str(value).isdigit()]
     members.update_member_voice_parts(member_id, voice_part_ids)
 
-    selected_quartet_ids = {str(value) for value in form.getlist("quartet_ids")}
     quartet_assignments = []
-    for quartet in members.quartets():
-        quartet_id = str(quartet["id"])
-        members.update_quartet_catalog(
-            quartet["id"],
+    for key in form.getlist("quartet_assignment_keys"):
+        quartet_assignments.append(
             {
-                "is_active": form.get(f"quartet_{quartet_id}_is_active") or "",
-                "formation_date": form.get(f"quartet_{quartet_id}_formation_date") or "",
-                "deactivation_date": form.get(f"quartet_{quartet_id}_deactivation_date") or "",
-                "notes": form.get(f"quartet_{quartet_id}_notes") or "",
-            },
+                "quartet_id": form.get(f"quartet_assignment_{key}_quartet_id") or "",
+                "membership_state": form.get(f"quartet_assignment_{key}_membership_state") or "primary",
+                "voice_part_id": form.get(f"quartet_assignment_{key}_voice_part_id") or "",
+                "role_notes": form.get(f"quartet_assignment_{key}_role_notes") or "",
+            }
         )
-        if quartet_id in selected_quartet_ids:
-            quartet_assignments.append(
-                {
-                    "quartet_id": quartet_id,
-                    "membership_state": form.get(f"quartet_{quartet_id}_membership_state") or "primary",
-                    "role_notes": form.get(f"quartet_{quartet_id}_role_notes") or "",
-                }
-            )
     members.update_member_quartets(member_id, quartet_assignments)
 
     role_assignments = []

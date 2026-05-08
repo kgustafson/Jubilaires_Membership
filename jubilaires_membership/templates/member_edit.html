@@ -84,10 +84,31 @@
         <button type="button" class="secondary-button" data-open-dialog="phones-dialog">Phones</button>
         <button type="button" class="secondary-button" data-open-dialog="addresses-dialog">Addresses</button>
       </div>
-      <p class="field-summary">
-        Voice: {{ member.part_names or "None" }} ·
-        Quartets: {{ member.quartets|map(attribute='name')|join(', ') if member.quartets else "None" }}
-      </p>
+      <p class="field-summary">Voice: {{ member.part_names or "None" }}</p>
+      <div class="field-summary">
+        <strong>Quartets:</strong>
+        <span data-quartet-summary-list>{{ member.quartets|map(attribute='name')|join(', ') if member.quartets else "None" }}</span>
+      </div>
+      <div class="field-summary">
+        <strong>Email:</strong>
+        <span data-email-summary-list>{{ member.emails|map(attribute='email_address')|join(', ') if member.emails else "None" }}</span>
+      </div>
+      <div class="field-summary">
+        <strong>Phones:</strong>
+        <span data-phone-summary-list>{{ member.phones|map(attribute='phone_number')|join(', ') if member.phones else "None" }}</span>
+      </div>
+      <div class="field-summary">
+        <strong>Addresses:</strong>
+        <span data-address-summary-list>
+          {% if member.addresses %}
+            {% for address in member.addresses %}
+              {{ address.formatted_lines|join(', ') }}{% if not loop.last %}; {% endif %}
+            {% endfor %}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
       <div class="field-summary role-summary" data-role-summary>
         <strong>Roles:</strong>
         <span data-role-summary-list>
@@ -125,46 +146,101 @@
         <h3>Quartets</h3>
         <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
       </div>
-      <div class="quartet-editor">
-        {% for quartet in quartets %}
-          {% set assignment = member.quartets_by_id.get(quartet.id) %}
-          <div class="quartet-row">
-            <label class="check-row quartet-name">
-              <input type="checkbox" name="quartet_ids" value="{{ quartet.id }}" {% if assignment %}checked{% endif %}>
-              <span>{{ quartet.name }}</span>
-            </label>
-            <label>
-              Member State
-              <select name="quartet_{{ quartet.id }}_membership_state">
-                <option value="primary" {% if assignment and assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
-                <option value="alternate" {% if assignment and assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-list-detail-row data-list-detail-target="quartet-assignment-list" data-list-detail-template="quartet-assignment-template">Add Quartet</button>
+      </div>
+      <div class="modal-list" id="quartet-assignment-list" data-list-detail-list data-list-detail-kind="quartet">
+        {% for assignment in member.quartets %}
+          {% set key = 'existing_' ~ assignment.id %}
+          <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="quartet">
+            <input type="hidden" name="quartet_assignment_keys" value="{{ key }}">
+            <div class="list-detail-display">
+              <strong data-list-display-primary>{{ assignment.name }}</strong>
+              <span data-list-display-secondary>{{ assignment.membership_state|title }}{% if assignment.quartet_part_name %} · {{ assignment.quartet_part_name }}{% endif %}</span>
+            </div>
+            <div class="list-detail-fields" hidden>
+              <label class="wide-field">
+                Quartet
+                <select name="quartet_assignment_{{ key }}_quartet_id" data-quartet-select>
+                  <option value="">Select quartet</option>
+                  {% for quartet in quartets %}
+                    <option value="{{ quartet.id }}" {% if quartet.id == assignment.id %}selected{% endif %}>{{ quartet.name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>
+                State
+                <select name="quartet_assignment_{{ key }}_membership_state" data-quartet-state>
+                  <option value="primary" {% if assignment.membership_state == 'primary' %}selected{% endif %}>Primary</option>
+                  <option value="alternate" {% if assignment.membership_state == 'alternate' %}selected{% endif %}>Alternate</option>
+                </select>
+              </label>
+              <label>
+                Voice Part
+                <select name="quartet_assignment_{{ key }}_voice_part_id" data-quartet-part>
+                  <option value="">No quartet part</option>
+                  {% for part in voice_parts %}
+                    <option value="{{ part.id }}" {% if assignment.voice_part_id == part.id %}selected{% endif %}>{{ part.part_name }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label class="wide-field">
+                Member Notes
+                <input name="quartet_assignment_{{ key }}_role_notes" value="{{ assignment.role_notes or '' }}">
+              </label>
+            </div>
+            <div class="list-detail-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit {{ assignment.name }}">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete {{ assignment.name }}">x</button>
+            </div>
+          </div>
+        {% endfor %}
+        <p class="empty-state" data-empty-list-detail {% if member.quartets %}hidden{% endif %}>No quartets assigned.</p>
+      </div>
+      <template id="quartet-assignment-template">
+        <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="quartet">
+          <input type="hidden" name="quartet_assignment_keys" value="__key__">
+          <div class="list-detail-display">
+            <strong data-list-display-primary>Select quartet</strong>
+            <span data-list-display-secondary>Primary</span>
+          </div>
+          <div class="list-detail-fields">
+            <label class="wide-field">
+              Quartet
+              <select name="quartet_assignment___key___quartet_id" data-quartet-select>
+                <option value="">Select quartet</option>
+                {% for quartet in quartets %}
+                  <option value="{{ quartet.id }}">{{ quartet.name }}</option>
+                {% endfor %}
               </select>
             </label>
-            <label class="check-row">
-              <input type="checkbox" name="quartet_{{ quartet.id }}_is_active" value="1" {% if quartet.is_active %}checked{% endif %}>
-              <span>Active Quartet</span>
+            <label>
+              State
+              <select name="quartet_assignment___key___membership_state" data-quartet-state>
+                <option value="primary">Primary</option>
+                <option value="alternate">Alternate</option>
+              </select>
             </label>
             <label>
-              Formation Date
-              <input type="date" name="quartet_{{ quartet.id }}_formation_date" value="{{ quartet.formation_date or '' }}">
+              Voice Part
+              <select name="quartet_assignment___key___voice_part_id" data-quartet-part>
+                <option value="">No quartet part</option>
+                {% for part in voice_parts %}
+                  <option value="{{ part.id }}">{{ part.part_name }}</option>
+                {% endfor %}
+              </select>
             </label>
-            <label>
-              Deactivation Date
-              <input type="date" name="quartet_{{ quartet.id }}_deactivation_date" value="{{ quartet.deactivation_date or '' }}">
-            </label>
-            <label>
+            <label class="wide-field">
               Member Notes
-              <input name="quartet_{{ quartet.id }}_role_notes" value="{{ assignment.role_notes if assignment else '' }}">
-            </label>
-            <label class="quartet-notes">
-              Quartet Notes
-              <input name="quartet_{{ quartet.id }}_notes" value="{{ quartet.notes or '' }}">
+              <input name="quartet_assignment___key___role_notes">
             </label>
           </div>
-        {% else %}
-          <p>No quartets have been imported yet.</p>
-        {% endfor %}
-      </div>
+          <div class="list-detail-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit quartet">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete quartet">x</button>
+          </div>
+        </div>
+      </template>
       <div class="dialog-actions">
         <button type="button" data-close-dialog>Done</button>
       </div>
@@ -263,44 +339,67 @@
         <h3>Email</h3>
         <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
       </div>
-      <div class="modal-list">
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-list-detail-row data-list-detail-target="email-list" data-list-detail-template="email-template">Add Email</button>
+      </div>
+      <div class="modal-list" id="email-list" data-list-detail-list data-list-detail-kind="email">
         {% for email in member.emails %}
           {% set key = 'existing_' ~ email.id %}
-          <input type="hidden" name="email_row_keys" value="{{ key }}">
-          <div class="modal-row contact-row">
-            <label class="wide-field">
-              Email
-              <input type="email" name="email_{{ key }}_email_address" value="{{ email.email_address }}">
-            </label>
-            <label>
-              Label
-              <input name="email_{{ key }}_label" value="{{ email.label or '' }}">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="email_{{ key }}_is_primary" value="1" {% if email.is_primary %}checked{% endif %}>
-              <span>Primary</span>
-            </label>
+          <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="email">
+            <input type="hidden" name="email_row_keys" value="{{ key }}">
+            <div class="list-detail-display">
+              <strong data-list-display-primary>{{ email.email_address }}</strong>
+              <span data-list-display-secondary>{% if email.is_primary %}Primary{% else %}Secondary{% endif %}{% if email.label %} · {{ email.label }}{% endif %}</span>
+            </div>
+            <div class="list-detail-fields" hidden>
+              <label class="wide-field">
+                Email
+                <input type="email" name="email_{{ key }}_email_address" value="{{ email.email_address }}" data-email-address>
+              </label>
+              <label>
+                Label
+                <input name="email_{{ key }}_label" value="{{ email.label or '' }}" data-email-label>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" name="email_{{ key }}_is_primary" value="1" {% if email.is_primary %}checked{% endif %} data-email-primary>
+                <span>Primary</span>
+              </label>
+            </div>
+            <div class="list-detail-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit {{ email.email_address }}">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete {{ email.email_address }}">x</button>
+            </div>
           </div>
         {% endfor %}
-        {% for i in range(3) %}
-          {% set key = 'new_' ~ i %}
-          <input type="hidden" name="email_row_keys" value="{{ key }}">
-          <div class="modal-row contact-row">
-            <label class="wide-field">
-              Email
-              <input type="email" name="email_{{ key }}_email_address">
-            </label>
-            <label>
-              Label
-              <input name="email_{{ key }}_label">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="email_{{ key }}_is_primary" value="1">
-              <span>Primary</span>
-            </label>
-          </div>
-        {% endfor %}
+        <p class="empty-state" data-empty-list-detail {% if member.emails %}hidden{% endif %}>No email addresses.</p>
       </div>
+      <template id="email-template">
+        <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="email">
+          <input type="hidden" name="email_row_keys" value="__key__">
+          <div class="list-detail-display">
+            <strong data-list-display-primary>New email</strong>
+            <span data-list-display-secondary>Secondary</span>
+          </div>
+          <div class="list-detail-fields">
+            <label class="wide-field">
+              Email
+              <input type="email" name="email___key___email_address" data-email-address>
+            </label>
+            <label>
+              Label
+              <input name="email___key___label" data-email-label>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="email___key___is_primary" value="1" data-email-primary>
+              <span>Primary</span>
+            </label>
+          </div>
+          <div class="list-detail-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit email">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete email">x</button>
+          </div>
+        </div>
+      </template>
       <div class="dialog-actions">
         <button type="button" data-close-dialog>Done</button>
       </div>
@@ -311,52 +410,75 @@
         <h3>Phones</h3>
         <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
       </div>
-      <div class="modal-list">
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-list-detail-row data-list-detail-target="phone-list" data-list-detail-template="phone-template">Add Phone</button>
+      </div>
+      <div class="modal-list" id="phone-list" data-list-detail-list data-list-detail-kind="phone">
         {% for phone in member.phones %}
           {% set key = 'existing_' ~ phone.id %}
-          <input type="hidden" name="phone_row_keys" value="{{ key }}">
-          <div class="modal-row phone-row">
-            <label>
-              Type
-              <input name="phone_{{ key }}_phone_type" value="{{ phone.phone_type or '' }}">
-            </label>
-            <label class="wide-field">
-              Number
-              <input name="phone_{{ key }}_phone_number" value="{{ phone.phone_number }}">
-            </label>
-            <label>
-              Label
-              <input name="phone_{{ key }}_label" value="{{ phone.label or '' }}">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="phone_{{ key }}_is_primary" value="1" {% if phone.is_primary %}checked{% endif %}>
-              <span>Primary</span>
-            </label>
+          <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="phone">
+            <input type="hidden" name="phone_row_keys" value="{{ key }}">
+            <div class="list-detail-display">
+              <strong data-list-display-primary>{{ phone.phone_number }}</strong>
+              <span data-list-display-secondary>{% if phone.is_primary %}Primary{% else %}Secondary{% endif %}{% if phone.phone_type %} · {{ phone.phone_type }}{% endif %}{% if phone.label %} · {{ phone.label }}{% endif %}</span>
+            </div>
+            <div class="list-detail-fields" hidden>
+              <label>
+                Type
+                <input name="phone_{{ key }}_phone_type" value="{{ phone.phone_type or '' }}" data-phone-type>
+              </label>
+              <label class="wide-field">
+                Number
+                <input name="phone_{{ key }}_phone_number" value="{{ phone.phone_number }}" data-phone-number>
+              </label>
+              <label>
+                Label
+                <input name="phone_{{ key }}_label" value="{{ phone.label or '' }}" data-phone-label>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" name="phone_{{ key }}_is_primary" value="1" {% if phone.is_primary %}checked{% endif %} data-phone-primary>
+                <span>Primary</span>
+              </label>
+            </div>
+            <div class="list-detail-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit {{ phone.phone_number }}">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete {{ phone.phone_number }}">x</button>
+            </div>
           </div>
         {% endfor %}
-        {% for i in range(3) %}
-          {% set key = 'new_' ~ i %}
-          <input type="hidden" name="phone_row_keys" value="{{ key }}">
-          <div class="modal-row phone-row">
-            <label>
-              Type
-              <input name="phone_{{ key }}_phone_type">
-            </label>
-            <label class="wide-field">
-              Number
-              <input name="phone_{{ key }}_phone_number">
-            </label>
-            <label>
-              Label
-              <input name="phone_{{ key }}_label">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="phone_{{ key }}_is_primary" value="1">
-              <span>Primary</span>
-            </label>
-          </div>
-        {% endfor %}
+        <p class="empty-state" data-empty-list-detail {% if member.phones %}hidden{% endif %}>No phone numbers.</p>
       </div>
+      <template id="phone-template">
+        <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="phone">
+          <input type="hidden" name="phone_row_keys" value="__key__">
+          <div class="list-detail-display">
+            <strong data-list-display-primary>New phone</strong>
+            <span data-list-display-secondary>Secondary</span>
+          </div>
+          <div class="list-detail-fields">
+            <label>
+              Type
+              <input name="phone___key___phone_type" data-phone-type>
+            </label>
+            <label class="wide-field">
+              Number
+              <input name="phone___key___phone_number" data-phone-number>
+            </label>
+            <label>
+              Label
+              <input name="phone___key___label" data-phone-label>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="phone___key___is_primary" value="1" data-phone-primary>
+              <span>Primary</span>
+            </label>
+          </div>
+          <div class="list-detail-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit phone">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete phone">x</button>
+          </div>
+        </div>
+      </template>
       <div class="dialog-actions">
         <button type="button" data-close-dialog>Done</button>
       </div>
@@ -367,84 +489,107 @@
         <h3>Addresses</h3>
         <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
       </div>
-      <div class="modal-list">
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-list-detail-row data-list-detail-target="address-list" data-list-detail-template="address-template">Add Address</button>
+      </div>
+      <div class="modal-list" id="address-list" data-list-detail-list data-list-detail-kind="address">
         {% for address in member.addresses %}
           {% set key = 'existing_' ~ address.id %}
-          <input type="hidden" name="address_row_keys" value="{{ key }}">
-          <div class="modal-row address-row">
-            <label>
-              Type
-              <input name="address_{{ key }}_address_type" value="{{ address.address_type or 'primary' }}">
-            </label>
-            <label class="wide-field">
-              Street
-              <input name="address_{{ key }}_street" value="{{ address.street or '' }}">
-            </label>
-            <label>
-              City
-              <input name="address_{{ key }}_city" value="{{ address.city or '' }}">
-            </label>
-            <label>
-              State
-              <input name="address_{{ key }}_state" value="{{ address.state or '' }}">
-            </label>
-            <label>
-              Postal
-              <input name="address_{{ key }}_postal_code" value="{{ address.postal_code or '' }}">
-            </label>
-            <label>
-              Country
-              <input name="address_{{ key }}_country" value="{{ address.country or 'USA' }}">
-            </label>
-            <label class="wide-field">
-              Raw Address
-              <input name="address_{{ key }}_raw_address" value="{{ address.raw_address or '' }}">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="address_{{ key }}_is_primary" value="1" {% if address.is_primary %}checked{% endif %}>
-              <span>Primary</span>
-            </label>
+          <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="address">
+            <input type="hidden" name="address_row_keys" value="{{ key }}">
+            <div class="list-detail-display">
+              <strong data-list-display-primary>{{ address.formatted_lines|join(', ') if address.formatted_lines else address.raw_address or 'Address' }}</strong>
+              <span data-list-display-secondary>{% if address.is_primary %}Primary{% else %}Secondary{% endif %}{% if address.address_type %} · {{ address.address_type }}{% endif %}</span>
+            </div>
+            <div class="list-detail-fields" hidden>
+              <label>
+                Type
+                <input name="address_{{ key }}_address_type" value="{{ address.address_type or 'primary' }}" data-address-type>
+              </label>
+              <label class="wide-field">
+                Street
+                <input name="address_{{ key }}_street" value="{{ address.street or '' }}" data-address-street>
+              </label>
+              <label>
+                City
+                <input name="address_{{ key }}_city" value="{{ address.city or '' }}" data-address-city>
+              </label>
+              <label>
+                State
+                <input name="address_{{ key }}_state" value="{{ address.state or '' }}" data-address-state>
+              </label>
+              <label>
+                Postal
+                <input name="address_{{ key }}_postal_code" value="{{ address.postal_code or '' }}" data-address-postal>
+              </label>
+              <label>
+                Country
+                <input name="address_{{ key }}_country" value="{{ address.country or 'USA' }}" data-address-country>
+              </label>
+              <label class="wide-field">
+                Raw Address
+                <input name="address_{{ key }}_raw_address" value="{{ address.raw_address or '' }}" data-address-raw>
+              </label>
+              <label class="check-row">
+                <input type="checkbox" name="address_{{ key }}_is_primary" value="1" {% if address.is_primary %}checked{% endif %} data-address-primary>
+                <span>Primary</span>
+              </label>
+            </div>
+            <div class="list-detail-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit address">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete address">x</button>
+            </div>
           </div>
         {% endfor %}
-        {% for i in range(2) %}
-          {% set key = 'new_' ~ i %}
-          <input type="hidden" name="address_row_keys" value="{{ key }}">
-          <div class="modal-row address-row">
-            <label>
-              Type
-              <input name="address_{{ key }}_address_type" value="primary">
-            </label>
-            <label class="wide-field">
-              Street
-              <input name="address_{{ key }}_street">
-            </label>
-            <label>
-              City
-              <input name="address_{{ key }}_city">
-            </label>
-            <label>
-              State
-              <input name="address_{{ key }}_state">
-            </label>
-            <label>
-              Postal
-              <input name="address_{{ key }}_postal_code">
-            </label>
-            <label>
-              Country
-              <input name="address_{{ key }}_country" value="USA">
-            </label>
-            <label class="wide-field">
-              Raw Address
-              <input name="address_{{ key }}_raw_address">
-            </label>
-            <label class="check-row">
-              <input type="checkbox" name="address_{{ key }}_is_primary" value="1">
-              <span>Primary</span>
-            </label>
-          </div>
-        {% endfor %}
+        <p class="empty-state" data-empty-list-detail {% if member.addresses %}hidden{% endif %}>No addresses.</p>
       </div>
+      <template id="address-template">
+        <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="address">
+          <input type="hidden" name="address_row_keys" value="__key__">
+          <div class="list-detail-display">
+            <strong data-list-display-primary>New address</strong>
+            <span data-list-display-secondary>Primary</span>
+          </div>
+          <div class="list-detail-fields">
+            <label>
+              Type
+              <input name="address___key___address_type" value="primary" data-address-type>
+            </label>
+            <label class="wide-field">
+              Street
+              <input name="address___key___street" data-address-street>
+            </label>
+            <label>
+              City
+              <input name="address___key___city" data-address-city>
+            </label>
+            <label>
+              State
+              <input name="address___key___state" data-address-state>
+            </label>
+            <label>
+              Postal
+              <input name="address___key___postal_code" data-address-postal>
+            </label>
+            <label>
+              Country
+              <input name="address___key___country" value="USA" data-address-country>
+            </label>
+            <label class="wide-field">
+              Raw Address
+              <input name="address___key___raw_address" data-address-raw>
+            </label>
+            <label class="check-row">
+              <input type="checkbox" name="address___key___is_primary" value="1" data-address-primary>
+              <span>Primary</span>
+            </label>
+          </div>
+          <div class="list-detail-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit address">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete address">x</button>
+          </div>
+        </div>
+      </template>
       <div class="dialog-actions">
         <button type="button" data-close-dialog>Done</button>
       </div>

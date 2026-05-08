@@ -60,7 +60,7 @@
 - [x] Default dashboard roster and counts to active members with an optional Show Inactive toggle.
 - [x] Add member and family photo upload/select controls.
 - [x] Add unassigned roster photo review page.
-- [ ] Improve member edit form quartet, email, phone number, and address editors so they use the same list/detail modal design as member role assignments.
+- [x] Improve member edit form quartet, email, phone number, and address editors so they use the same list/detail modal design as member role assignments.
 - [ ] Add member personalization settings, including a light/dark style choice; light remains the current default, and dark should use a mainly black background with white lettering.
 
 ## Views And Reports

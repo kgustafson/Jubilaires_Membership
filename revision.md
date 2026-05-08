@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.1.7 - 5/8/2026
+
+Improved member edit modal workflows.
+
+- Reworked member edit quartet, email, phone, and address editors into list/detail modal rows.
+- Added add, edit, and delete controls for those modal lists, matching the member role assignment pattern.
+- Added static summary updates for quartet, email, phone, and address rows on the main member edit page.
+- Preserved quartet-specific voice part editing from the member edit workflow.
+- Marked the member edit form improvement todo complete.
+
 ## v1.1.6 - 5/8/2026
 
 Updated personalization planning.

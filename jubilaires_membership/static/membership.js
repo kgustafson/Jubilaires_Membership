@@ -370,6 +370,136 @@
     });
   });
 
+  const selectedText = (select) => select?.selectedOptions[0]?.textContent?.trim() || "";
+  const checkedLabel = (checkbox) => (checkbox?.checked ? "Primary" : "Secondary");
+
+  const refreshListSummary = (kind) => {
+    const summary = document.querySelector(`[data-${kind}-summary-list]`);
+    const list = document.querySelector(`[data-list-detail-list][data-list-detail-kind="${kind}"]`);
+    if (!summary || !list) {
+      return;
+    }
+
+    const rows = [...list.querySelectorAll(`[data-list-detail-row][data-list-detail-kind="${kind}"]`)];
+    const values = rows
+      .map((row) => row.querySelector("[data-list-display-primary]")?.textContent?.trim())
+      .filter((value) => value && !value.startsWith("New ") && !value.startsWith("Select "));
+    summary.textContent = values.length ? values.join(kind === "address" ? "; " : ", ") : "None";
+  };
+
+  const refreshListDetailRow = (row) => {
+    const kind = row.dataset.listDetailKind;
+    const primary = row.querySelector("[data-list-display-primary]");
+    const secondary = row.querySelector("[data-list-display-secondary]");
+    if (!kind || !primary || !secondary) {
+      return;
+    }
+
+    if (kind === "quartet") {
+      const quartetName = selectedText(row.querySelector("[data-quartet-select]")) || "Select quartet";
+      const state = selectedText(row.querySelector("[data-quartet-state]")) || "Primary";
+      const part = selectedText(row.querySelector("[data-quartet-part]"));
+      primary.textContent = quartetName;
+      secondary.textContent = [state, part && part !== "No quartet part" ? part : ""].filter(Boolean).join(" · ");
+    }
+
+    if (kind === "email") {
+      const address = row.querySelector("[data-email-address]")?.value.trim() || "New email";
+      const label = row.querySelector("[data-email-label]")?.value.trim();
+      const isPrimary = row.querySelector("[data-email-primary]");
+      primary.textContent = address;
+      secondary.textContent = [checkedLabel(isPrimary), label].filter(Boolean).join(" · ");
+    }
+
+    if (kind === "phone") {
+      const number = row.querySelector("[data-phone-number]")?.value.trim() || "New phone";
+      const type = row.querySelector("[data-phone-type]")?.value.trim();
+      const label = row.querySelector("[data-phone-label]")?.value.trim();
+      const isPrimary = row.querySelector("[data-phone-primary]");
+      primary.textContent = number;
+      secondary.textContent = [checkedLabel(isPrimary), type, label].filter(Boolean).join(" · ");
+    }
+
+    if (kind === "address") {
+      const street = row.querySelector("[data-address-street]")?.value.trim();
+      const city = row.querySelector("[data-address-city]")?.value.trim();
+      const state = row.querySelector("[data-address-state]")?.value.trim();
+      const postal = row.querySelector("[data-address-postal]")?.value.trim();
+      const raw = row.querySelector("[data-address-raw]")?.value.trim();
+      const type = row.querySelector("[data-address-type]")?.value.trim();
+      const isPrimary = row.querySelector("[data-address-primary]");
+      const cityState = [city, state].filter(Boolean).join(", ");
+      primary.textContent = [street, cityState, postal].filter(Boolean).join(", ") || raw || "New address";
+      secondary.textContent = [checkedLabel(isPrimary), type].filter(Boolean).join(" · ");
+    }
+
+    refreshListSummary(kind);
+  };
+
+  const toggleEmptyListDetailState = (list) => {
+    const hasRows = Boolean(list.querySelector("[data-list-detail-row]"));
+    list.querySelector("[data-empty-list-detail]")?.toggleAttribute("hidden", hasRows);
+  };
+
+  const wireListDetailRow = (row) => {
+    const fields = row.querySelector(".list-detail-fields");
+    const editButton = row.querySelector("[data-edit-list-detail-row]");
+    const deleteButton = row.querySelector("[data-delete-list-detail-row]");
+    const list = row.closest("[data-list-detail-list]");
+
+    row.querySelectorAll("input, select").forEach((input) => {
+      input.addEventListener("input", () => refreshListDetailRow(row));
+      input.addEventListener("change", () => refreshListDetailRow(row));
+    });
+
+    editButton?.addEventListener("click", () => {
+      fields?.toggleAttribute("hidden");
+      row.classList.toggle("editing", !fields?.hasAttribute("hidden"));
+    });
+
+    deleteButton?.addEventListener("click", () => {
+      const kind = row.dataset.listDetailKind;
+      row.remove();
+      if (list) {
+        toggleEmptyListDetailState(list);
+      }
+      if (kind) {
+        refreshListSummary(kind);
+      }
+    });
+
+    refreshListDetailRow(row);
+  };
+
+  document.querySelectorAll("[data-list-detail-list]").forEach((list) => {
+    list.querySelectorAll("[data-list-detail-row]").forEach(wireListDetailRow);
+    toggleEmptyListDetailState(list);
+    refreshListSummary(list.dataset.listDetailKind);
+  });
+
+  document.querySelectorAll("[data-add-list-detail-row]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const list = document.getElementById(button.dataset.listDetailTarget);
+      const template = document.getElementById(button.dataset.listDetailTemplate);
+      if (!list || !(template instanceof HTMLTemplateElement)) {
+        return;
+      }
+
+      const key = `new_${Date.now()}`;
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = template.innerHTML.replace(/__key__/g, key).trim();
+      const row = wrapper.firstElementChild;
+      if (!row) {
+        return;
+      }
+
+      list.querySelector("[data-empty-list-detail]")?.setAttribute("hidden", "");
+      list.append(row);
+      wireListDetailRow(row);
+      row.querySelector("input, select")?.focus();
+    });
+  });
+
   const roleDateLabel = (start, end) => `${start || "No start"} to ${end || "Present"}`;
 
   const roleRowStartTime = (row) => {
