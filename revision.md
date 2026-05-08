@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.6 - 5/8/2026
+
+Updated personalization planning.
+
+- Added a Web Interface todo for member personalization settings.
+- Included a light/dark style preference with the current light style as the default.
+- Defined the dark style direction as a mainly black background with white lettering.
+
 ## v1.1.5 - 5/8/2026
 
 Updated data model planning.
