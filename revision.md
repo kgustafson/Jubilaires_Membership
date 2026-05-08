@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.34 - 5/7/2026
+
+Cleaned roster navigation.
+
+- Removed Attendance Tracking from the side menu.
+- Removed Dues Tracking from the side menu.
+
 ## v1.0.33 - 5/7/2026
 
 Fixed quartet photo frame-fill resizing.

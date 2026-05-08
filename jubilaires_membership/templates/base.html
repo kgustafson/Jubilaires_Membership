@@ -45,9 +45,7 @@
         <div class="sidebar-title">Management</div>
         <nav class="sidebar-nav">
           <a class="sidebar-link {% if request.url.path == '/' %}active{% endif %}" href="/">Dashboard</a>
-          <span class="sidebar-link disabled">Attendance Tracking</span>
           <a class="sidebar-link {% if request.url.path == '/quartets' %}active{% endif %}" href="/quartets">Quartet Management</a>
-          <span class="sidebar-link disabled">Dues Tracking</span>
           <span class="sidebar-link disabled">Communications</span>
           <span class="sidebar-link disabled">Reports</span>
           {% if current_user.role == "administrator" %}
