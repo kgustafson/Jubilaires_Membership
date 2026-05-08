@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.37 - 5/7/2026
+
+Simplified quartet member rows.
+
+- Removed inline member thumbnails from quartet member listings.
+- Kept member photos in the contact detail modal.
+- Left-aligned the clickable member name in quartet member rows.
+
 ## v1.0.36 - 5/7/2026
 
 Added quartet member contact previews.
