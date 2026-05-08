@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.44 - 5/8/2026
+
+Normalized dashboard phone display.
+
+- Formatted dashboard primary phone numbers as `(XXX) XXX-XXXX`.
+- Accepted leading `1` country-code numbers and displayed them in the same local format.
+- Left non-standard phone values unchanged.
+
 ## v1.0.43 - 5/8/2026
 
 Added photo rotation controls.

@@ -121,7 +121,19 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             WHERE mvp.member_id = m.id
         ) part_summary ON true
         LEFT JOIN LATERAL (
-            SELECT phone_number
+            SELECT
+                CASE
+                    WHEN length(regexp_replace(phone_number, '\D', '', 'g')) = 10 THEN
+                        '(' || substring(regexp_replace(phone_number, '\D', '', 'g') from 1 for 3) || ') ' ||
+                        substring(regexp_replace(phone_number, '\D', '', 'g') from 4 for 3) || '-' ||
+                        substring(regexp_replace(phone_number, '\D', '', 'g') from 7 for 4)
+                    WHEN length(regexp_replace(phone_number, '\D', '', 'g')) = 11
+                        AND substring(regexp_replace(phone_number, '\D', '', 'g') from 1 for 1) = '1' THEN
+                        '(' || substring(regexp_replace(phone_number, '\D', '', 'g') from 2 for 3) || ') ' ||
+                        substring(regexp_replace(phone_number, '\D', '', 'g') from 5 for 3) || '-' ||
+                        substring(regexp_replace(phone_number, '\D', '', 'g') from 8 for 4)
+                    ELSE phone_number
+                END AS phone_number
             FROM member_phone
             WHERE member_id = m.id
             ORDER BY is_primary DESC, id
