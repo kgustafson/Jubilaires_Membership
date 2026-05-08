@@ -102,7 +102,7 @@
         <span data-address-summary-list>
           {% if member.addresses %}
             {% for address in member.addresses %}
-              {{ address.formatted_lines|join(', ') }}{% if not loop.last %}; {% endif %}
+              <span class="address-summary-block">{{ address.formatted_lines|join('\n') }}</span>
             {% endfor %}
           {% else %}
             None
@@ -498,7 +498,7 @@
           <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="address">
             <input type="hidden" name="address_row_keys" value="{{ key }}">
             <div class="list-detail-display">
-              <strong data-list-display-primary>{{ address.formatted_lines|join(', ') if address.formatted_lines else address.raw_address or 'Address' }}</strong>
+              <strong class="address-display-block" data-list-display-primary>{{ address.formatted_lines|join('\n') if address.formatted_lines else address.raw_address or 'Address' }}</strong>
               <span data-list-display-secondary>{% if address.is_primary %}Primary{% else %}Secondary{% endif %}{% if address.address_type %} · {{ address.address_type }}{% endif %}</span>
             </div>
             <div class="list-detail-fields" hidden>
@@ -547,7 +547,7 @@
         <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="address">
           <input type="hidden" name="address_row_keys" value="__key__">
           <div class="list-detail-display">
-            <strong data-list-display-primary>New address</strong>
+            <strong class="address-display-block" data-list-display-primary>New address</strong>
             <span data-list-display-secondary>Primary</span>
           </div>
           <div class="list-detail-fields">

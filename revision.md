@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.9 - 5/8/2026
+
+Fixed address formatting on the member edit page.
+
+- Changed member edit address summaries to use multiline address blocks.
+- Updated address modal rows so street, city/state, and ZIP display on separate lines.
+- Kept live address summary updates consistent when address fields are edited in the modal.
+
 ## v1.1.8 - 5/8/2026
 
 Fixed member edit asset refresh and modal add-row behavior.

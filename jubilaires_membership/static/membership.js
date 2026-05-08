@@ -384,7 +384,7 @@
     const values = rows
       .map((row) => row.querySelector("[data-list-display-primary]")?.textContent?.trim())
       .filter((value) => value && !value.startsWith("New ") && !value.startsWith("Select "));
-    summary.textContent = values.length ? values.join(kind === "address" ? "; " : ", ") : "None";
+    summary.textContent = values.length ? values.join(kind === "address" ? "\n\n" : ", ") : "None";
   };
 
   const refreshListDetailRow = (row) => {
@@ -429,7 +429,7 @@
       const type = row.querySelector("[data-address-type]")?.value.trim();
       const isPrimary = row.querySelector("[data-address-primary]");
       const cityState = [city, state].filter(Boolean).join(", ");
-      primary.textContent = [street, cityState, postal].filter(Boolean).join(", ") || raw || "New address";
+      primary.textContent = [street, cityState, postal].filter(Boolean).join("\n") || raw || "New address";
       secondary.textContent = [checkedLabel(isPrimary), type].filter(Boolean).join(" · ");
     }
 

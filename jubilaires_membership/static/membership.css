@@ -704,6 +704,13 @@ textarea {
   margin: 0;
 }
 
+.address-summary-block {
+  display: block;
+  line-height: 1.45;
+  margin-top: 4px;
+  white-space: pre-line;
+}
+
 .public-shell {
   display: block;
   min-height: calc(100vh - 68px);
@@ -997,6 +1004,11 @@ textarea {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+
+.address-display-block {
+  line-height: 1.4;
+  white-space: pre-line;
 }
 
 .role-assignment-actions,
