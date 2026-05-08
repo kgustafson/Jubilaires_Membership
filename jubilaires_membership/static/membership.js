@@ -225,6 +225,45 @@
     }
   };
 
+  const normalizeDegrees = (value) => {
+    const parsed = Number(value || 0);
+    if (!Number.isFinite(parsed)) {
+      return 0;
+    }
+    return ((Math.round(parsed) % 360) + 360) % 360;
+  };
+
+  const wirePhotoRotationControls = (container) => {
+    const rotationInput = container.querySelector("[data-photo-rotation]");
+    const rangeInput = container.querySelector("[data-photo-rotate-range]");
+    const numberInput = container.querySelector("[data-photo-rotate-number]");
+    const stepButton = container.querySelector("[data-photo-rotate-step]");
+    const preview =
+      container.querySelector("[data-photo-preview]") ||
+      container.querySelector("[data-review-photo-preview]");
+
+    if (!rotationInput || !rangeInput || !numberInput) {
+      return;
+    }
+
+    const setRotation = (value) => {
+      const degrees = normalizeDegrees(value);
+      rotationInput.value = String(degrees);
+      rangeInput.value = String(degrees);
+      numberInput.value = String(degrees);
+      if (preview) {
+        preview.style.transform = `rotate(${degrees}deg)`;
+      }
+    };
+
+    stepButton?.addEventListener("click", () => {
+      setRotation(Number(rotationInput.value || 0) + 90);
+    });
+    rangeInput.addEventListener("input", () => setRotation(rangeInput.value));
+    numberInput.addEventListener("input", () => setRotation(numberInput.value));
+    setRotation(rotationInput.value);
+  };
+
   const setFileInput = (input, file) => {
     const transfer = new DataTransfer();
     transfer.items.add(file);
@@ -284,6 +323,12 @@
         setFileInput(fileInput, file);
       }
     });
+
+    wirePhotoRotationControls(picker);
+  });
+
+  document.querySelectorAll(".photo-rotate-form").forEach((form) => {
+    wirePhotoRotationControls(form);
   });
 
   document.querySelectorAll("[data-photo-target-type]").forEach((select) => {

@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.43 - 5/8/2026
+
+Added photo rotation controls.
+
+- Added 90-degree clockwise and free-rotation controls to photo upload modals.
+- Applied upload rotation server-side before Pillow normalizes profile and quartet photos.
+- Added photo review rotation controls that regenerate the selected photo in place.
+
 ## v1.0.42 - 5/8/2026
 
 Reworked member role editing.

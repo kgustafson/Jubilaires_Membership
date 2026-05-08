@@ -492,7 +492,7 @@ async def update_quartet_photo(request: Request, quartet_id: int):
         return RedirectResponse(url=f"/quartets?photo_removed={quartet_id}", status_code=303)
     upload = uploaded_photo(form, "photo_upload")
     if upload:
-        picture_path = photos.save_quartet_upload(upload.file, f"quartet-{quartet_id}-{quartet['name']}")
+        picture_path = photos.save_quartet_upload(upload.file, f"quartet-{quartet_id}-{quartet['name']}", form.get("photo_rotation"))
         members.update_quartet_picture_path(quartet_id, picture_path)
     return RedirectResponse(url=f"/quartets?photo_saved={quartet_id}", status_code=303)
 
@@ -736,8 +736,10 @@ async def update_member_photo(request: Request, member_id: int):
     selected_photo = (form.get("selected_photo_path") or "").strip()
     picture_path = ""
     if upload:
-        picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}")
+        picture_path = photos.save_profile_upload(upload.file, "members", f"member-{member_id}", form.get("photo_rotation"))
     elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), member.get("picture_path")):
+        if photos.normalized_rotation(form.get("photo_rotation")):
+            photos.rotate_static_photo(selected_photo, form.get("photo_rotation"))
         picture_path = selected_photo
     if picture_path:
         members.update_member_picture_path(member_id, picture_path)
@@ -761,8 +763,10 @@ async def update_family_photo(request: Request, member_id: int, family_id: int):
     selected_photo = (form.get("selected_photo_path") or "").strip()
     picture_path = ""
     if upload:
-        picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}")
+        picture_path = photos.save_profile_upload(upload.file, "family", f"member-{member_id}-family-{family_id}", form.get("photo_rotation"))
     elif selected_photo and photos.is_assignable(selected_photo, members.assigned_picture_paths(), person.get("picture_path")):
+        if photos.normalized_rotation(form.get("photo_rotation")):
+            photos.rotate_static_photo(selected_photo, form.get("photo_rotation"))
         picture_path = selected_photo
     if picture_path:
         members.update_family_picture_path(member_id, family_id, picture_path)
@@ -810,6 +814,18 @@ async def remove_photo_assignment(request: Request):
     if photo_path:
         members.clear_picture_path(photo_path)
     return RedirectResponse(url="/photos/unassigned?removed=1", status_code=303)
+
+
+@app.post("/photos/rotate")
+async def rotate_photo(request: Request):
+    require_admin(request)
+    form = await request.form()
+    photo_path = (form.get("photo_path") or "").strip()
+    rotation = form.get("photo_rotation") or form.get("rotate_degrees") or "0"
+    if not photo_path:
+        return RedirectResponse(url="/photos/unassigned?missing_photo=1", status_code=303)
+    photos.rotate_static_photo(photo_path, rotation)
+    return RedirectResponse(url="/photos/unassigned?rotated=1", status_code=303)
 
 
 @app.post("/members/{member_id}/delete")

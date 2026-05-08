@@ -54,10 +54,34 @@ def trim_uniform_border(image: Image.Image, threshold: int = 18) -> Image.Image:
     return converted.crop(bbox) if bbox else converted
 
 
-def normalize_profile_image(source: BinaryIO | bytes) -> Image.Image:
+def normalized_rotation(value: str | int | float | None) -> float:
+    try:
+        degrees = float(value or 0)
+    except (TypeError, ValueError):
+        return 0
+    return degrees % 360
+
+
+def rotate_image(image: Image.Image, clockwise_degrees: str | int | float | None, target_size: tuple[int, int] | None = None) -> Image.Image:
+    degrees = normalized_rotation(clockwise_degrees)
+    converted = image.convert("RGB")
+    if degrees:
+        converted = converted.rotate(-degrees, expand=True, fillcolor="white")
+    if not target_size:
+        return converted
+    scale = max(target_size[0] / converted.width, target_size[1] / converted.height)
+    resized_size = (max(1, round(converted.width * scale)), max(1, round(converted.height * scale)))
+    converted = converted.resize(resized_size, Image.Resampling.LANCZOS)
+    left = max(0, (converted.width - target_size[0]) // 2)
+    top = max(0, (converted.height - target_size[1]) // 2)
+    return converted.crop((left, top, left + target_size[0], top + target_size[1]))
+
+
+def normalize_profile_image(source: BinaryIO | bytes, rotation_degrees: str | int | float | None = 0) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
         image = ImageOps.exif_transpose(image)
+        image = rotate_image(image, rotation_degrees)
         image = crop_square(image)
         image = image.resize((PROFILE_SIZE, PROFILE_SIZE), Image.Resampling.LANCZOS)
         if image.mode not in {"RGB", "L"}:
@@ -70,10 +94,11 @@ def normalize_profile_image(source: BinaryIO | bytes) -> Image.Image:
         return image.convert("RGB")
 
 
-def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
+def normalize_quartet_image(source: BinaryIO | bytes, rotation_degrees: str | int | float | None = 0) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
         image = ImageOps.exif_transpose(image)
+        image = rotate_image(image, rotation_degrees)
         image = trim_uniform_border(image)
         scale = max(QUARTET_SIZE[0] / image.width, QUARTET_SIZE[1] / image.height)
         resized_size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
@@ -84,21 +109,41 @@ def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
         return converted.crop((left, top, left + QUARTET_SIZE[0], top + QUARTET_SIZE[1]))
 
 
-def save_profile_upload(source: BinaryIO | bytes, folder: str, filename_stem: str) -> str:
+def save_profile_upload(source: BinaryIO | bytes, folder: str, filename_stem: str, rotation_degrees: str | int | float | None = 0) -> str:
     destination_dir = PROFILE_PHOTO_DIR / safe_stem(folder)
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination = destination_dir / f"{safe_stem(filename_stem)}.jpg"
-    image = normalize_profile_image(source)
+    image = normalize_profile_image(source, rotation_degrees)
     image.save(destination, format="JPEG", quality=86, optimize=True)
     return static_path(destination)
 
 
-def save_quartet_upload(source: BinaryIO | bytes, filename_stem: str) -> str:
+def save_quartet_upload(source: BinaryIO | bytes, filename_stem: str, rotation_degrees: str | int | float | None = 0) -> str:
     QUARTET_PHOTO_DIR.mkdir(parents=True, exist_ok=True)
     destination = QUARTET_PHOTO_DIR / f"{safe_stem(filename_stem)}.jpg"
-    image = normalize_quartet_image(source)
+    image = normalize_quartet_image(source, rotation_degrees)
     image.save(destination, format="JPEG", quality=88, optimize=True)
     return static_path(destination)
+
+
+def rotate_static_photo(static_url: str, clockwise_degrees: str | int | float | None) -> tuple[int, int]:
+    path = path_from_static_url(static_url)
+    if not path.exists() or path.suffix.lower() not in IMAGE_EXTENSIONS:
+        raise ValueError(f"Not a supported photo path: {static_url}")
+    with Image.open(path) as image:
+        image = ImageOps.exif_transpose(image)
+        target_size = image.size
+        rotated = rotate_image(image, clockwise_degrees, target_size)
+    suffix = path.suffix.lower()
+    if suffix in {".jpg", ".jpeg"}:
+        rotated.save(path, format="JPEG", quality=88, optimize=True)
+    elif suffix == ".webp":
+        rotated.save(path, format="WEBP", quality=88)
+    elif suffix == ".gif":
+        rotated.save(path, format="GIF")
+    else:
+        rotated.save(path, format="PNG", optimize=True)
+    return rotated.size
 
 
 def image_dimensions(path: Path) -> tuple[int, int] | tuple[None, None]:

@@ -1357,6 +1357,7 @@ textarea {
 .photo-preview-frame img {
   height: 100%;
   object-fit: cover;
+  transition: transform .18s ease;
   width: 100%;
 }
 
@@ -1445,6 +1446,7 @@ textarea {
   aspect-ratio: 1;
   border-radius: 8px;
   object-fit: cover;
+  transition: transform .18s ease;
   width: 100%;
 }
 
@@ -1464,6 +1466,33 @@ textarea {
 
 .photo-remove-form {
   display: grid;
+}
+
+.photo-rotation-controls {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto minmax(160px, 1fr) minmax(90px, .4fr);
+  margin-top: 12px;
+}
+
+.photo-rotation-controls label {
+  color: var(--muted);
+  display: grid;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 5px;
+  text-transform: uppercase;
+}
+
+.photo-rotate-form {
+  border-top: 1px solid var(--line);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.photo-rotate-form .photo-rotation-controls {
+  grid-template-columns: auto minmax(140px, 1fr) minmax(84px, .4fr) auto;
 }
 
 @media (max-width: 900px) {
@@ -1523,6 +1552,11 @@ textarea {
   }
 
   .dashboard-search {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-rotation-controls,
+  .photo-rotate-form .photo-rotation-controls {
     grid-template-columns: 1fr;
   }
 

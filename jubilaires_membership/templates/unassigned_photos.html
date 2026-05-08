@@ -13,7 +13,7 @@
 <section class="photo-review-grid">
   {% for photo in photos %}
     <article class="photo-review-card">
-      <img src="{{ photo.path }}" alt="">
+      <img src="{{ photo.path }}" alt="" data-review-photo-preview="{{ photo.path }}">
       <div>
         <strong>{{ photo.name }}</strong>
         <small>
@@ -70,6 +70,22 @@
           <button type="submit" class="secondary-button">Remove Assignment</button>
         </form>
       {% endif %}
+      <form action="/photos/rotate" method="post" class="photo-rotate-form">
+        <input type="hidden" name="photo_path" value="{{ photo.path }}">
+        <input type="hidden" name="photo_rotation" value="0" data-photo-rotation>
+        <div class="photo-rotation-controls">
+          <button type="button" class="secondary-button compact-button" data-photo-rotate-step>Rotate 90</button>
+          <label>
+            Free Rotate
+            <input type="range" min="0" max="359" step="1" value="0" data-photo-rotate-range>
+          </label>
+          <label>
+            Degrees
+            <input type="number" min="0" max="359" step="1" value="0" data-photo-rotate-number>
+          </label>
+          <button type="submit">Save Rotation</button>
+        </div>
+      </form>
     </article>
   {% else %}
     <div class="detail-panel">
