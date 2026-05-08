@@ -481,7 +481,7 @@
     button.addEventListener("click", () => {
       const list = document.getElementById(button.dataset.listDetailTarget);
       const template = document.getElementById(button.dataset.listDetailTemplate);
-      if (!list || !(template instanceof HTMLTemplateElement)) {
+      if (!list || !template || !("innerHTML" in template)) {
         return;
       }
 
@@ -496,6 +496,8 @@
       list.querySelector("[data-empty-list-detail]")?.setAttribute("hidden", "");
       list.append(row);
       wireListDetailRow(row);
+      toggleEmptyListDetailState(list);
+      refreshListSummary(row.dataset.listDetailKind);
       row.querySelector("input, select")?.focus();
     });
   });

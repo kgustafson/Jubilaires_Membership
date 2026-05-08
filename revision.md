@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.8 - 5/8/2026
+
+Fixed member edit asset refresh and modal add-row behavior.
+
+- Added app-version cache busting to membership CSS and JavaScript assets.
+- Added the application version to the shared template context.
+- Made list/detail modal add-row template handling less brittle.
+- Refreshed list summaries and empty-state visibility immediately after adding a modal row.
+
 ## v1.1.7 - 5/8/2026
 
 Improved member edit modal workflows.

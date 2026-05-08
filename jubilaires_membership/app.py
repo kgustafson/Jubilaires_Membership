@@ -70,6 +70,7 @@ def require_quartet_manager(request: Request, quartet_id: int) -> dict:
 
 def view_context(request: Request, **values):
     values.setdefault("current_user", current_user(request))
+    values.setdefault("app_version", application_version())
     return values
 
 
@@ -109,6 +110,9 @@ def application_version() -> str:
         if value.startswith("v"):
             return value
     return "v0.0.0"
+
+
+templates.env.globals["application_version"] = application_version
 
 
 @app.get("/", response_class=HTMLResponse)
