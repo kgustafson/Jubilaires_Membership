@@ -33,6 +33,29 @@ def optional_bool(value: str | None) -> bool:
     return value in {"1", "true", "on", "yes"}
 
 
+def formatted_address_lines(address: dict) -> list[str]:
+    raw_address = (address.get("raw_address") or "").strip()
+    if raw_address:
+        if "\n" in raw_address:
+            return [line.strip() for line in raw_address.splitlines() if line.strip()]
+        parts = [part.strip() for part in raw_address.split(",") if part.strip()]
+        if len(parts) >= 6:
+            return [parts[0], parts[1], f"{parts[2]}, {parts[3]}", parts[4]]
+        if len(parts) >= 5:
+            return [parts[0], f"{parts[1]}, {parts[2]}", parts[3]]
+        return [raw_address]
+
+    lines = []
+    if address.get("street"):
+        lines.append(address["street"])
+    city_state = ", ".join(part for part in (address.get("city"), address.get("state")) if part)
+    if city_state:
+        lines.append(city_state)
+    if address.get("postal_code"):
+        lines.append(address["postal_code"])
+    return lines
+
+
 def dashboard_counts() -> dict:
     counts = db.fetch_one(
         """
@@ -227,6 +250,8 @@ def member_detail(member_id: int) -> Optional[dict]:
         "SELECT * FROM member_address WHERE member_id = :member_id ORDER BY is_primary DESC, id",
         {"member_id": member_id},
     )
+    for address in member["addresses"]:
+        address["formatted_lines"] = formatted_address_lines(address)
     member["quartets"] = db.fetch_all(
         """
         SELECT

@@ -123,7 +123,11 @@
   <div class="detail-panel">
     <h2>Address</h2>
     {% for address in member.addresses %}
-      <p>{{ address.raw_address or [address.street, address.city, address.state, address.postal_code]|select|join(", ") }}</p>
+      <p class="mailing-address">
+        {% for line in address.formatted_lines %}
+          {{ line }}{% if not loop.last %}<br>{% endif %}
+        {% endfor %}
+      </p>
     {% else %}
       <p>No address listed.</p>
     {% endfor %}

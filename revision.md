@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.46 - 5/8/2026
+
+Formatted member detail mailing addresses.
+
+- Displayed member detail addresses as street, city/state, and ZIP lines.
+- Parsed imported comma-separated raw addresses into mailing-label format.
+- Kept stored address data unchanged.
+
 ## v1.0.45 - 5/8/2026
 
 Made saved photo rotations show everywhere immediately.
