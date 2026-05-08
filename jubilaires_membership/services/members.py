@@ -787,7 +787,16 @@ def quartet_detail(quartet_id: int) -> Optional[dict]:
         ) part_summary ON true
         LEFT JOIN LATERAL (
             SELECT string_agg(
-                phone_number,
+                trim(concat_ws(
+                    ' ',
+                    CASE
+                        WHEN lower(coalesce(label, phone_type, '')) IN ('cell', 'mobile', 'c') THEN 'C'
+                        WHEN lower(coalesce(label, phone_type, '')) IN ('home', 'h') THEN 'H'
+                        WHEN lower(coalesce(label, phone_type, '')) IN ('work', 'office', 'o', 'w') THEN 'O'
+                        ELSE NULLIF(upper(coalesce(phone_type, label, '')), '')
+                    END,
+                    phone_number
+                )),
                 ', ' ORDER BY is_primary DESC, id
             ) AS phone_numbers
             FROM member_phone

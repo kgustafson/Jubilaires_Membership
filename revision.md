@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.39 - 5/7/2026
+
+Refined quartet contact phone labels.
+
+- Added compact phone type prefixes in quartet contact modals.
+- Displayed cell/mobile as `C`, home as `H`, and work/office as `O`.
+
 ## v1.0.38 - 5/7/2026
 
 Restyled quartet contact modals.
