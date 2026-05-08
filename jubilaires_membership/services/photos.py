@@ -65,15 +65,13 @@ def normalize_quartet_image(source: BinaryIO | bytes) -> Image.Image:
     payload = source if isinstance(source, bytes) else source.read()
     with Image.open(BytesIO(payload)) as image:
         image = ImageOps.exif_transpose(image)
-        scale = min(QUARTET_SIZE[0] / image.width, QUARTET_SIZE[1] / image.height)
+        scale = max(QUARTET_SIZE[0] / image.width, QUARTET_SIZE[1] / image.height)
         resized_size = (max(1, round(image.width * scale)), max(1, round(image.height * scale)))
         image = image.resize(resized_size, Image.Resampling.LANCZOS)
-        canvas = Image.new("RGB", QUARTET_SIZE, "white")
         converted = image.convert("RGB")
-        left = (QUARTET_SIZE[0] - converted.width) // 2
-        top = (QUARTET_SIZE[1] - converted.height) // 2
-        canvas.paste(converted, (left, top))
-        return canvas
+        left = max(0, (converted.width - QUARTET_SIZE[0]) // 2)
+        top = max(0, (converted.height - QUARTET_SIZE[1]) // 2)
+        return converted.crop((left, top, left + QUARTET_SIZE[0], top + QUARTET_SIZE[1]))
 
 
 def save_profile_upload(source: BinaryIO | bytes, folder: str, filename_stem: str) -> str:

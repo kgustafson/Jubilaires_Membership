@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.0.33 - 5/7/2026
+
+Fixed quartet photo frame-fill resizing.
+
+- Changed quartet photo normalization from fit-with-padding to cover-and-crop.
+- Reprocessed the Just Four Grins quartet image from the uploaded source photo so it fills the 2000x1600 quartet frame.
+
 ## v1.0.32 - 5/7/2026
 
 Fixed Quartet Management add-member modal search.
