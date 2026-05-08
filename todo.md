@@ -77,8 +77,8 @@
 - [x] Tag each versioned Git change with its major.minor.revision number.
 - [x] Create a dedicated `.venv` for this project and stop using any shared/Farrlind Python environment.
 - [x] Verify no runtime paths, services, credentials, Docker resources, media storage, backups, or deployment scripts depend on Farrlind or any other project.
-- [ ] Add database backup script.
-- [ ] Add database recovery from backup.
+- [x] Add database backup script.
+- [x] Add database recovery from backup.
 - [ ] Add web smoke tests.
 - [ ] Containerize the membership application.
 - [ ] Plan migration to Linode.

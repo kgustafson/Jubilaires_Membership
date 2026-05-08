@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.49 - 5/8/2026
+
+Added command-line database backup and restore scripts.
+
+- Added `scripts/backup_database.sh` to create timestamped ordinal PostgreSQL dump backups.
+- Added `scripts/restore_database.sh` to restore a selected backup from the command line.
+- Marked database backup and recovery script todos complete.
+
 ## v1.0.48 - 5/8/2026
 
 Updated project todo status.
