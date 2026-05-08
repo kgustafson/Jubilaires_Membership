@@ -22,7 +22,7 @@
 - [x] Fix quartet import.
 - [x] Extract embedded roster photos into `static/photos`.
 - [x] Normalize extracted roster photos to 512x512 JPEG files.
-- [ ] Review imported family records and correct spouse/child/other relationships.
+- [x] Review imported family records and correct spouse/child/other relationships.
 - [x] Parse member birthday and anniversary values from Choir Genius exports.
 - [x] Drop legacy columns such as `years_with_group`, `birthday_month`, and spouse birthday fields from the live DB.
 
@@ -42,8 +42,8 @@
 
 ## Web Interface
 
-- [ ] Build member self-service flow so logged-in members can update their own profile, family, contact info, and photos.
-- [ ] Build administrator workflows with permission to change anything in the database.
+- [x] Build member self-service flow so logged-in members can update their own profile, family, contact info, and photos.
+- [x] Build administrator workflows with permission to change anything in the database.
 - [x] Build member edit form.
 - [x] Build family add/edit/delete workflow.
 - [x] Build voice part multi-select editor.
@@ -74,13 +74,13 @@
 ## Operations
 
 - [x] Create Git repository for managing project changes.
-- [ ] Tag each versioned Git change with its major.minor.revision number.
+- [x] Tag each versioned Git change with its major.minor.revision number.
 - [x] Create a dedicated `.venv` for this project and stop using any shared/Farrlind Python environment.
-- [ ] Verify no runtime paths, services, credentials, Docker resources, media storage, backups, or deployment scripts depend on Farrlind or any other project.
+- [x] Verify no runtime paths, services, credentials, Docker resources, media storage, backups, or deployment scripts depend on Farrlind or any other project.
 - [ ] Add database backup script.
 - [ ] Add database recovery from backup.
 - [ ] Add web smoke tests.
 - [ ] Containerize the membership application.
-- [ ] Plan migration to AWS web services.
-- [ ] Choose AWS deployment architecture for web app, database, static/media files, backups, and secrets.
-- [ ] Prepare production deployment checklist for AWS.
+- [ ] Plan migration to Linode.
+- [ ] Choose Linode deployment architecture for web app, database, static/media files, backups, and secrets.
+- [ ] Prepare production deployment checklist for Linode.

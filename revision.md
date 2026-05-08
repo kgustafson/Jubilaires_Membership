@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.0.48 - 5/8/2026
+
+Updated project todo status.
+
+- Marked completed import cleanup and web interface items.
+- Marked Git version tagging and project separation checks complete.
+- Replaced AWS deployment planning todos with Linode deployment planning todos.
+
 ## v1.0.47 - 5/8/2026
 
 Persisted rotations for current assigned photos.
