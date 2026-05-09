@@ -660,6 +660,25 @@ ul {
   justify-content: space-between;
 }
 
+.family-list-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.family-list-actions {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
+.family-list-actions form {
+  margin: 0;
+}
+
+.family-list-actions .icon-button:hover {
+  text-decoration: none;
+}
+
 .family-list small {
   color: var(--muted);
   display: block;

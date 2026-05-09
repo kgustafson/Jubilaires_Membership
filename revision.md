@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.18 - 5/8/2026
+
+Cleaned up member detail family and date display.
+
+- Formatted birthdays and anniversaries as `mm/dd` on member detail.
+- Formatted other important dates as `mm/dd/yyyy`.
+- Replaced family edit/delete text buttons with compact pencil and x controls.
+- Moved Add Family Member into a modal launched from a single button.
+
 ## v1.1.17 - 5/8/2026
 
 Added family member phone numbers.

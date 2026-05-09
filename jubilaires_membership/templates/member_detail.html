@@ -21,7 +21,13 @@
       <dl>
         {% for date in member.important_dates %}
           <dt>{{ date.title }}</dt>
-          <dd>{{ date.important_date }}</dd>
+          <dd>
+            {% if date.classification in ["birthday", "anniversary"] %}
+              {{ date.important_date.strftime("%m/%d") }}
+            {% else %}
+              {{ date.important_date.strftime("%m/%d/%Y") }}
+            {% endif %}
+          </dd>
         {% endfor %}
       </dl>
     {% else %}
@@ -33,24 +39,26 @@
     <h2>Family</h2>
     <ul class="family-list">
       {% for person in member.family %}
-        <li>
+        <li class="family-list-item">
           {% if person.picture_path %}
             <img class="family-photo" src="{{ photo_url(person.picture_path) }}" alt="">
           {% endif %}
-          <span>
+          <span class="family-list-copy">
             <strong>{{ person.first_name }}{% if person.last_name %} {{ person.last_name }}{% endif %}</strong>
             <small>
               {{ person.relationship|title }}
-              {% if person.date_of_birth %} · Born {{ person.date_of_birth }}{% endif %}
+              {% if person.date_of_birth %} · Born {{ person.date_of_birth.strftime("%m/%d") }}{% endif %}
               {% if person.phone_number %} · {{ person.phone_number }}{% endif %}
               {% if person.email_address %} · <a href="mailto:{{ person.email_address }}">{{ person.email_address }}</a>{% endif %}
             </small>
           </span>
           {% if can_edit_member %}
-            <a class="text-button" href="/members/{{ member.id }}/family/{{ person.id }}/edit">Edit</a>
-            <form action="/members/{{ member.id }}/family/{{ person.id }}/delete" method="post">
-              <button class="text-button" type="submit">Remove</button>
-            </form>
+            <div class="family-list-actions">
+              <a class="icon-button compact-icon-button" href="/members/{{ member.id }}/family/{{ person.id }}/edit" aria-label="Edit {{ person.first_name }}">✎</a>
+              <form action="/members/{{ member.id }}/family/{{ person.id }}/delete" method="post">
+                <button class="icon-button danger-icon-button compact-icon-button" type="submit" aria-label="Remove {{ person.first_name }}">x</button>
+              </form>
+            </div>
           {% endif %}
         </li>
       {% else %}
@@ -58,48 +66,59 @@
       {% endfor %}
     </ul>
     {% if can_edit_member %}
-      <form class="stacked-form" action="/members/{{ member.id }}/family" method="post">
-        <h3>Add Family</h3>
-        <div class="form-grid">
-          <label>
-            First
-            <input name="first_name" required>
-          </label>
-          <label>
-            Last
-            <input name="last_name">
-          </label>
-          <label>
-            Relationship
-            <select name="relationship">
-              {% for relationship in family_relationships %}
-                <option value="{{ relationship }}">{{ relationship|title }}</option>
-              {% endfor %}
-            </select>
-          </label>
-          <label>
-            Email
-            <input type="email" name="email_address">
-          </label>
-          <label>
-            Phone
-            <input name="phone_number">
-          </label>
-          <label>
-            Date of Birth
-            <input type="date" name="date_of_birth">
-          </label>
-        </div>
-        <label>
-          Picture Path
-          <input name="picture_path" placeholder="/absolute/path/or/static/url">
-        </label>
-        <label>
-          Notes
-          <textarea name="notes" rows="2"></textarea>
-        </label>
-        <button type="submit">Add</button>
-      </form>
+      <button type="button" class="secondary-button inline-action" data-open-dialog="add-family-dialog">Add Family Member</button>
+      <dialog class="edit-dialog wide-dialog" id="add-family-dialog">
+        <form action="/members/{{ member.id }}/family" method="post">
+          <div class="dialog-header">
+            <h3>Add Family Member</h3>
+            <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+          </div>
+          <div class="dialog-body">
+            <div class="form-grid">
+              <label>
+                First
+                <input name="first_name" required>
+              </label>
+              <label>
+                Last
+                <input name="last_name">
+              </label>
+              <label>
+                Relationship
+                <select name="relationship">
+                  {% for relationship in family_relationships %}
+                    <option value="{{ relationship }}">{{ relationship|title }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>
+                Date of Birth
+                <input type="date" name="date_of_birth">
+              </label>
+              <label>
+                Phone
+                <input name="phone_number">
+              </label>
+              <label>
+                Email
+                <input type="email" name="email_address">
+              </label>
+            </div>
+            <label>
+              Picture Path
+              <input name="picture_path" placeholder="/absolute/path/or/static/url">
+            </label>
+            <label>
+              Notes
+              <textarea name="notes" rows="3"></textarea>
+            </label>
+          </div>
+          <div class="dialog-actions">
+            <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+            <button type="submit">Add Family Member</button>
+          </div>
+        </form>
+      </dialog>
     {% endif %}
   </div>
 
