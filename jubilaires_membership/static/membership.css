@@ -10,8 +10,12 @@
   --accent: #c51d34;
   --accent-soft: #fde8ec;
   --accent-hover: #a9162a;
+  --link: #163447;
+  --link-hover: #c51d34;
   --success-bg: #e8f7ef;
   --success-ink: #166534;
+  --danger-button-bg: #b91c1c;
+  --danger-button-hover: #991b1b;
   --danger-bg: #fee2e2;
   --danger-hover: #fecaca;
   --danger-ink: #991b1b;
@@ -31,8 +35,12 @@ body.theme-dark {
   --accent: #e11d48;
   --accent-soft: #3b0a13;
   --accent-hover: #be123c;
+  --link: #93c5fd;
+  --link-hover: #bfdbfe;
   --success-bg: #052e1a;
   --success-ink: #bbf7d0;
+  --danger-button-bg: #991b1b;
+  --danger-button-hover: #7f1d1d;
   --danger-bg: #450a0a;
   --danger-hover: #7f1d1d;
   --danger-ink: #fecaca;
@@ -53,11 +61,12 @@ body {
 }
 
 a {
-  color: var(--brand);
+  color: var(--link);
   text-decoration: none;
 }
 
 a:hover {
+  color: var(--link-hover);
   text-decoration: underline;
 }
 
@@ -439,12 +448,12 @@ button:hover {
 }
 
 .danger-button {
-  background: var(--danger-ink);
+  background: var(--danger-button-bg);
   color: white;
 }
 
 .danger-button:hover {
-  background: var(--danger-hover);
+  background: var(--danger-button-hover);
 }
 
 .compact-button {

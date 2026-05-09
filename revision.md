@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.11 - 5/8/2026
+
+Adjusted dark theme contrast.
+
+- Added separate link colors so URLs remain readable in dark mode.
+- Split delete button background colors from danger text colors.
+- Darkened delete button backgrounds in dark mode while keeping light mode unchanged.
+
 ## v1.1.10 - 5/8/2026
 
 Added member personalization settings.
