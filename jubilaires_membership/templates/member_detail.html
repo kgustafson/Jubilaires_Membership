@@ -3,37 +3,131 @@
 {% block title %}{{ member.first_name }} {{ member.last_name }} - Fairfax Jubil-Aires Membership{% endblock %}
 
 {% block content %}
-<section class="page-heading">
-  {% if member.picture_path %}
-    <img class="profile-photo" src="{{ photo_url(member.picture_path) }}" alt="">
-  {% endif %}
-  <h1>{{ member.first_name }} {{ member.last_name }}</h1>
-  <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
-  {% if can_edit_member %}
-    <a class="button inline-action" href="/members/{{ member.id }}/edit">Edit Member</a>
-  {% endif %}
-</section>
+<section class="member-contact-card">
+  <div class="member-card-identity">
+    {% if member.picture_path %}
+      <img class="member-card-photo" src="{{ photo_url(member.picture_path) }}" alt="">
+    {% else %}
+      <div class="member-card-photo member-card-photo-placeholder" aria-hidden="true">
+        {{ member.first_name[:1] }}{{ member.last_name[:1] }}
+      </div>
+    {% endif %}
+    <div class="member-card-stat">
+      <span>{{ member.part_names or "Part unknown" }}</span>
+      <strong>{{ member.years_active if member.years_active is not none else "N/A" }}</strong>
+      <span>{{ "Year" if member.years_active == 1 else "Years" }}</span>
+    </div>
+  </div>
 
-<section class="detail-grid">
-  <div class="detail-panel">
-    <h2>Profile</h2>
-    {% if member.important_dates %}
-      <dl>
-        {% for date in member.important_dates %}
-          <dt>{{ date.title }}</dt>
-          <dd>
-            {% if date.classification in ["birthday", "anniversary"] %}
+  <div class="member-card-main">
+    <div class="member-card-header">
+      <div>
+        <h1>{{ member.first_name }} {{ member.last_name }}</h1>
+        {% if member.spouse %}
+          <p>{{ member.spouse.first_name }}{% if member.spouse.last_name %} {{ member.spouse.last_name }}{% endif %}</p>
+        {% endif %}
+      </div>
+      {% if can_edit_member %}
+        <a class="button inline-action" href="/members/{{ member.id }}/edit">Edit Member</a>
+      {% endif %}
+    </div>
+
+    <div class="member-card-rule" aria-hidden="true"><span>*</span></div>
+
+    <div class="member-card-rows">
+      {% if member.date_of_birth or (member.spouse and member.spouse.date_of_birth) %}
+        <div class="member-card-row">
+          <span class="member-card-icon" aria-hidden="true">Cal</span>
+          <div class="member-card-row-content member-card-inline-list">
+            <strong>Birthdays</strong>
+            {% if member.date_of_birth %}
+              <span>{{ member.first_name }} {{ member.date_of_birth.strftime("%m/%d") }}</span>
+            {% endif %}
+            {% if member.spouse and member.spouse.date_of_birth %}
+              <span>{{ member.spouse.first_name }} {{ member.spouse.date_of_birth.strftime("%m/%d") }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if member.phones %}
+        <div class="member-card-row">
+          <span class="member-card-icon" aria-hidden="true">Tel</span>
+          <div class="member-card-row-content member-card-inline-list">
+            {% for phone in member.phones %}
+              <span><strong>({{ phone.display_label }})</strong> {{ phone.formatted_phone_number }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if member.primary_address %}
+        <div class="member-card-row">
+          <span class="member-card-icon" aria-hidden="true">Loc</span>
+          <address class="member-card-row-content member-card-address">
+            {% for line in member.primary_address.formatted_lines %}
+              {{ line }}{% if not loop.last %}<br>{% endif %}
+            {% endfor %}
+          </address>
+        </div>
+      {% endif %}
+
+      {% if member.emails %}
+        <div class="member-card-row">
+          <span class="member-card-icon" aria-hidden="true">Mail</span>
+          <div class="member-card-row-content member-card-email-list">
+            {% for email in member.emails %}
+              <div>
+                <strong>{{ email.label or ("Primary" if email.is_primary else "Email") }}:</strong>
+                <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="member-card-dates">
+      {% for date in member.important_dates %}
+        {% if date.classification != "birthday" %}
+          <span>
+            <strong>{{ date.title }}</strong>
+            {% if date.classification == "anniversary" %}
               {{ date.important_date.strftime("%m/%d") }}
             {% else %}
               {{ date.important_date.strftime("%m/%d/%Y") }}
             {% endif %}
-          </dd>
-        {% endfor %}
-      </dl>
-    {% else %}
-      <p>No important dates listed.</p>
-    {% endif %}
+          </span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="member-card-footer">
+      <div class="member-card-summary">
+        <span class="member-card-summary-icon" aria-hidden="true">Q</span>
+        <div>
+          <strong>Quartets</strong>
+          <span>
+            {% if member.active_quartets %}
+              {% for quartet in member.active_quartets %}{{ quartet.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+            {% else %}
+              None Currently
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      <div class="member-card-summary">
+        <span class="member-card-summary-icon" aria-hidden="true">S</span>
+        <div>
+          <strong>Status</strong>
+          <span>{{ member.status_code|title if member.status_code else "Unknown" }}</span>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
+
+<section class="detail-grid">
 
   <div class="detail-panel">
     <h2>Family</h2>
@@ -120,39 +214,6 @@
         </form>
       </dialog>
     {% endif %}
-  </div>
-
-  <div class="detail-panel">
-    <h2>Contact</h2>
-    <h3>Phones</h3>
-    <ul>
-      {% for phone in member.phones %}
-        <li>{{ phone.phone_type or "Phone" }}: {{ phone.formatted_phone_number }}</li>
-      {% else %}
-        <li>No phones listed.</li>
-      {% endfor %}
-    </ul>
-    <h3>Email</h3>
-    <ul>
-      {% for email in member.emails %}
-        <li>{{ email.label or "Email" }}: <a href="mailto:{{ email.email_address }}">{{ email.email_address }}</a></li>
-      {% else %}
-        <li>No email listed.</li>
-      {% endfor %}
-    </ul>
-  </div>
-
-  <div class="detail-panel">
-    <h2>Address</h2>
-    {% for address in member.addresses %}
-      <p class="mailing-address">
-        {% for line in address.formatted_lines %}
-          {{ line }}{% if not loop.last %}<br>{% endif %}
-        {% endfor %}
-      </p>
-    {% else %}
-      <p>No address listed.</p>
-    {% endfor %}
   </div>
 
   <div class="detail-panel">

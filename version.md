@@ -1,6 +1,6 @@
 # Version
 
-v1.1.19
+v1.1.20
 
 ## Versioning
 
@@ -12,6 +12,6 @@ This project uses major.minor.revision version numbers.
 
 Each committed project change should increment the revision number unless the change intentionally bumps the major or minor version.
 
-Every versioned change should also be tagged in Git with the matching version number, such as `v1.1.19`.
+Every versioned change should also be tagged in Git with the matching version number, such as `v1.1.20`.
 
 Revision details are tracked in `revision.md` with newest versions first.

@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.20 - 5/8/2026
+
+Reworked the member detail page into a contact-card layout.
+
+- Replaced the old top member detail heading/profile/contact/address panels with a single member contact card.
+- Added spouse-only subtitle display, large member photo, voice part, derived years active, birthday, phone, address, email, quartet, and status sections.
+- Kept additional populated important dates visible inside the card.
+- Added responsive and dark-theme styling for the new contact card.
+
 ## v1.1.19 - 5/8/2026
 
 Normalized phone number display.

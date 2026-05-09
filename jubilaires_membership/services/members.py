@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from typing import Optional
 
 from jubilaires_membership import db
@@ -58,6 +59,19 @@ def format_phone_number(value: str | None) -> str:
     if len(digits) == 11 and digits.startswith("1"):
         return f"({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
     return phone
+
+
+def phone_display_label(phone: dict) -> str:
+    label = (phone.get("label") or phone.get("phone_type") or "").strip().lower()
+    if label in {"cell", "mobile", "c"}:
+        return "C"
+    if label in {"home", "h"}:
+        return "H"
+    if label in {"work", "w"}:
+        return "W"
+    if label in {"office", "o"}:
+        return "O"
+    return (phone.get("phone_type") or phone.get("label") or "Phone").strip().upper()
 
 
 def important_dates_for_member(member_id: int) -> dict[str, dict]:
@@ -170,6 +184,17 @@ def apply_family_date_fields(person: dict) -> None:
     for field, (classification, _title) in FAMILY_DATE_FIELDS.items():
         row = dates_by_classification.get(classification)
         person[field] = row["important_date"] if row else person.get(field)
+
+
+def years_active(member: dict) -> int | None:
+    start_date = member.get("membership_start_date")
+    if not start_date:
+        return None
+    end_date = member.get("inactive_date") or date.today()
+    years = end_date.year - start_date.year
+    if (end_date.month, end_date.day) < (start_date.month, start_date.day):
+        years -= 1
+    return max(0, years)
 
 
 def formatted_address_lines(address: dict) -> list[str]:
@@ -363,6 +388,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     if not member:
         return None
     apply_member_date_fields(member)
+    member["years_active"] = years_active(member)
 
     member["phones"] = db.fetch_all(
         "SELECT * FROM member_phone WHERE member_id = :member_id ORDER BY is_primary DESC, id",
@@ -370,6 +396,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     )
     for phone in member["phones"]:
         phone["formatted_phone_number"] = format_phone_number(phone.get("phone_number"))
+        phone["display_label"] = phone_display_label(phone)
     member["voice_parts"] = db.fetch_all(
         """
         SELECT vp.*, mvp.is_primary, mvp.notes
@@ -405,12 +432,19 @@ def member_detail(member_id: int) -> Optional[dict]:
     for person in member["family"]:
         apply_family_date_fields(person)
         person["formatted_phone_number"] = format_phone_number(person.get("phone_number"))
+    member["spouse"] = next(
+        (person for person in member["family"] if (person.get("relationship") or "").lower() == "spouse"),
+        None,
+    )
     member["addresses"] = db.fetch_all(
         "SELECT * FROM member_address WHERE member_id = :member_id ORDER BY is_primary DESC, id",
         {"member_id": member_id},
     )
     for address in member["addresses"]:
         address["formatted_lines"] = formatted_address_lines(address)
+    member["primary_phone"] = member["phones"][0] if member["phones"] else None
+    member["primary_email"] = member["emails"][0] if member["emails"] else None
+    member["primary_address"] = member["addresses"][0] if member["addresses"] else None
     member["quartets"] = db.fetch_all(
         """
         SELECT
@@ -434,6 +468,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     )
     member["voice_part_ids"] = [part["id"] for part in member["voice_parts"]]
     member["quartets_by_id"] = {quartet["id"]: quartet for quartet in member["quartets"]}
+    member["active_quartets"] = [quartet for quartet in member["quartets"] if quartet["is_active"]]
     member["leadership_roles"] = db.fetch_all(
         """
         SELECT
