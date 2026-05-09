@@ -48,7 +48,7 @@
             <small>
               {{ person.relationship|title }}
               {% if person.date_of_birth %} · Born {{ person.date_of_birth.strftime("%m/%d") }}{% endif %}
-              {% if person.phone_number %} · {{ person.phone_number }}{% endif %}
+              {% if person.phone_number %} · {{ person.formatted_phone_number }}{% endif %}
               {% if person.email_address %} · <a href="mailto:{{ person.email_address }}">{{ person.email_address }}</a>{% endif %}
             </small>
           </span>
@@ -127,7 +127,7 @@
     <h3>Phones</h3>
     <ul>
       {% for phone in member.phones %}
-        <li>{{ phone.phone_type or "Phone" }}: {{ phone.phone_number }}</li>
+        <li>{{ phone.phone_type or "Phone" }}: {{ phone.formatted_phone_number }}</li>
       {% else %}
         <li>No phones listed.</li>
       {% endfor %}

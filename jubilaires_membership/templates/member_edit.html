@@ -93,7 +93,7 @@
       </div>
       <div class="field-summary">
         <strong>Phones:</strong>
-        <span data-phone-summary-list>{{ member.phones|map(attribute='phone_number')|join(', ') if member.phones else "None" }}</span>
+        <span data-phone-summary-list>{{ member.phones|map(attribute='formatted_phone_number')|join(', ') if member.phones else "None" }}</span>
       </div>
       <div class="field-summary">
         <strong>Addresses:</strong>
@@ -490,7 +490,7 @@
           <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="phone">
             <input type="hidden" name="phone_row_keys" value="{{ key }}">
             <div class="list-detail-display">
-              <strong data-list-display-primary>{{ phone.phone_number }}</strong>
+              <strong data-list-display-primary>{{ phone.formatted_phone_number }}</strong>
               <span data-list-display-secondary>{% if phone.is_primary %}Primary{% else %}Secondary{% endif %}{% if phone.phone_type %} · {{ phone.phone_type }}{% endif %}{% if phone.label %} · {{ phone.label }}{% endif %}</span>
             </div>
             <div class="list-detail-fields" hidden>

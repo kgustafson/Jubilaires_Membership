@@ -372,6 +372,17 @@
 
   const selectedText = (select) => select?.selectedOptions[0]?.textContent?.trim() || "";
   const checkedLabel = (checkbox) => (checkbox?.checked ? "Primary" : "Secondary");
+  const formatPhoneNumber = (value) => {
+    const phone = value.trim();
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    if (digits.length === 11 && digits.startsWith("1")) {
+      return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    return phone;
+  };
 
   const refreshListSummary = (kind) => {
     const summary = document.querySelector(`[data-${kind}-summary-list]`);
@@ -423,7 +434,7 @@
       const type = row.querySelector("[data-phone-type]")?.value.trim();
       const label = row.querySelector("[data-phone-label]")?.value.trim();
       const isPrimary = row.querySelector("[data-phone-primary]");
-      primary.textContent = number;
+      primary.textContent = number === "New phone" ? number : formatPhoneNumber(number);
       secondary.textContent = [checkedLabel(isPrimary), type, label].filter(Boolean).join(" · ");
     }
 

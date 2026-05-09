@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.19 - 5/8/2026
+
+Normalized phone number display.
+
+- Added shared phone display formatting for 10-digit and leading-1 11-digit numbers.
+- Applied formatted phone display to member detail phones and family member phones.
+- Applied formatted phone display to member edit phone summaries and modal rows.
+- Kept non-standard phone values unchanged.
+
 ## v1.1.18 - 5/8/2026
 
 Cleaned up member detail family and date display.

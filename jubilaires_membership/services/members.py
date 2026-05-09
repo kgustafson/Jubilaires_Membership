@@ -50,6 +50,16 @@ def optional_bool(value: str | None) -> bool:
     return value in {"1", "true", "on", "yes"}
 
 
+def format_phone_number(value: str | None) -> str:
+    phone = (value or "").strip()
+    digits = "".join(char for char in phone if char.isdigit())
+    if len(digits) == 10:
+        return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    if len(digits) == 11 and digits.startswith("1"):
+        return f"({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
+    return phone
+
+
 def important_dates_for_member(member_id: int) -> dict[str, dict]:
     rows = db.fetch_all(
         """
@@ -358,6 +368,8 @@ def member_detail(member_id: int) -> Optional[dict]:
         "SELECT * FROM member_phone WHERE member_id = :member_id ORDER BY is_primary DESC, id",
         {"member_id": member_id},
     )
+    for phone in member["phones"]:
+        phone["formatted_phone_number"] = format_phone_number(phone.get("phone_number"))
     member["voice_parts"] = db.fetch_all(
         """
         SELECT vp.*, mvp.is_primary, mvp.notes
@@ -392,6 +404,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     )
     for person in member["family"]:
         apply_family_date_fields(person)
+        person["formatted_phone_number"] = format_phone_number(person.get("phone_number"))
     member["addresses"] = db.fetch_all(
         "SELECT * FROM member_address WHERE member_id = :member_id ORDER BY is_primary DESC, id",
         {"member_id": member_id},
@@ -780,6 +793,7 @@ def family_member(member_id: int, family_id: int) -> Optional[dict]:
     )
     if person:
         apply_family_date_fields(person)
+        person["formatted_phone_number"] = format_phone_number(person.get("phone_number"))
     return person
 
 
