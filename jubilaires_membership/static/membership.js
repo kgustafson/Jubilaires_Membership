@@ -385,7 +385,10 @@
       .map((row) => {
         const primary = row.querySelector("[data-list-display-primary]")?.textContent?.trim();
         const secondary = row.querySelector("[data-list-display-secondary]")?.textContent?.trim();
-        return kind === "date" && primary && secondary && secondary !== "Choose a date" ? `${primary}: ${secondary}` : primary;
+        if (kind === "date") {
+          return primary && !primary.startsWith("Select ") && secondary && secondary !== "Choose a date" ? `${primary}: ${secondary}` : "";
+        }
+        return primary;
       })
       .filter((value) => value && !value.startsWith("New ") && !value.startsWith("Select "));
     summary.textContent = values.length ? values.join(kind === "address" ? "\n\n" : ", ") : "None";

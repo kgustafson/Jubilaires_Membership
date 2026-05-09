@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.15 - 5/8/2026
+
+Cleaned up member edit date summaries.
+
+- Kept incomplete important date rows out of the main member edit date summary.
+- Required both a date type and actual date value before a date appears on the main edit page.
+
 ## v1.1.14 - 5/8/2026
 
 Reworked member edit date management.
