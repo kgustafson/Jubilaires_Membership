@@ -1,5 +1,14 @@
 # Revision History
 
+## v1.1.17 - 5/8/2026
+
+Added family member phone numbers.
+
+- Added a `phone_number` field to family member records.
+- Added phone input fields to family add and edit workflows.
+- Displayed family phone numbers on the member detail family list.
+- Added a database migration for existing installations.
+
 ## v1.1.16 - 5/8/2026
 
 Cleaned up member detail date display.

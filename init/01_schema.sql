@@ -78,9 +78,10 @@ CREATE TABLE member_family (
     relationship    VARCHAR(40) NOT NULL CHECK (relationship IN (
                         'spouse','partner','son','daughter','brother','sister',
                         'father','mother','child','parent','family','other'
-                    )),
+    )),
     date_of_birth  DATE,
     email_address   VARCHAR(254),
+    phone_number    VARCHAR(40),
     picture_path    TEXT,
     notes           TEXT,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),

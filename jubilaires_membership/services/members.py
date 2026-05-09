@@ -729,6 +729,7 @@ def add_family_member(
     relationship: str,
     date_of_birth: str,
     email_address: str,
+    phone_number: str,
     picture_path: str,
     notes: str,
 ) -> None:
@@ -738,11 +739,11 @@ def add_family_member(
         """
         INSERT INTO member_family (
             member_id, first_name, last_name, relationship,
-            date_of_birth, email_address, picture_path, notes
+            date_of_birth, email_address, phone_number, picture_path, notes
         )
         VALUES (
             :member_id, :first_name, :last_name, :relationship,
-            :date_of_birth, :email_address, :picture_path, :notes
+            :date_of_birth, :email_address, :phone_number, :picture_path, :notes
         )
         RETURNING id
         """,
@@ -753,6 +754,7 @@ def add_family_member(
             "relationship": normalized_relationship,
             "date_of_birth": birth_date,
             "email_address": email_address.strip() or None,
+            "phone_number": phone_number.strip() or None,
             "picture_path": picture_path.strip() or None,
             "notes": notes.strip() or None,
         },
@@ -789,6 +791,7 @@ def update_family_member(
     relationship: str,
     date_of_birth: str,
     email_address: str,
+    phone_number: str,
     picture_path: str,
     notes: str,
 ) -> None:
@@ -803,6 +806,7 @@ def update_family_member(
             relationship = :relationship,
             date_of_birth = :date_of_birth,
             email_address = :email_address,
+            phone_number = :phone_number,
             picture_path = :picture_path,
             notes = :notes,
             updated_at = now()
@@ -817,6 +821,7 @@ def update_family_member(
             "relationship": normalized_relationship,
             "date_of_birth": birth_date,
             "email_address": email_address.strip() or None,
+            "phone_number": phone_number.strip() or None,
             "picture_path": picture_path.strip() or None,
             "notes": notes.strip() or None,
         },

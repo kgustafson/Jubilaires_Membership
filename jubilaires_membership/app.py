@@ -661,6 +661,7 @@ async def add_member_family(request: Request, member_id: int):
         relationship=form.get("relationship") or "other",
         date_of_birth=form.get("date_of_birth") or "",
         email_address=form.get("email_address") or "",
+        phone_number=form.get("phone_number") or "",
         picture_path=form.get("picture_path") or "",
         notes=form.get("notes") or "",
     )
@@ -710,6 +711,7 @@ async def update_member_family(request: Request, member_id: int, family_id: int)
         relationship=form.get("relationship") or "other",
         date_of_birth=form.get("date_of_birth") or "",
         email_address=form.get("email_address") or "",
+        phone_number=form.get("phone_number") or "",
         picture_path=form.get("picture_path") or "",
         notes=form.get("notes") or "",
     )

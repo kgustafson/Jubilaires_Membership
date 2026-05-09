@@ -42,6 +42,7 @@
             <small>
               {{ person.relationship|title }}
               {% if person.date_of_birth %} · Born {{ person.date_of_birth }}{% endif %}
+              {% if person.phone_number %} · {{ person.phone_number }}{% endif %}
               {% if person.email_address %} · <a href="mailto:{{ person.email_address }}">{{ person.email_address }}</a>{% endif %}
             </small>
           </span>
@@ -79,6 +80,10 @@
           <label>
             Email
             <input type="email" name="email_address">
+          </label>
+          <label>
+            Phone
+            <input name="phone_number">
           </label>
           <label>
             Date of Birth
