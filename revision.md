@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.1.10 - 5/8/2026
+
+Added member personalization settings.
+
+- Added a user theme preference with light as the default.
+- Added a light/dark style selector to the My Account page.
+- Applied the selected style through the base page layout.
+- Added a dark theme using a mainly black background with light text and dark panels.
+- Marked the personalization todo complete.
+
 ## v1.1.9 - 5/8/2026
 
 Fixed address formatting on the member edit page.

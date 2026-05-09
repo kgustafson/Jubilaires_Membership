@@ -16,6 +16,7 @@ from jubilaires_membership import db
 
 
 ROLES = {"member", "administrator"}
+THEME_PREFERENCES = {"light", "dark"}
 TOTP_ISSUER = "Fairfax Jubil-Aires"
 
 
@@ -42,6 +43,11 @@ def normalize_email(email: str) -> str:
 
 def normalize_username(username: str) -> str:
     return username.strip().lower()
+
+
+def normalize_theme_preference(theme_preference: str) -> str:
+    value = theme_preference.strip().lower()
+    return value if value in THEME_PREFERENCES else "light"
 
 
 def user_by_id(user_id: int) -> Optional[dict]:
@@ -279,13 +285,22 @@ def set_password(user_id: int, password: str) -> None:
     )
 
 
-def update_account(user_id: int, first_name: str, last_name: str, email: str, username: str, password: str = "") -> None:
+def update_account(
+    user_id: int,
+    first_name: str,
+    last_name: str,
+    email: str,
+    username: str,
+    theme_preference: str,
+    password: str = "",
+) -> None:
     params = {
         "user_id": user_id,
         "first_name": first_name.strip(),
         "last_name": last_name.strip(),
         "email": normalize_email(email),
         "username": normalize_username(username),
+        "theme_preference": normalize_theme_preference(theme_preference),
     }
     password_sql = ""
     if password:
@@ -298,6 +313,7 @@ def update_account(user_id: int, first_name: str, last_name: str, email: str, us
             last_name = :last_name,
             email = :email,
             username = :username,
+            theme_preference = :theme_preference,
             updated_at = now()
             {password_sql}
         WHERE id = :user_id

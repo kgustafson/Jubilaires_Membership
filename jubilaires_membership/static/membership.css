@@ -3,12 +3,41 @@
   --muted: #64748b;
   --line: #d8e0e8;
   --panel: #ffffff;
+  --panel-soft: #f8fafc;
   --bg: #f5f7f9;
   --brand: #163447;
   --brand-soft: #e7eef2;
   --accent: #c51d34;
   --accent-soft: #fde8ec;
+  --accent-hover: #a9162a;
+  --success-bg: #e8f7ef;
+  --success-ink: #166534;
+  --danger-bg: #fee2e2;
+  --danger-hover: #fecaca;
+  --danger-ink: #991b1b;
+  --disabled-ink: #9aa8b6;
   --shadow: 0 10px 24px rgba(22, 52, 71, .08);
+}
+
+body.theme-dark {
+  --ink: #f8fafc;
+  --muted: #cbd5e1;
+  --line: #334155;
+  --panel: #111827;
+  --panel-soft: #1e293b;
+  --bg: #020617;
+  --brand: #050b16;
+  --brand-soft: #1e293b;
+  --accent: #e11d48;
+  --accent-soft: #3b0a13;
+  --accent-hover: #be123c;
+  --success-bg: #052e1a;
+  --success-ink: #bbf7d0;
+  --danger-bg: #450a0a;
+  --danger-hover: #7f1d1d;
+  --danger-ink: #fecaca;
+  --disabled-ink: #64748b;
+  --shadow: 0 12px 32px rgba(0, 0, 0, .42);
 }
 
 * {
@@ -172,7 +201,7 @@ a:hover {
 }
 
 .sidebar {
-  background: #ffffff;
+  background: var(--panel);
   border-right: 1px solid var(--line);
   padding: 24px 16px;
 }
@@ -210,7 +239,7 @@ a:hover {
 }
 
 .sidebar-link.disabled {
-  color: #9aa8b6;
+  color: var(--disabled-ink);
   cursor: default;
 }
 
@@ -391,7 +420,7 @@ button {
 
 .button:hover,
 button:hover {
-  background: #a9162a;
+  background: var(--accent-hover);
   text-decoration: none;
 }
 
@@ -406,16 +435,16 @@ button:hover {
 }
 
 .secondary-button:hover {
-  background: #d9e4ea;
+  background: var(--line);
 }
 
 .danger-button {
-  background: #b91c1c;
+  background: var(--danger-ink);
   color: white;
 }
 
 .danger-button:hover {
-  background: #991b1b;
+  background: var(--danger-hover);
 }
 
 .compact-button {
@@ -452,7 +481,7 @@ button:hover {
 }
 
 .data-table th {
-  background: #f8fafc;
+  background: var(--panel-soft);
   color: var(--muted);
   font-size: 12px;
   letter-spacing: .04em;
@@ -480,7 +509,7 @@ button:hover {
 }
 
 .sort-button::after {
-  color: #9aa8b6;
+  color: var(--disabled-ink);
   content: "-";
   font-size: 12px;
   margin-left: auto;
@@ -497,7 +526,7 @@ button:hover {
 }
 
 .data-table tbody tr:hover {
-  background: #fbfdff;
+  background: var(--panel-soft);
 }
 
 .empty-state {
@@ -507,7 +536,7 @@ button:hover {
 }
 
 .page-version {
-  color: #8a99a8;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 650;
   margin-top: 16px;
@@ -533,12 +562,18 @@ button:hover {
 
 input,
 select {
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 6px;
   color: var(--ink);
   font: inherit;
   min-height: 39px;
   padding: 8px 10px;
+}
+
+textarea {
+  background: var(--panel);
+  color: var(--ink);
 }
 
 input:focus,
@@ -762,7 +797,7 @@ textarea {
 }
 
 .manual-secret {
-  background: #f8fafc;
+  background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: 8px;
   margin: 12px 0;
@@ -785,7 +820,7 @@ textarea {
 }
 
 .recovery-code-list li {
-  background: #f8fafc;
+  background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: 6px;
   font-weight: 800;
@@ -804,12 +839,12 @@ textarea {
 
 .form-error {
   background: var(--accent-soft);
-  color: #9f1239;
+  color: var(--accent);
 }
 
 .success-message {
-  background: #e8f7ef;
-  color: #166534;
+  background: var(--success-bg);
+  color: var(--success-ink);
 }
 
 .edit-dialog {
@@ -1144,7 +1179,7 @@ textarea {
 }
 
 .quartet-photo-placeholder {
-  background: linear-gradient(135deg, #eef4f7, #f8fafc);
+  background: linear-gradient(135deg, var(--brand-soft), var(--panel-soft));
   border: 1px dashed var(--line);
 }
 
@@ -1240,12 +1275,12 @@ textarea {
 }
 
 .danger-icon-button {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger-ink);
 }
 
 .danger-icon-button:hover {
-  background: #fecaca;
+  background: var(--danger-hover);
 }
 
 .contact-summary-photo {
@@ -1376,7 +1411,7 @@ textarea {
 
 .photo-preview-frame {
   align-items: center;
-  background: #f8fafc;
+  background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: 8px;
   display: flex;
@@ -1455,7 +1490,7 @@ textarea {
 }
 
 .assignment-pill.unassigned {
-  background: #f1f5f9;
+  background: var(--panel-soft);
   color: var(--muted);
 }
 

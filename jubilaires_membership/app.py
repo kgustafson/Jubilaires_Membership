@@ -243,18 +243,20 @@ async def update_account(request: Request):
         return RedirectResponse(url="/login?next=/account", status_code=303)
     form = await request.form()
     values = {key: (form.get(key) or "").strip() for key in ("first_name", "last_name", "email", "username")}
+    theme_preference = auth.normalize_theme_preference(form.get("theme_preference") or "light")
+    account_values = {**user, **values, "theme_preference": theme_preference}
     password = form.get("password") or ""
     confirm_password = form.get("confirm_password") or ""
     if not all(values.values()):
-        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="First name, last name, email, and username are required."))
+        return templates.TemplateResponse(request, "account.html", view_context(request, account=account_values, error="First name, last name, email, and username are required."))
     if auth.email_exists_for_other_user(values["email"], user["id"]):
-        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="That email is already used by another account."))
+        return templates.TemplateResponse(request, "account.html", view_context(request, account=account_values, error="That email is already used by another account."))
     if auth.username_exists_for_other_user(values["username"], user["id"]):
-        return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="That username already exists. Choose another username."))
+        return templates.TemplateResponse(request, "account.html", view_context(request, account=account_values, error="That username already exists. Choose another username."))
     if password or confirm_password:
         if not password or password != confirm_password:
-            return templates.TemplateResponse(request, "account.html", view_context(request, account={**user, **values}, error="Passwords do not match."))
-    auth.update_account(user["id"], values["first_name"], values["last_name"], values["email"], values["username"], password)
+            return templates.TemplateResponse(request, "account.html", view_context(request, account=account_values, error="Passwords do not match."))
+    auth.update_account(user["id"], values["first_name"], values["last_name"], values["email"], values["username"], theme_preference, password)
     return RedirectResponse(url="/account?saved=1", status_code=303)
 
 

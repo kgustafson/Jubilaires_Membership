@@ -33,6 +33,16 @@
       <input name="username" autocomplete="username" value="{{ account.username }}" required>
     </label>
     <div class="form-section">
+      <h3>Personalization</h3>
+      <label>
+        Style
+        <select name="theme_preference">
+          <option value="light" {% if (account.theme_preference or "light") == "light" %}selected{% endif %}>Light</option>
+          <option value="dark" {% if account.theme_preference == "dark" %}selected{% endif %}>Dark</option>
+        </select>
+      </label>
+    </div>
+    <div class="form-section">
       <h3>Change Password</h3>
       <div class="form-grid">
         <label>
