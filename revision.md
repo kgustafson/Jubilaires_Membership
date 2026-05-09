@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.24 - 5/9/2026
+
+Committed updated roster photos.
+
+- Added the latest updates for roster photos `054-image54.jpg` and `069-image69.jpg`.
+- Preserved the revised image assets as part of the versioned project history.
+
 ## v1.1.23 - 5/9/2026
 
 Handled duplicate member names during member edit saves.
