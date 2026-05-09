@@ -17,18 +17,16 @@
 <section class="detail-grid">
   <div class="detail-panel">
     <h2>Profile</h2>
-    <dl>
-      <dt>Start Date</dt>
-      <dd>{{ member.membership_start_date or "Not listed" }}</dd>
-      <dt>Inactive Date</dt>
-      <dd>{{ member.inactive_date or "Not listed" }}</dd>
-      <dt>Date of Birth</dt>
-      <dd>{{ member.date_of_birth or "Not listed" }}</dd>
-      <dt>Date of Death</dt>
-      <dd>{{ member.date_of_death or "Not listed" }}</dd>
-      <dt>Anniversary</dt>
-      <dd>{{ member.anniversary_date or "Not listed" }}</dd>
-    </dl>
+    {% if member.important_dates %}
+      <dl>
+        {% for date in member.important_dates %}
+          <dt>{{ date.title }}</dt>
+          <dd>{{ date.important_date }}</dd>
+        {% endfor %}
+      </dl>
+    {% else %}
+      <p>No important dates listed.</p>
+    {% endif %}
   </div>
 
   <div class="detail-panel">

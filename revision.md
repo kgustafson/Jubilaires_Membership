@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.16 - 5/8/2026
+
+Cleaned up member detail date display.
+
+- Changed the member detail Profile panel to list only populated important dates.
+- Added a simple fallback when no important dates are listed for a member.
+
 ## v1.1.15 - 5/8/2026
 
 Cleaned up member edit date summaries.
