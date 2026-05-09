@@ -178,6 +178,36 @@ CREATE TABLE member_role_assignment (
     imported_at         TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE important_date (
+    id                  SERIAL PRIMARY KEY,
+    important_date      DATE NOT NULL,
+    title               VARCHAR(120) NOT NULL,
+    classification      VARCHAR(40) NOT NULL CHECK (classification IN (
+                            'birthday',
+                            'anniversary',
+                            'deceased',
+                            'inactive',
+                            'membership_start'
+                        )),
+    member_id           INT REFERENCES member(id) ON DELETE CASCADE,
+    family_member_id    INT REFERENCES member_family(id) ON DELETE CASCADE,
+    notes               TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (
+        (member_id IS NOT NULL AND family_member_id IS NULL)
+        OR (member_id IS NULL AND family_member_id IS NOT NULL)
+    )
+);
+
+CREATE UNIQUE INDEX idx_important_date_member_classification
+ON important_date(member_id, classification)
+WHERE member_id IS NOT NULL;
+
+CREATE UNIQUE INDEX idx_important_date_family_classification
+ON important_date(family_member_id, classification)
+WHERE family_member_id IS NOT NULL;
+
 CREATE TABLE roster_source (
     id              SERIAL PRIMARY KEY,
     source_name     VARCHAR(200) NOT NULL,

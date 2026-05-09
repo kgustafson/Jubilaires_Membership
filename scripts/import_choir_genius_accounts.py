@@ -44,6 +44,59 @@ def parse_date(value: str) -> str | None:
     return None
 
 
+def upsert_important_date(
+    connection,
+    *,
+    classification: str,
+    title: str,
+    important_date: str | None,
+    member_id: int | None = None,
+    family_member_id: int | None = None,
+) -> None:
+    if not important_date:
+        return
+    if member_id is not None:
+        connection.execute(
+            text(
+                """
+                INSERT INTO important_date (member_id, important_date, title, classification)
+                VALUES (:member_id, :important_date, :title, :classification)
+                ON CONFLICT (member_id, classification) WHERE member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """
+            ),
+            {
+                "member_id": member_id,
+                "important_date": important_date,
+                "title": title,
+                "classification": classification,
+            },
+        )
+    elif family_member_id is not None:
+        connection.execute(
+            text(
+                """
+                INSERT INTO important_date (family_member_id, important_date, title, classification)
+                VALUES (:family_member_id, :important_date, :title, :classification)
+                ON CONFLICT (family_member_id, classification) WHERE family_member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """
+            ),
+            {
+                "family_member_id": family_member_id,
+                "important_date": important_date,
+                "title": title,
+                "classification": classification,
+            },
+        )
+
+
 def split_values(value: str) -> list[str]:
     return [part.strip() for part in clean(value).split(",") if part.strip()]
 
@@ -384,6 +437,7 @@ def upsert_spouse(connection, member_id: int, row: dict[str, str]) -> int:
         {"member_id": member_id, "first_name": first_name},
     ).scalar()
     if existing:
+        family_member_id = existing
         connection.execute(
             text(
                 """
@@ -397,11 +451,12 @@ def upsert_spouse(connection, member_id: int, row: dict[str, str]) -> int:
             {"id": existing, "last_name": last_name, "date_of_birth": birth_date},
         )
     else:
-        connection.execute(
+        family_member_id = connection.execute(
             text(
                 """
                 INSERT INTO member_family (member_id, first_name, last_name, relationship, date_of_birth, notes)
                 VALUES (:member_id, :first_name, :last_name, 'spouse', :date_of_birth, :notes)
+                RETURNING id
                 """
             ),
             {
@@ -411,7 +466,14 @@ def upsert_spouse(connection, member_id: int, row: dict[str, str]) -> int:
                 "date_of_birth": birth_date,
                 "notes": f"Imported from {SOURCE_SYSTEM} spouse field.",
             },
-        )
+        ).scalar_one()
+    upsert_important_date(
+        connection,
+        family_member_id=family_member_id,
+        important_date=birth_date,
+        title="Birthday",
+        classification="birthday",
+    )
     return 1
 
 
@@ -533,6 +595,27 @@ def import_csv(path: Path) -> dict[str, int]:
             )
             if membership_start_date or date_of_birth or anniversary_date:
                 summary["dates_updated"] += 1
+            upsert_important_date(
+                connection,
+                member_id=member_id,
+                important_date=membership_start_date,
+                title="Membership Start",
+                classification="membership_start",
+            )
+            upsert_important_date(
+                connection,
+                member_id=member_id,
+                important_date=date_of_birth,
+                title="Birthday",
+                classification="birthday",
+            )
+            upsert_important_date(
+                connection,
+                member_id=member_id,
+                important_date=anniversary_date,
+                title="Anniversary",
+                classification="anniversary",
+            )
 
             summary["emails_replaced"] += replace_emails(connection, member_id, row)
             summary["phones_replaced"] += replace_phones(connection, member_id, row)

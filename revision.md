@@ -1,5 +1,16 @@
 # Revision History
 
+## v1.1.13 - 5/8/2026
+
+Refactored fielded dates into an important date table.
+
+- Added the `important_date` table with date, title, classification, and member or family-member targets.
+- Migrated member birth, anniversary, death, inactive, and membership start dates into important dates.
+- Migrated family member birth dates into important dates.
+- Updated member and family date reads/writes to use the important date table as the canonical source.
+- Kept existing edit forms and detail displays compatible while the app moves to the new date model.
+- Marked the important date table todo complete.
+
 ## v1.1.12 - 5/8/2026
 
 Adjusted dark theme date input contrast.

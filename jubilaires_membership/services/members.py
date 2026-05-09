@@ -20,6 +20,18 @@ FAMILY_RELATIONSHIPS = [
     "other",
 ]
 
+MEMBER_DATE_FIELDS = {
+    "membership_start_date": ("membership_start", "Membership Start"),
+    "inactive_date": ("inactive", "Inactive Date"),
+    "date_of_birth": ("birthday", "Birthday"),
+    "date_of_death": ("deceased", "Date of Death"),
+    "anniversary_date": ("anniversary", "Anniversary"),
+}
+
+FAMILY_DATE_FIELDS = {
+    "date_of_birth": ("birthday", "Birthday"),
+}
+
 
 def optional_date(value: str) -> str | None:
     return value.strip() or None
@@ -31,6 +43,118 @@ def optional_int(value: str) -> int | None:
 
 def optional_bool(value: str | None) -> bool:
     return value in {"1", "true", "on", "yes"}
+
+
+def important_dates_for_member(member_id: int) -> dict[str, dict]:
+    rows = db.fetch_all(
+        """
+        SELECT *
+        FROM important_date
+        WHERE member_id = :member_id
+        ORDER BY important_date, id
+        """,
+        {"member_id": member_id},
+    )
+    return {row["classification"]: row for row in rows}
+
+
+def important_dates_for_family(family_member_id: int) -> dict[str, dict]:
+    rows = db.fetch_all(
+        """
+        SELECT *
+        FROM important_date
+        WHERE family_member_id = :family_member_id
+        ORDER BY important_date, id
+        """,
+        {"family_member_id": family_member_id},
+    )
+    return {row["classification"]: row for row in rows}
+
+
+def set_important_date(
+    *,
+    classification: str,
+    title: str,
+    value: str | None,
+    member_id: int | None = None,
+    family_member_id: int | None = None,
+) -> None:
+    normalized = optional_date(value or "")
+    target = {"member_id": member_id, "family_member_id": family_member_id}
+    if normalized:
+        if member_id is not None:
+            db.execute(
+                """
+                INSERT INTO important_date (
+                    important_date, title, classification, member_id, family_member_id
+                )
+                VALUES (
+                    :important_date, :title, :classification, :member_id, :family_member_id
+                )
+                ON CONFLICT (member_id, classification) WHERE member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """,
+                {
+                    **target,
+                    "important_date": normalized,
+                    "title": title,
+                    "classification": classification,
+                },
+            )
+        elif family_member_id is not None:
+            db.execute(
+                """
+                INSERT INTO important_date (
+                    important_date, title, classification, member_id, family_member_id
+                )
+                VALUES (
+                    :important_date, :title, :classification, :member_id, :family_member_id
+                )
+                ON CONFLICT (family_member_id, classification) WHERE family_member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """,
+                {
+                    **target,
+                    "important_date": normalized,
+                    "title": title,
+                    "classification": classification,
+                },
+            )
+        return
+
+    db.execute(
+        """
+        DELETE FROM important_date
+        WHERE classification = :classification
+          AND (
+              (:member_id IS NOT NULL AND member_id = :member_id)
+              OR (:family_member_id IS NOT NULL AND family_member_id = :family_member_id)
+          )
+        """,
+        {**target, "classification": classification},
+    )
+
+
+def apply_member_date_fields(member: dict) -> None:
+    dates_by_classification = important_dates_for_member(member["id"])
+    member["important_dates"] = list(dates_by_classification.values())
+    for field, (classification, _title) in MEMBER_DATE_FIELDS.items():
+        row = dates_by_classification.get(classification)
+        member[field] = row["important_date"] if row else member.get(field)
+
+
+def apply_family_date_fields(person: dict) -> None:
+    dates_by_classification = important_dates_for_family(person["id"])
+    person["important_dates"] = list(dates_by_classification.values())
+    for field, (classification, _title) in FAMILY_DATE_FIELDS.items():
+        row = dates_by_classification.get(classification)
+        person[field] = row["important_date"] if row else person.get(field)
 
 
 def formatted_address_lines(address: dict) -> list[str]:
@@ -120,12 +244,12 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             m.first_name,
             family_summary.family_names,
             CASE
-                WHEN m.membership_start_date IS NULL THEN NULL
+                WHEN start_date.important_date IS NULL THEN NULL
                 ELSE GREATEST(
                     0,
                     date_part(
                         'year',
-                        age(COALESCE(m.inactive_date, CURRENT_DATE), m.membership_start_date)
+                        age(COALESCE(inactive_date.important_date, CURRENT_DATE), start_date.important_date)
                     )::int
                 )
             END AS years_active,
@@ -137,6 +261,20 @@ def member_rows(status: Optional[str] = None, part: Optional[str] = None, search
             login_user.username
         FROM member m
         LEFT JOIN membership_status ms ON ms.id = m.status_id
+        LEFT JOIN LATERAL (
+            SELECT important_date
+            FROM important_date
+            WHERE member_id = m.id
+              AND classification = 'membership_start'
+            LIMIT 1
+        ) start_date ON true
+        LEFT JOIN LATERAL (
+            SELECT important_date
+            FROM important_date
+            WHERE member_id = m.id
+              AND classification = 'inactive'
+            LIMIT 1
+        ) inactive_date ON true
         LEFT JOIN LATERAL (
             SELECT string_agg(vp.part_name, ', ' ORDER BY mvp.is_primary DESC, vp.part_name) AS part_names
             FROM member_voice_part mvp
@@ -209,6 +347,7 @@ def member_detail(member_id: int) -> Optional[dict]:
     )
     if not member:
         return None
+    apply_member_date_fields(member)
 
     member["phones"] = db.fetch_all(
         "SELECT * FROM member_phone WHERE member_id = :member_id ORDER BY is_primary DESC, id",
@@ -246,6 +385,8 @@ def member_detail(member_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id},
     )
+    for person in member["family"]:
+        apply_family_date_fields(person)
     member["addresses"] = db.fetch_all(
         "SELECT * FROM member_address WHERE member_id = :member_id ORDER BY is_primary DESC, id",
         {"member_id": member_id},
@@ -502,6 +643,10 @@ def update_member_role_assignments(member_id: int, assignments: list[dict[str, s
 
 
 def update_member(member_id: int, values: dict[str, str]) -> None:
+    member_dates = {
+        field: optional_date(values.get(field, ""))
+        for field in MEMBER_DATE_FIELDS
+    }
     db.execute(
         """
         UPDATE member
@@ -526,15 +671,22 @@ def update_member(member_id: int, values: dict[str, str]) -> None:
             "last_name": values["last_name"].strip(),
             "preferred_name": values.get("preferred_name", "").strip() or None,
             "status_id": optional_int(values.get("status_id", "")),
-            "membership_start_date": optional_date(values.get("membership_start_date", "")),
-            "inactive_date": optional_date(values.get("inactive_date", "")),
-            "date_of_birth": optional_date(values.get("date_of_birth", "")),
-            "date_of_death": optional_date(values.get("date_of_death", "")),
-            "anniversary_date": optional_date(values.get("anniversary_date", "")),
+            "membership_start_date": member_dates["membership_start_date"],
+            "inactive_date": member_dates["inactive_date"],
+            "date_of_birth": member_dates["date_of_birth"],
+            "date_of_death": member_dates["date_of_death"],
+            "anniversary_date": member_dates["anniversary_date"],
             "picture_path": values.get("picture_path", "").strip() or None,
             "notes": values.get("notes", "").strip() or None,
         },
     )
+    for field, (classification, title) in MEMBER_DATE_FIELDS.items():
+        set_important_date(
+            member_id=member_id,
+            classification=classification,
+            title=title,
+            value=member_dates[field],
+        )
 
 
 def add_family_member(
@@ -549,7 +701,7 @@ def add_family_member(
 ) -> None:
     normalized_relationship = relationship if relationship in FAMILY_RELATIONSHIPS else "other"
     birth_date = date_of_birth.strip() or None
-    db.execute(
+    person = db.fetch_one_write(
         """
         INSERT INTO member_family (
             member_id, first_name, last_name, relationship,
@@ -559,6 +711,7 @@ def add_family_member(
             :member_id, :first_name, :last_name, :relationship,
             :date_of_birth, :email_address, :picture_path, :notes
         )
+        RETURNING id
         """,
         {
             "member_id": member_id,
@@ -571,10 +724,17 @@ def add_family_member(
             "notes": notes.strip() or None,
         },
     )
+    if person:
+        set_important_date(
+            family_member_id=person["id"],
+            classification="birthday",
+            title="Birthday",
+            value=birth_date,
+        )
 
 
 def family_member(member_id: int, family_id: int) -> Optional[dict]:
-    return db.fetch_one(
+    person = db.fetch_one(
         """
         SELECT *
         FROM member_family
@@ -583,6 +743,9 @@ def family_member(member_id: int, family_id: int) -> Optional[dict]:
         """,
         {"member_id": member_id, "family_id": family_id},
     )
+    if person:
+        apply_family_date_fields(person)
+    return person
 
 
 def update_family_member(
@@ -597,6 +760,7 @@ def update_family_member(
     notes: str,
 ) -> None:
     normalized_relationship = relationship if relationship in FAMILY_RELATIONSHIPS else "other"
+    birth_date = optional_date(date_of_birth)
     db.execute(
         """
         UPDATE member_family
@@ -618,11 +782,17 @@ def update_family_member(
             "first_name": first_name.strip(),
             "last_name": last_name.strip() or None,
             "relationship": normalized_relationship,
-            "date_of_birth": optional_date(date_of_birth),
+            "date_of_birth": birth_date,
             "email_address": email_address.strip() or None,
             "picture_path": picture_path.strip() or None,
             "notes": notes.strip() or None,
         },
+    )
+    set_important_date(
+        family_member_id=family_id,
+        classification="birthday",
+        title="Birthday",
+        value=birth_date,
     )
 
 

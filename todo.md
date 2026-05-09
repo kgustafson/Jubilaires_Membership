@@ -15,7 +15,7 @@
 - [x] Add quartet lifecycle fields: active/inactive state, formation date, and deactivation date.
 - [x] Add member roles table for offices and jobs such as president, vice president, co-director, uniform chair, etc.
 - [x] Add many-to-many member role assignments with start date and end date so role history can be tracked over time.
-- [ ] Refactor fielded dates such as birth, anniversary, death, inactive, and membership start into an important date table with date, title, classification, and a target member or family member reference.
+- [x] Refactor fielded dates such as birth, anniversary, death, inactive, and membership start into an important date table with date, title, classification, and a target member or family member reference.
 
 ## Import Cleanup
 

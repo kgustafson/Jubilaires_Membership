@@ -315,6 +315,59 @@ def ensure_lookup(connection, table: str, column: str, value: str) -> int:
     )
 
 
+def upsert_important_date(
+    connection,
+    *,
+    classification: str,
+    title: str,
+    important_date: str | None,
+    member_id: int | None = None,
+    family_member_id: int | None = None,
+) -> None:
+    if not important_date:
+        return
+    if member_id is not None:
+        connection.execute(
+            text(
+                """
+                INSERT INTO important_date (member_id, important_date, title, classification)
+                VALUES (:member_id, :important_date, :title, :classification)
+                ON CONFLICT (member_id, classification) WHERE member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """
+            ),
+            {
+                "member_id": member_id,
+                "important_date": important_date,
+                "title": title,
+                "classification": classification,
+            },
+        )
+    elif family_member_id is not None:
+        connection.execute(
+            text(
+                """
+                INSERT INTO important_date (family_member_id, important_date, title, classification)
+                VALUES (:family_member_id, :important_date, :title, :classification)
+                ON CONFLICT (family_member_id, classification) WHERE family_member_id IS NOT NULL
+                DO UPDATE SET
+                    important_date = EXCLUDED.important_date,
+                    title = EXCLUDED.title,
+                    updated_at = now()
+                """
+            ),
+            {
+                "family_member_id": family_member_id,
+                "important_date": important_date,
+                "title": title,
+                "classification": classification,
+            },
+        )
+
+
 def load_members(members: Iterable[ParsedMember], database_url: str, source_path: Path) -> int:
     engine = create_engine(database_url, pool_pre_ping=True)
     count = 0
@@ -371,6 +424,13 @@ def load_members(members: Iterable[ParsedMember], database_url: str, source_path
                     "notes": f"Roster source #{source_id}\nDates found: {', '.join(member.dates)}\n\n{member.raw_text}",
                     "source_document": str(source_path),
                 },
+            )
+            upsert_important_date(
+                connection,
+                member_id=member_id,
+                important_date=membership_start_date,
+                title="Membership Start",
+                classification="membership_start",
             )
             connection.execute(text("DELETE FROM member_voice_part WHERE member_id = :member_id"), {"member_id": member_id})
             for index, part_id in enumerate(part_ids):
@@ -433,7 +493,7 @@ def load_members(members: Iterable[ParsedMember], database_url: str, source_path
                 )
 
             for family_member in member.family_members:
-                connection.execute(
+                family_member_id = connection.execute(
                     text(
                         """
                         INSERT INTO member_family (
@@ -444,9 +504,17 @@ def load_members(members: Iterable[ParsedMember], database_url: str, source_path
                             :member_id, :first_name, :last_name, :relationship,
                             :date_of_birth, :email_address, :picture_path, :notes
                         )
+                        RETURNING id
                         """
                     ),
                     {"member_id": member_id, **family_member},
+                ).scalar_one()
+                upsert_important_date(
+                    connection,
+                    family_member_id=family_member_id,
+                    important_date=family_member.get("date_of_birth"),
+                    title="Birthday",
+                    classification="birthday",
                 )
 
             if member.raw_address:
