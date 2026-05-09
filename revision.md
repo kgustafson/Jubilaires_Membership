@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.12 - 5/8/2026
+
+Adjusted dark theme date input contrast.
+
+- Enabled dark color scheme handling for form inputs in dark mode.
+- Lightened native date picker calendar icons for WebKit browsers.
+
 ## v1.1.11 - 5/8/2026
 
 Adjusted dark theme contrast.

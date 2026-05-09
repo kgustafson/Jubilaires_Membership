@@ -571,6 +571,7 @@ button:hover {
 
 input,
 select {
+  color-scheme: light;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -578,6 +579,16 @@ select {
   font: inherit;
   min-height: 39px;
   padding: 8px 10px;
+}
+
+body.theme-dark input,
+body.theme-dark select {
+  color-scheme: dark;
+}
+
+body.theme-dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.45);
+  opacity: .9;
 }
 
 textarea {
