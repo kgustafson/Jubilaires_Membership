@@ -9,6 +9,10 @@
   <p>{{ member.part_names or "Part unknown" }}{% if member.status_code %} · {{ member.status_code|title }}{% endif %}</p>
 </section>
 
+{% if error %}
+  <p class="form-error">{{ error }}</p>
+{% endif %}
+
 <form class="edit-surface" action="/members/{{ member.id }}/edit" method="post">
   <section class="detail-panel">
     <h2>Profile</h2>

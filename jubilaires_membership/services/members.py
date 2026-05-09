@@ -721,6 +721,24 @@ def update_member(member_id: int, values: dict[str, str]) -> None:
     )
 
 
+def member_name_conflict(member_id: int, first_name: str, last_name: str) -> dict | None:
+    return db.fetch_one(
+        """
+        SELECT id, first_name, last_name
+        FROM member
+        WHERE lower(first_name) = lower(:first_name)
+          AND lower(last_name) = lower(:last_name)
+          AND id <> :member_id
+        LIMIT 1
+        """,
+        {
+            "member_id": member_id,
+            "first_name": first_name.strip(),
+            "last_name": last_name.strip(),
+        },
+    )
+
+
 def member_date_options() -> list[dict[str, str]]:
     return list(MEMBER_DATE_CLASSIFICATIONS.values())
 

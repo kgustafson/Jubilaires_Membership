@@ -538,16 +538,21 @@ def edit_member_form(request: Request, member_id: int):
     return templates.TemplateResponse(
         request,
         "member_edit.html",
-        view_context(
-            request,
-            member=member,
-            statuses=members.statuses(),
-            voice_parts=members.voice_parts(),
-            quartets=members.quartets(),
-            roles=members.member_roles(),
-            date_options=members.member_date_options(),
-            photo_choices=photos.photo_choices(members.assigned_picture_paths(), member.get("picture_path")),
-        ),
+        member_edit_context(request, member),
+    )
+
+
+def member_edit_context(request: Request, member: dict, **extra: object) -> dict:
+    return view_context(
+        request,
+        member=member,
+        statuses=members.statuses(),
+        voice_parts=members.voice_parts(),
+        quartets=members.quartets(),
+        roles=members.member_roles(),
+        date_options=members.member_date_options(),
+        photo_choices=photos.photo_choices(members.assigned_picture_paths(), member.get("picture_path")),
+        **extra,
     )
 
 
@@ -562,6 +567,24 @@ async def update_member(request: Request, member_id: int):
     last_name = (form.get("last_name") or "").strip()
     if not first_name or not last_name:
         return RedirectResponse(url=f"/members/{member_id}/edit?name_required=1", status_code=303)
+    conflict = members.member_name_conflict(member_id, first_name, last_name)
+    if conflict:
+        member["first_name"] = first_name
+        member["last_name"] = last_name
+        member["preferred_name"] = (form.get("preferred_name") or "").strip() or None
+        return templates.TemplateResponse(
+            request,
+            "member_edit.html",
+            member_edit_context(
+                request,
+                member,
+                error=(
+                    f"{first_name} {last_name} already exists as member #{conflict['id']}. "
+                    "Use a different name or reconcile the duplicate member record first."
+                ),
+            ),
+            status_code=409,
+        )
     members.update_member(member_id, {key: str(form.get(key) or "") for key in form.keys()})
 
     date_rows = []

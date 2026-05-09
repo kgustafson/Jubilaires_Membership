@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.23 - 5/9/2026
+
+Handled duplicate member names during member edit saves.
+
+- Added a duplicate first/last name check before saving member profile changes.
+- Replaced the database uniqueness crash with a friendly edit-page validation message.
+- Reused the member edit page context for validation failures so editing controls still render normally.
+
 ## v1.1.22 - 5/8/2026
 
 Added real icons to the member contact card.
