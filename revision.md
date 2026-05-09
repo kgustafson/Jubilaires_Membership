@@ -1,5 +1,12 @@
 # Revision History
 
+## v1.1.21 - 5/8/2026
+
+Refreshed member detail smoke-test coverage.
+
+- Updated the member detail smoke test to validate the new contact-card layout.
+- Rebuilt the running development app container so the live site serves the latest member detail template and styles.
+
 ## v1.1.20 - 5/8/2026
 
 Reworked the member detail page into a contact-card layout.

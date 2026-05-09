@@ -81,7 +81,7 @@ def test_member_detail_renders_core_sections(admin_client: httpx.Client):
     assert_page(
         admin_client,
         f"/members/{MEMBER_ID}",
-        ["Profile", "Family", "Contact", "Address", "Quartets", "Current Roles", "Prior Roles"],
+        ["member-contact-card", "Birthdays", "Quartets", "Status", "Family", "Current Roles", "Prior Roles"],
     )
 
 
