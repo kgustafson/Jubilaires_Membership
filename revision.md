@@ -1,5 +1,13 @@
 # Revision History
 
+## v1.1.22 - 5/8/2026
+
+Added real icons to the member contact card.
+
+- Replaced text placeholders on the member contact card with inline SVG icons.
+- Added calendar, phone, location, email, quartet, and status icon treatments.
+- Styled the icons to inherit the portal color palette and dark-mode contrast.
+
 ## v1.1.21 - 5/8/2026
 
 Refreshed member detail smoke-test coverage.

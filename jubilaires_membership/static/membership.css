@@ -423,6 +423,27 @@ main {
   width: 44px;
 }
 
+.member-card-icon svg,
+.member-card-summary-icon svg {
+  fill: none;
+  height: 26px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  width: 26px;
+}
+
+.member-card-summary-icon svg {
+  height: 28px;
+  width: 28px;
+}
+
+.member-card-summary-icon polygon {
+  fill: currentColor;
+  stroke-width: 1.6;
+}
+
 .member-card-row-content {
   font-size: 24px;
   line-height: 1.35;

@@ -1,5 +1,49 @@
 {% extends "base.html" %}
 
+{% macro member_card_icon(name) -%}
+  {% if name == "calendar" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M8 2v4"></path>
+      <path d="M16 2v4"></path>
+      <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+      <path d="M3 10h18"></path>
+      <path d="M8 14h.01"></path>
+      <path d="M12 14h.01"></path>
+      <path d="M16 14h.01"></path>
+      <path d="M8 18h.01"></path>
+      <path d="M12 18h.01"></path>
+      <path d="M16 18h.01"></path>
+    </svg>
+  {% elif name == "phone" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.78 19.78 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.78 19.78 0 0 1 2.12 4.2 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.61a2 2 0 0 1-.45 2.11L8 9.7a16 16 0 0 0 6.3 6.3l1.26-1.26a2 2 0 0 1 2.11-.45c.84.28 1.71.48 2.61.6A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  {% elif name == "location" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+  {% elif name == "mail" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+      <path d="m3 7 9 7 9-7"></path>
+    </svg>
+  {% elif name == "group" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 21v-2a4 4 0 0 0-8 0v2"></path>
+      <circle cx="12" cy="9" r="4"></circle>
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      <path d="M2 21v-2a4 4 0 0 1 3-3.87"></path>
+      <path d="M8 3.13a4 4 0 0 0 0 7.75"></path>
+    </svg>
+  {% elif name == "star" %}
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+    </svg>
+  {% endif %}
+{%- endmacro %}
+
 {% block title %}{{ member.first_name }} {{ member.last_name }} - Fairfax Jubil-Aires Membership{% endblock %}
 
 {% block content %}
@@ -37,7 +81,7 @@
     <div class="member-card-rows">
       {% if member.date_of_birth or (member.spouse and member.spouse.date_of_birth) %}
         <div class="member-card-row">
-          <span class="member-card-icon" aria-hidden="true">Cal</span>
+          <span class="member-card-icon">{{ member_card_icon("calendar") }}</span>
           <div class="member-card-row-content member-card-inline-list">
             <strong>Birthdays</strong>
             {% if member.date_of_birth %}
@@ -52,7 +96,7 @@
 
       {% if member.phones %}
         <div class="member-card-row">
-          <span class="member-card-icon" aria-hidden="true">Tel</span>
+          <span class="member-card-icon">{{ member_card_icon("phone") }}</span>
           <div class="member-card-row-content member-card-inline-list">
             {% for phone in member.phones %}
               <span><strong>({{ phone.display_label }})</strong> {{ phone.formatted_phone_number }}</span>
@@ -63,7 +107,7 @@
 
       {% if member.primary_address %}
         <div class="member-card-row">
-          <span class="member-card-icon" aria-hidden="true">Loc</span>
+          <span class="member-card-icon">{{ member_card_icon("location") }}</span>
           <address class="member-card-row-content member-card-address">
             {% for line in member.primary_address.formatted_lines %}
               {{ line }}{% if not loop.last %}<br>{% endif %}
@@ -74,7 +118,7 @@
 
       {% if member.emails %}
         <div class="member-card-row">
-          <span class="member-card-icon" aria-hidden="true">Mail</span>
+          <span class="member-card-icon">{{ member_card_icon("mail") }}</span>
           <div class="member-card-row-content member-card-email-list">
             {% for email in member.emails %}
               <div>
@@ -104,7 +148,7 @@
 
     <div class="member-card-footer">
       <div class="member-card-summary">
-        <span class="member-card-summary-icon" aria-hidden="true">Q</span>
+        <span class="member-card-summary-icon">{{ member_card_icon("group") }}</span>
         <div>
           <strong>Quartets</strong>
           <span>
@@ -117,7 +161,7 @@
         </div>
       </div>
       <div class="member-card-summary">
-        <span class="member-card-summary-icon" aria-hidden="true">S</span>
+        <span class="member-card-summary-icon">{{ member_card_icon("star") }}</span>
         <div>
           <strong>Status</strong>
           <span>{{ member.status_code|title if member.status_code else "Unknown" }}</span>
