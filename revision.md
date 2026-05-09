@@ -1,5 +1,15 @@
 # Revision History
 
+## v1.1.14 - 5/8/2026
+
+Reworked member edit date management.
+
+- Replaced fixed member edit date fields with an Important Dates modal.
+- Listed only dates currently filled for the member.
+- Added add, edit, and delete behavior matching the list/detail modal pattern.
+- Limited new date type choices to classifications not already assigned to the member.
+- Preserved direct date typing and native calendar picker controls.
+
 ## v1.1.13 - 5/8/2026
 
 Refactored fielded dates into an important date table.

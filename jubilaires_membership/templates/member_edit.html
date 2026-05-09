@@ -35,30 +35,28 @@
         </select>
       </label>
       <label>
-        Start Date
-        <input type="date" name="membership_start_date" value="{{ member.membership_start_date or '' }}">
-      </label>
-      <label>
-        Inactive Date
-        <input type="date" name="inactive_date" value="{{ member.inactive_date or '' }}">
-      </label>
-      <label>
-        Date of Birth
-        <input type="date" name="date_of_birth" value="{{ member.date_of_birth or '' }}">
-      </label>
-      <label>
-        Date of Death
-        <input type="date" name="date_of_death" value="{{ member.date_of_death or '' }}">
-      </label>
-      <label>
-        Anniversary
-        <input type="date" name="anniversary_date" value="{{ member.anniversary_date or '' }}">
-      </label>
-      <label>
         Picture Path
         <input name="picture_path" value="{{ member.picture_path or '' }}">
       </label>
     </div>
+    <section class="form-section">
+      <h3>Dates</h3>
+      <div class="assignment-actions">
+        <button type="button" class="secondary-button" data-open-dialog="dates-dialog">Important Dates</button>
+      </div>
+      <div class="field-summary">
+        <strong>Dates:</strong>
+        <span data-date-summary-list>
+          {% if member.important_dates %}
+            {% for date in member.important_dates %}
+              {{ date.title }}: {{ date.important_date }}{% if not loop.last %}; {% endif %}
+            {% endfor %}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+    </section>
     <section class="form-section">
       <h3>Photo</h3>
       <div class="photo-inline">
@@ -238,6 +236,79 @@
           <div class="list-detail-actions">
             <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit quartet">✎</button>
             <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete quartet">x</button>
+          </div>
+        </div>
+      </template>
+      <div class="dialog-actions">
+        <button type="button" data-close-dialog>Done</button>
+      </div>
+    </dialog>
+
+    <dialog class="edit-dialog wide-dialog" id="dates-dialog">
+      <div class="dialog-header">
+        <h3>Important Dates</h3>
+        <button type="button" class="icon-button" data-close-dialog aria-label="Close">x</button>
+      </div>
+      <div class="modal-toolbar">
+        <button type="button" class="secondary-button compact-button" data-add-list-detail-row data-list-detail-target="important-date-list" data-list-detail-template="important-date-template">Add Date</button>
+      </div>
+      <div class="modal-list" id="important-date-list" data-list-detail-list data-list-detail-kind="date">
+        {% for date in member.important_dates %}
+          {% set key = 'existing_' ~ date.id %}
+          <div class="modal-row list-detail-row" data-list-detail-row data-list-detail-kind="date">
+            <input type="hidden" name="important_date_keys" value="{{ key }}">
+            <div class="list-detail-display">
+              <strong data-list-display-primary>{{ date.title }}</strong>
+              <span data-list-display-secondary>{{ date.important_date }}</span>
+            </div>
+            <div class="list-detail-fields" hidden>
+              <label class="wide-field">
+                Date Type
+                <select name="important_date_{{ key }}_classification" data-date-classification>
+                  <option value="">Select date type</option>
+                  {% for option in date_options %}
+                    <option value="{{ option.classification }}" {% if date.classification == option.classification %}selected{% endif %}>{{ option.title }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <label>
+                Date
+                <input type="date" name="important_date_{{ key }}_important_date" value="{{ date.important_date or '' }}" data-important-date>
+              </label>
+            </div>
+            <div class="list-detail-actions">
+              <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit {{ date.title }}">✎</button>
+              <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete {{ date.title }}">x</button>
+            </div>
+          </div>
+        {% endfor %}
+        <p class="empty-state" data-empty-list-detail {% if member.important_dates %}hidden{% endif %}>No important dates.</p>
+      </div>
+      <template id="important-date-template">
+        <div class="modal-row list-detail-row editing" data-list-detail-row data-list-detail-kind="date">
+          <input type="hidden" name="important_date_keys" value="__key__">
+          <div class="list-detail-display">
+            <strong data-list-display-primary>Select date type</strong>
+            <span data-list-display-secondary>Choose a date</span>
+          </div>
+          <div class="list-detail-fields">
+            <label class="wide-field">
+              Date Type
+              <select name="important_date___key___classification" data-date-classification>
+                <option value="">Select date type</option>
+                {% for option in date_options %}
+                  <option value="{{ option.classification }}">{{ option.title }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              Date
+              <input type="date" name="important_date___key___important_date" data-important-date>
+            </label>
+          </div>
+          <div class="list-detail-actions">
+            <button type="button" class="icon-button compact-icon-button" data-edit-list-detail-row aria-label="Edit date">✎</button>
+            <button type="button" class="icon-button danger-icon-button compact-icon-button" data-delete-list-detail-row aria-label="Delete date">x</button>
           </div>
         </div>
       </template>

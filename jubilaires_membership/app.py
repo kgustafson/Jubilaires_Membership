@@ -545,6 +545,7 @@ def edit_member_form(request: Request, member_id: int):
             voice_parts=members.voice_parts(),
             quartets=members.quartets(),
             roles=members.member_roles(),
+            date_options=members.member_date_options(),
             photo_choices=photos.photo_choices(members.assigned_picture_paths(), member.get("picture_path")),
         ),
     )
@@ -562,6 +563,17 @@ async def update_member(request: Request, member_id: int):
     if not first_name or not last_name:
         return RedirectResponse(url=f"/members/{member_id}/edit?name_required=1", status_code=303)
     members.update_member(member_id, {key: str(form.get(key) or "") for key in form.keys()})
+
+    date_rows = []
+    for key in form.getlist("important_date_keys"):
+        date_rows.append(
+            {
+                "classification": form.get(f"important_date_{key}_classification") or "",
+                "important_date": form.get(f"important_date_{key}_important_date") or "",
+            }
+        )
+    members.update_member_important_dates(member_id, date_rows)
+
     voice_part_ids = [int(value) for value in form.getlist("voice_part_ids") if str(value).isdigit()]
     members.update_member_voice_parts(member_id, voice_part_ids)
 

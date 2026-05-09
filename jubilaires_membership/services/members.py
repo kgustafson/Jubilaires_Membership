@@ -28,6 +28,11 @@ MEMBER_DATE_FIELDS = {
     "anniversary_date": ("anniversary", "Anniversary"),
 }
 
+MEMBER_DATE_CLASSIFICATIONS = {
+    classification: {"field": field, "classification": classification, "title": title}
+    for field, (classification, title) in MEMBER_DATE_FIELDS.items()
+}
+
 FAMILY_DATE_FIELDS = {
     "date_of_birth": ("birthday", "Birthday"),
 }
@@ -643,10 +648,6 @@ def update_member_role_assignments(member_id: int, assignments: list[dict[str, s
 
 
 def update_member(member_id: int, values: dict[str, str]) -> None:
-    member_dates = {
-        field: optional_date(values.get(field, ""))
-        for field in MEMBER_DATE_FIELDS
-    }
     db.execute(
         """
         UPDATE member
@@ -655,11 +656,6 @@ def update_member(member_id: int, values: dict[str, str]) -> None:
             last_name = :last_name,
             preferred_name = :preferred_name,
             status_id = :status_id,
-            membership_start_date = :membership_start_date,
-            inactive_date = :inactive_date,
-            date_of_birth = :date_of_birth,
-            date_of_death = :date_of_death,
-            anniversary_date = :anniversary_date,
             picture_path = :picture_path,
             notes = :notes,
             updated_at = now()
@@ -671,22 +667,59 @@ def update_member(member_id: int, values: dict[str, str]) -> None:
             "last_name": values["last_name"].strip(),
             "preferred_name": values.get("preferred_name", "").strip() or None,
             "status_id": optional_int(values.get("status_id", "")),
-            "membership_start_date": member_dates["membership_start_date"],
-            "inactive_date": member_dates["inactive_date"],
-            "date_of_birth": member_dates["date_of_birth"],
-            "date_of_death": member_dates["date_of_death"],
-            "anniversary_date": member_dates["anniversary_date"],
             "picture_path": values.get("picture_path", "").strip() or None,
             "notes": values.get("notes", "").strip() or None,
         },
     )
-    for field, (classification, title) in MEMBER_DATE_FIELDS.items():
+
+
+def member_date_options() -> list[dict[str, str]]:
+    return list(MEMBER_DATE_CLASSIFICATIONS.values())
+
+
+def update_member_important_dates(member_id: int, rows: list[dict[str, str]]) -> None:
+    values_by_classification = {}
+    for row in rows:
+        classification = row.get("classification", "").strip()
+        important_date = optional_date(row.get("important_date", ""))
+        if classification not in MEMBER_DATE_CLASSIFICATIONS or not important_date:
+            continue
+        values_by_classification[classification] = important_date
+
+    db.execute(
+        """
+        DELETE FROM important_date
+        WHERE member_id = :member_id
+          AND classification IN ('birthday', 'anniversary', 'deceased', 'inactive', 'membership_start')
+        """,
+        {"member_id": member_id},
+    )
+    for classification, important_date in values_by_classification.items():
+        metadata = MEMBER_DATE_CLASSIFICATIONS[classification]
         set_important_date(
             member_id=member_id,
             classification=classification,
-            title=title,
-            value=member_dates[field],
+            title=metadata["title"],
+            value=important_date,
         )
+
+    legacy_values = {
+        metadata["field"]: values_by_classification.get(classification)
+        for classification, metadata in MEMBER_DATE_CLASSIFICATIONS.items()
+    }
+    db.execute(
+        """
+        UPDATE member
+        SET membership_start_date = :membership_start_date,
+            inactive_date = :inactive_date,
+            date_of_birth = :date_of_birth,
+            date_of_death = :date_of_death,
+            anniversary_date = :anniversary_date,
+            updated_at = now()
+        WHERE id = :member_id
+        """,
+        {"member_id": member_id, **legacy_values},
+    )
 
 
 def add_family_member(

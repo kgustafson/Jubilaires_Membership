@@ -382,7 +382,11 @@
 
     const rows = [...list.querySelectorAll(`[data-list-detail-row][data-list-detail-kind="${kind}"]`)];
     const values = rows
-      .map((row) => row.querySelector("[data-list-display-primary]")?.textContent?.trim())
+      .map((row) => {
+        const primary = row.querySelector("[data-list-display-primary]")?.textContent?.trim();
+        const secondary = row.querySelector("[data-list-display-secondary]")?.textContent?.trim();
+        return kind === "date" && primary && secondary && secondary !== "Choose a date" ? `${primary}: ${secondary}` : primary;
+      })
       .filter((value) => value && !value.startsWith("New ") && !value.startsWith("Select "));
     summary.textContent = values.length ? values.join(kind === "address" ? "\n\n" : ", ") : "None";
   };
@@ -433,7 +437,36 @@
       secondary.textContent = [checkedLabel(isPrimary), type].filter(Boolean).join(" · ");
     }
 
+    if (kind === "date") {
+      const type = selectedText(row.querySelector("[data-date-classification]")) || "Select date type";
+      const date = row.querySelector("[data-important-date]")?.value.trim() || "Choose a date";
+      primary.textContent = type;
+      secondary.textContent = date;
+    }
+
     refreshListSummary(kind);
+  };
+
+  const refreshDateTypeOptions = () => {
+    const rows = [...document.querySelectorAll('[data-list-detail-row][data-list-detail-kind="date"]')];
+    const selectedValues = rows
+      .map((row) => row.querySelector("[data-date-classification]")?.value)
+      .filter(Boolean);
+    const allValues = [...(rows[0]?.querySelector("[data-date-classification]")?.options || [])]
+      .map((option) => option.value)
+      .filter(Boolean);
+    rows.forEach((row) => {
+      const select = row.querySelector("[data-date-classification]");
+      if (!select) {
+        return;
+      }
+      [...select.options].forEach((option) => {
+        option.disabled = Boolean(option.value) && option.value !== select.value && selectedValues.includes(option.value);
+      });
+    });
+    document.querySelectorAll('[data-add-list-detail-row][data-list-detail-target="important-date-list"]').forEach((button) => {
+      button.disabled = Boolean(allValues.length) && selectedValues.length >= allValues.length;
+    });
   };
 
   const toggleEmptyListDetailState = (list) => {
@@ -448,8 +481,18 @@
     const list = row.closest("[data-list-detail-list]");
 
     row.querySelectorAll("input, select").forEach((input) => {
-      input.addEventListener("input", () => refreshListDetailRow(row));
-      input.addEventListener("change", () => refreshListDetailRow(row));
+      input.addEventListener("input", () => {
+        refreshListDetailRow(row);
+        if (row.dataset.listDetailKind === "date") {
+          refreshDateTypeOptions();
+        }
+      });
+      input.addEventListener("change", () => {
+        refreshListDetailRow(row);
+        if (row.dataset.listDetailKind === "date") {
+          refreshDateTypeOptions();
+        }
+      });
     });
 
     editButton?.addEventListener("click", () => {
@@ -466,9 +509,15 @@
       if (kind) {
         refreshListSummary(kind);
       }
+      if (kind === "date") {
+        refreshDateTypeOptions();
+      }
     });
 
     refreshListDetailRow(row);
+    if (row.dataset.listDetailKind === "date") {
+      refreshDateTypeOptions();
+    }
   };
 
   document.querySelectorAll("[data-list-detail-list]").forEach((list) => {
@@ -498,6 +547,9 @@
       wireListDetailRow(row);
       toggleEmptyListDetailState(list);
       refreshListSummary(row.dataset.listDetailKind);
+      if (row.dataset.listDetailKind === "date") {
+        refreshDateTypeOptions();
+      }
       row.querySelector("input, select")?.focus();
     });
   });
